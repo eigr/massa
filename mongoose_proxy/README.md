@@ -1,4 +1,4 @@
-# MongooseProxy
+# Mongoose Cloudstate Proxy
 
 **TODO: Add description**
 
