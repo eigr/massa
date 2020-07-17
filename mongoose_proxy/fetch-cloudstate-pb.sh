@@ -7,8 +7,8 @@ set -o pipefail
 function fetch() {
   local path=$1
   local tag=$2
-  mkdir -p "protobuf/$(dirname $path)"
-  curl -o "protobuf/${path}" "https://raw.githubusercontent.com/cloudstateio/cloudstate/${tag}/protocols/${path}"
+  mkdir -p "priv/protos/$(dirname $path)"
+  curl -o "priv/protos/${path}" "https://raw.githubusercontent.com/cloudstateio/cloudstate/${tag}/protocols/${path}"
 }
 
 tag=$1
