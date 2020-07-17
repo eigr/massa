@@ -6,6 +6,7 @@ defmodule MongooseProxy.MixProject do
       app: :mongoose_proxy,
       version: "0.1.0",
       elixir: "~> 1.11-dev",
+      # elixir: "1.9.0-rc.0",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -14,7 +15,8 @@ defmodule MongooseProxy.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {MongooseProxyApplication, []}
     ]
   end
 
