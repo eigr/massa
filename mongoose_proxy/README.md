@@ -1,6 +1,6 @@
 # Mongoose Cloudstate Proxy
 
-**TODO: Add description**
+Mongoose is a [Cloudstate](https://github.com/cloudstateio/cloudstate) proxy implementation
 
 ## Installation
 
