@@ -4,15 +4,16 @@ defmodule MongooseProxy do
   """
 
   @doc """
-  Hello world.
+  Launch Proxy Application.
 
   ## Examples
 
-      iex> MongooseProxy.hello()
-      :world
+      iex> MongooseProxy.launch
 
   """
-  def hello do
-    :world
+  def launch do
+    port = Application.get_env(:mongoose_proxy, :user_function_port)
+    {:ok, channel} = GRPC.Stub.connect("localhost:#{port}")
+    Discovery.Manager.discover(channel)
   end
 end
