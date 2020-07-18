@@ -1,4 +1,4 @@
-defmodule DiscoveryManager do
+defmodule Discovery.Manager do
   @protocol_minor_version 1
   @protocol_major_version 0
   @proxy_name "mongoose-proxy"
@@ -16,18 +16,18 @@ defmodule DiscoveryManager do
 
     channel
     |> Cloudstate.EntityDiscovery.Stub.discover(message)
-    |> handle_discover_response
+    |> handle_response
   end
 
   def report_error(channel, error) do
-    {ok, response} =
+    {_, response} =
       channel
       |> Cloudstate.EntityDiscovery.Stub.report_error(error)
 
     IO.puts("User function report error reply #{inspect(response)}")
   end
 
-  defp handle_discover_response(response) do
+  defp handle_response(response) do
     IO.puts("Received EntitySpec from user function with info: #{inspect(response)}")
   end
 end

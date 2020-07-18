@@ -14,6 +14,6 @@ defmodule MongooseProxy do
   def launch do
     port = Application.get_env(:mongoose_proxy, :user_function_port)
     {:ok, channel} = GRPC.Stub.connect("localhost:#{port}")
-    DiscoveryManager.discover(channel)
+    Discovery.Manager.discover(channel)
   end
 end
