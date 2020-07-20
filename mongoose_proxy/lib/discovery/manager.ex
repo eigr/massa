@@ -30,6 +30,53 @@ defmodule Discovery.Manager do
   end
 
   defp handle_response(response) do
-    Logger.info("Received EntitySpec from user function with info: #{inspect(response)}")
+    extract_message(response)
+    |> validate
+    |> register_entities
+  end
+
+  defp register_entities(message) do
+    # TODO: Registry entities here
+  end
+
+  defp validate(message) do
+    entities = message.entities
+
+    if Enum.empty?(entities) do
+      Logger.error("No entities were reported by the discover call!")
+      raise "No entities were reported by the discover call!"
+    end
+
+    entities
+    |> Enum.each(fn entity ->
+      if !Enum.member?(@supported_entity_types, entity.entity_type) do
+        Logger.error("This proxy not support entities of type #{entity.entity_type}")
+        raise "This proxy not support entities of type #{entity.entity_type}"
+      end
+    end)
+
+    if !is_binary(message.proto) do
+      Logger.error("No descriptors found in EntitySpec")
+      raise "No descriptors found in EntitySpec"
+    end
+
+    if String.trim(message.service_info.service_name) == "" do
+      Logger.warn("Service Info does not provide a service name")
+    end
+
+    {:ok, message}
+  end
+
+  defp extract_message(response) do
+    {:ok, message} = response
+
+    case response do
+      ok ->
+        Logger.info("Received EntitySpec from user function with info: #{inspect(message)}")
+        message
+
+      _ ->
+        Logger.error("Error -> #{inspect(response)}")
+    end
   end
 end
