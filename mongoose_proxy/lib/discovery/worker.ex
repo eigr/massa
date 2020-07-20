@@ -15,7 +15,7 @@ defmodule Discovery.Worker do
   end
 
   def handle_call(:connect, _from, _) do
-    {result, state} = GRPC.Stub.connect("#{@host}:#{@port}")
+    {result, state} = GRPC.Stub.connect("#{@host}:#{@port}", interceptors: [GRPC.Logger.Client])
 
     case result do
       :ok -> {:reply, result, state}
@@ -31,7 +31,9 @@ defmodule Discovery.Worker do
   def handle_info(msg, state) do
     case msg do
       :work ->
-        {result, state} = GRPC.Stub.connect("#{@host}:#{@port}")
+        {result, state} =
+          GRPC.Stub.connect("#{@host}:#{@port}", interceptors: [GRPC.Logger.Client])
+
         Discovery.Manager.discover(state)
         schedule_work(@heartbeat_interval)
 
