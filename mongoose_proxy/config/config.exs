@@ -10,6 +10,20 @@ config :logger, :console,
   format: "$date $time [$node]:[$metadata]:[$level]:$levelpad$message\n",
   metadata: [:pid]
 
+config :libcluster,
+  topologies: [
+    dev: [
+      strategy: Cluster.Strategy.Epmd,
+      config: [
+        hosts: [
+          :"a@127.0.0.1",
+          :"b@127.0.0.1",
+          :"c@127.0.0.1"
+        ]
+      ]
+    ]
+  ]
+
 config :mongoose_proxy,
   user_function_host: "127.0.0.1",
   user_function_port: "8080",
