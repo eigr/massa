@@ -15,7 +15,10 @@ defmodule MongooseProxy.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [
+        :logger,
+        :observer
+        ],
       mod: {MongooseProxyApplication, []}
     ]
   end
@@ -25,7 +28,11 @@ defmodule MongooseProxy.MixProject do
     [
       {:grpc, github: "elixir-grpc/grpc"},
       # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0
-      {:cowlib, "~> 2.9.0", override: true}
+      {:cowlib, "~> 2.9.0", override: true},
+      # Data ingestion for Eventing support
+      {:broadway, "~> 0.6.1"},
+      # Node discovery for Kubernetes
+      {:libcluster, "~> 3.2.1"}
     ]
   end
 end

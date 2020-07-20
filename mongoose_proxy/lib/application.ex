@@ -1,12 +1,14 @@
 defmodule MongooseProxyApplication do
   use Application
+  import Supervisor.Spec
 
   @impl true
   def start(_type, _args) do
-    MongooseProxy.launch()
+    children = [
+      worker(Dicovery.ManagerServer, [])
+    ]
 
-    children = []
-    opts = [strategy: :one_for_one]
+    opts = [strategy: :one_for_one, name: Dicovery.ManagerServer.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

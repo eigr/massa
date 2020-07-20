@@ -1,4 +1,32 @@
+defmodule Dicovery.ManagerServer do
+  use GenServer
+
+  @doc """
+  GenServer.init/1 callback
+  """
+  def init(_) do
+    port = Application.get_env(:mongoose_proxy, :user_function_port)
+    {:ok, channel} = GRPC.Stub.connect("localhost:#{port}")
+    {:ok, channel}
+  end
+
+  def handle_call(:discover, _from, channel) do
+    Discovery.Manager.discover(channel)
+    {:reply, :ok, channel}
+  end
+
+  ### Client API
+
+  def start_link(channel \\ []) do
+    GenServer.start_link(__MODULE__, channel, name: __MODULE__)
+  end
+
+  def discover, do: GenServer.call(__MODULE__, :discover)
+end
+
 defmodule Discovery.Manager do
+  require Logger
+
   @protocol_minor_version 1
   @protocol_major_version 0
   @proxy_name "mongoose-proxy"
@@ -24,10 +52,10 @@ defmodule Discovery.Manager do
       channel
       |> Cloudstate.EntityDiscovery.Stub.report_error(error)
 
-    IO.puts("User function report error reply #{inspect(response)}")
+    Logger.info("User function report error reply #{inspect(response)}")
   end
 
   defp handle_response(response) do
-    IO.puts("Received EntitySpec from user function with info: #{inspect(response)}")
+    Logger.info("Received EntitySpec from user function with info: #{inspect(response)}")
   end
 end
