@@ -18,7 +18,7 @@ defmodule MongooseProxy.MixProject do
       extra_applications: [
         :logger,
         :observer
-        ],
+      ],
       mod: {MongooseProxyApplication, []}
     ]
   end

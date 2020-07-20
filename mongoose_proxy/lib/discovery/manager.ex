@@ -1,29 +1,3 @@
-defmodule Dicovery.ManagerServer do
-  use GenServer
-
-  @doc """
-  GenServer.init/1 callback
-  """
-  def init(_) do
-    port = Application.get_env(:mongoose_proxy, :user_function_port)
-    {:ok, channel} = GRPC.Stub.connect("localhost:#{port}")
-    {:ok, channel}
-  end
-
-  def handle_call(:discover, _from, channel) do
-    Discovery.Manager.discover(channel)
-    {:reply, :ok, channel}
-  end
-
-  ### Client API
-
-  def start_link(channel \\ []) do
-    GenServer.start_link(__MODULE__, channel, name: __MODULE__)
-  end
-
-  def discover, do: GenServer.call(__MODULE__, :discover)
-end
-
 defmodule Discovery.Manager do
   require Logger
 

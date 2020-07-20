@@ -7,7 +7,10 @@ config :logger,
 
 # Our Console Backend-specific configuration
 config :logger, :console,
-  format: "\n$date $time [$node]:[$metadata]:[$level]:$levelpad$message\n",
+  format: "$date $time [$node]:[$metadata]:[$level]:$levelpad$message\n",
   metadata: [:pid]
 
-config :mongoose_proxy, :user_function_port, "8080"
+config :mongoose_proxy,
+  user_function_host: "127.0.0.1",
+  user_function_port: "8080",
+  heartbeat_interval: 15_000

@@ -5,10 +5,11 @@ defmodule MongooseProxyApplication do
   @impl true
   def start(_type, _args) do
     children = [
-      worker(Dicovery.ManagerServer, [])
+      worker(EventSourced.Router, []),
+      supervisor(Discovery.WorkerSupervisor, [])
     ]
 
-    opts = [strategy: :one_for_one, name: Dicovery.ManagerServer.Supervisor]
+    opts = [strategy: :one_for_one, name: Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
