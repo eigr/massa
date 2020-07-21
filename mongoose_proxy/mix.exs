@@ -19,7 +19,7 @@ defmodule MongooseProxy.MixProject do
         :logger,
         :observer
       ],
-      mod: {MongooseProxyApplication, []}
+      mod: {MongooseProxy.Application, []}
     ]
   end
 

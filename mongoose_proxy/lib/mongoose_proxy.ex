@@ -1,0 +1,2 @@
+defmodule MongooseProxy do
+end
