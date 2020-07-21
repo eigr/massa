@@ -32,7 +32,9 @@ defmodule MongooseProxy.MixProject do
       # Data ingestion for Eventing support
       {:broadway, "~> 0.6.1"},
       # Node discovery for Kubernetes
-      {:libcluster, "~> 3.2.1"}
+      {:libcluster, "~> 3.2.1"},
+      # Cluster features/utilities
+      {:horde, "~> 0.7.1"}
     ]
   end
 end
