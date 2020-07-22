@@ -5,22 +5,8 @@ defmodule MongooseProxy.HordeConnector do
   def connect() do
     Logger.info("Starting Proxy Cluster...")
 
-    Node.list()
-    |> Enum.each(fn node ->
-      Logger.debug(fn ->
-        "[mongoose proxy on #{inspect(Node.self())}]: Connecting Horde to #{inspect(node)}"
-      end)
-
-      #Horde.Cluster.join_hordes(
-      #  MongooseProxy.GlobalRegistry,
-      #  {MongooseProxy.GlobalRegistry, node}
-      #)
-
-      #Horde.Cluster.join_hordes(
-      #  MongooseProxy.GlobalSupervisor,
-      #  {MongooseProxy.GlobalSupervisor, node}
-      #)
-    end)
+    set_members(MongooseProxy.GlobalRegistry)
+    set_members(MongooseProxy.GlobalSupervisor)
   end
 
   def start_children() do
@@ -32,5 +18,19 @@ defmodule MongooseProxy.HordeConnector do
     )
 
     Horde.DynamicSupervisor.start_child(MongooseProxy.Supervisor, EventSourced.Router)
+  end
+
+  defp set_members(name) do
+    members =
+      [Node.self() | Node.list()]
+      |> Enum.map(fn node ->
+        Logger.debug(
+          "[mongoose proxy on #{inspect(Node.self())}]: Connecting Horde to #{inspect(node)}"
+        )
+
+        {name, node}
+      end)
+
+    :ok = Horde.Cluster.set_members(name, members)
   end
 end

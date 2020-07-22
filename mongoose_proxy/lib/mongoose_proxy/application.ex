@@ -5,5 +5,4 @@ defmodule MongooseProxy.Application do
   def start(_type, _args) do
     MongooseProxy.Supervisor.start_link([])
   end
-
 end

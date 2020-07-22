@@ -26,7 +26,8 @@ defmodule MongooseProxy.Supervisor do
               end
             ]
           }
-        }
+        },
+        MongooseProxy.NodeListener
       ]
       |> Enum.reject(&is_nil/1)
 
