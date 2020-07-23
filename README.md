@@ -26,7 +26,10 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
     - [ ] Redis
 - [ ] Interoperability with Cloudstate reference implementation
 - [ ] Metadata Support
-- [ ] Metrics Support
+- [x] Observability:
+    - [x] Health Checks
+    - [x] Metrics
+    - [x] Open Tracing
 - [ ] State Store:
     - [ ] Cassandra
     - [ ] In Memory

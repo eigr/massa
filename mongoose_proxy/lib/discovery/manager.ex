@@ -1,11 +1,18 @@
 defmodule Discovery.Manager do
+  use ExRay, pre: :before_fun, post: :after_fun
   require Logger
+
+  alias ExRay.Span
 
   @protocol_minor_version 1
   @protocol_major_version 0
   @proxy_name "mongoose-proxy"
   @supported_entity_types ["cloudstate.eventsourced.EventSourced"]
 
+  # Generates a request id
+  @req_id :os.system_time(:milli_seconds) |> Integer.to_string() |> IO.inspect()
+
+  @trace kind: :critical
   def discover(channel) do
     message =
       Cloudstate.ProxyInfo.new(
@@ -27,6 +34,19 @@ defmodule Discovery.Manager do
       |> Cloudstate.EntityDiscovery.Stub.report_error(error)
 
     Logger.info("User function report error reply #{inspect(response)}")
+  end
+
+  defp before_fun(ctx) do
+    ctx.target
+    |> Span.open(@req_id)
+    |> :otter.tag(:kind, ctx.meta[:kind])
+    |> :otter.log(">>> #{ctx.target} with #{ctx.args |> inspect}")
+  end
+
+  defp after_fun(ctx, span, res) do
+    span
+    |> :otter.log("<<< #{ctx.target} returned #{res}")
+    |> Span.close(@req_id)
   end
 
   defp handle_response(response) do

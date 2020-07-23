@@ -24,7 +24,15 @@ config :libcluster,
     ]
   ]
 
+# OpenTracing configs
+config :otter,
+  zipkin_collector_uri: 'http://127.0.0.1:9411/api/v1/spans',
+  zipkin_tag_host_service: "mongoose_proxy",
+  http_client: :hackney
+
 config :mongoose_proxy,
+  proxy_port: 9000,
+  proxy_http_port: 9001,
   user_function_host: "127.0.0.1",
   user_function_port: "8080",
   user_function_uds_enable: true,

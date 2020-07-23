@@ -10,6 +10,11 @@ defmodule MongooseProxy.Supervisor do
   def init(_args) do
     children =
       [
+        Plug.Cowboy.child_spec(
+          scheme: :http,
+          plug: Http.Endpoint,
+          options: [port: Application.get_env(:mongoose_proxy, :proxy_http_port, 9001)]
+        ),
         cluster_supervisor(),
         {Horde.Registry, [name: MongooseProxy.GlobalRegistry, keys: :unique]},
         {Horde.DynamicSupervisor, [name: MongooseProxy.GlobalSupervisor, strategy: :one_for_one]},
