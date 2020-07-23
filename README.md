@@ -17,8 +17,8 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
     - [ ] KV
 - [x] Discovery Support
 - [ ] Eventing:
-    - [ ] Amazon SQS
     - [ ] Apache Kafka
+    - [ ] Amazon SQS
     - [ ] Cloud Pub/Sub
     - [ ] Event Log
     - [ ] RabbitMQ
