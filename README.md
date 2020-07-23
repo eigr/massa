@@ -30,6 +30,7 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
 - [ ] State Store:
     - [ ] Cassandra
     - [ ] In Memory
+    - [ ] Mnesia
     - [ ] MongoDB
     - [ ] MSSQL
     - [ ] MySql
