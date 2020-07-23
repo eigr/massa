@@ -8,13 +8,13 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
 
 ## Features
 
-- [x] Cluster transparent
 - [ ] Cloudstate Entity Types:
     - [ ] Actions (Stateless Support)
     - [ ] CRDT's
     - [ ] EventSourced Support
         - [ ] Multi Node Forward and Side Effects
     - [ ] KV
+- [x] Cluster transparent
 - [x] Discovery Support
 - [ ] Eventing:
     - [ ] Apache Kafka
