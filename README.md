@@ -1,4 +1,4 @@
-# mongoose – a Cloudstate proxy implementation
+# Mongoose
 
 Mongoose is a [Cloudstate](https://github.com/cloudstateio/cloudstate) proxy implementation.
 
