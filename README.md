@@ -8,6 +8,7 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
 
 ## Features
 
+- [ ] ARM Support
 - [ ] Cloudstate Entity Types:
     - [ ] Actions (Stateless Support)
     - [ ] CRDT's
