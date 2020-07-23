@@ -35,6 +35,7 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
     - [ ] Postgres
     - [ ] Redis
     - [ ] Riak
+- [ ] TCK
 - [x] Transports and Protocols
     - [ ] GRPC
         - [x] Client TCP
@@ -44,7 +45,6 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
         - [ ] SSE
         - [ ] Websockets
 - [x] Very Fast
-- [ ] TCK
 
 ## Inversion of State
 
