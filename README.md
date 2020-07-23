@@ -19,8 +19,8 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
 - [ ] Eventing:
     - [ ] Apache Kafka
     - [ ] Amazon SQS
-    - [ ] Cloud Pub/Sub
     - [ ] Event Log
+    - [ ] Google Cloud Pub/Sub
     - [ ] RabbitMQ
     - [ ] Redis
 - [ ] Interoperability with Cloudstate reference implementation
