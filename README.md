@@ -37,7 +37,7 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
     - [ ] Riak
 - [ ] TCK
 - [x] Transports and Protocols
-    - [ ] GRPC
+    - [x] GRPC
         - [x] Client TCP
         - [x] Client Unix Domain Sockets
         - [ ] Reflection
