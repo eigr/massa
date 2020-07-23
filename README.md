@@ -50,3 +50,7 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
 ## Inversion of State
 
 TODO
+
+## Benchmark
+
+TODO
