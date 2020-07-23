@@ -4,7 +4,7 @@ Mongoose is a [Cloudstate](https://github.com/cloudstateio/cloudstate) proxy imp
 
 ## Overview
 
-Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we know the power of Erlang's basic components, such as the features of the Erlang Beam VM, OTP framework, and libraries established by the Elixir community such as Broadway, Libcluster, Horde, Ecto to create a highly efficient and resilient Cloudstate proxy.
+Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we know the power of Erlang's basic components, such as the features of the Erlang Beam VM, OTP framework, and libraries established by the Elixir community such as Broadway, Libcluster, Horde, and Ecto to create a highly efficient and resilient Cloudstate proxy.
 
 ## Features
 
