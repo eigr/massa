@@ -40,6 +40,7 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
     - [ ] GRPC
         - [x] Client TCP
         - [x] Client Unix Domain Sockets
+        - [ ] Reflection
         - [ ] Server TCP 
     - [ ] HTTP 
         - [ ] SSE
