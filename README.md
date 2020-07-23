@@ -43,11 +43,12 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
         - [ ] Reflection
         - [ ] Server TCP 
     - [ ] HTTP 
+        - [ ] Grpc-Web
         - [ ] SSE
         - [ ] Websockets
 - [x] Very Fast
 
-## Cloudstate Concepts
+## Main Concepts
 
 TODO
 
