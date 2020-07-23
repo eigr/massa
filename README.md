@@ -47,6 +47,10 @@ Mongoose takes advantage of Elixir's simplicity and elegance, mainly because we 
         - [ ] Websockets
 - [x] Very Fast
 
+## Cloudstate Concepts
+
+TODO
+
 ## Inversion of State
 
 TODO
