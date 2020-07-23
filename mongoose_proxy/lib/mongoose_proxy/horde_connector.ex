@@ -14,6 +14,11 @@ defmodule MongooseProxy.HordeConnector do
 
     Horde.DynamicSupervisor.start_child(
       MongooseProxy.Supervisor,
+      MongooseProxy.EntityRegistry
+    )
+
+    Horde.DynamicSupervisor.start_child(
+      MongooseProxy.Supervisor,
       Discovery.Worker
     )
 
