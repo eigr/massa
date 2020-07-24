@@ -26,6 +26,10 @@ defmodule MongooseProxy.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # Base deps
+      {:flow, "~> 1.0"},
+      {:google_protos, "~> 0.1.0"},
+
       # Grpc deps
       {:grpc, github: "elixir-grpc/grpc"},
       # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0
@@ -33,6 +37,9 @@ defmodule MongooseProxy.MixProject do
 
       # Data ingestion deps
       {:broadway, "~> 0.6.1"},
+      #{:broadway_sqs, "~> 0.6.1"},
+      #{:broadway_rabbitmq, "~> 0.6.1"},
+      #{:broadway_cloud_pub_sub, "~> 0.6.0"},
 
       # Cluster deps
       # Node discovery for Kubernetes

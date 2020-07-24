@@ -35,6 +35,7 @@ defmodule Discovery.Manager do
       |> Cloudstate.EntityDiscovery.Stub.report_error(error)
 
     Logger.info("User function report error reply #{inspect(response)}")
+    response
   end
 
   defp handle_response(response) do
