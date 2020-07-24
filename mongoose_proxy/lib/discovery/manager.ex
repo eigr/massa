@@ -3,6 +3,8 @@ defmodule Discovery.Manager do
   require Logger
 
   alias ExRay.Span
+  alias MongooseProxy.CloudstateEntity
+  alias Google.Protobuf.FileDescriptorSet
 
   @protocol_minor_version 1
   @protocol_major_version 0
@@ -44,9 +46,44 @@ defmodule Discovery.Manager do
     |> register_entities
   end
 
-  defp register_entities(message) do
+  defp register_entities({:ok, message}) do
     # TODO: Registry entities here
-    message
+    descriptor = FileDescriptorSet.decode(message.proto)
+    file_descriptors = descriptor.file
+    Logger.debug("Descriptor proto -> #{inspect(descriptor)}.")
+
+    entities = message.entities
+    |> Flow.from_enumerable()
+    |> Flow.map(&Discovery.Manager.create_entity/1)
+    |> Enum.to_list()
+
+    for user_entity  <- entities do
+      # TODO parse file_descriptors into user_entity
+    end
+    
+    entities
+  end
+
+  def create_entity(entity) do
+    user_entity = %CloudstateEntity{
+      entity_type: entity.entity_type,
+      service_name: entity.service_name,
+      persistence_id: entity.persistence_id,
+      node: Node.self()
+    }
+
+    user_entity
+  end
+
+  defp from_proto(file) do
+    entity = %CloudstateEntity{
+      node: Node.self(),
+      proto: file.name
+    }
+
+    Logger.debug("Descriptor proto -> #{inspect(entity)}.")
+
+    entity
   end
 
   defp validate(message) do

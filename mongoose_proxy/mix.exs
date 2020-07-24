@@ -37,9 +37,9 @@ defmodule MongooseProxy.MixProject do
 
       # Data ingestion deps
       {:broadway, "~> 0.6.1"},
-      #{:broadway_sqs, "~> 0.6.1"},
-      #{:broadway_rabbitmq, "~> 0.6.1"},
-      #{:broadway_cloud_pub_sub, "~> 0.6.0"},
+      # {:broadway_sqs, "~> 0.6.1"},
+      # {:broadway_rabbitmq, "~> 0.6.1"},
+      # {:broadway_cloud_pub_sub, "~> 0.6.0"},
 
       # Cluster deps
       # Node discovery for Kubernetes

@@ -37,4 +37,4 @@ config :mongoose_proxy,
   user_function_port: "8080",
   user_function_uds_enable: true,
   user_function_sock_addr: "/var/run/cloudstate.sock",
-  heartbeat_interval: 15_000
+  heartbeat_interval: 60_000
