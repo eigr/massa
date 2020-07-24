@@ -51,6 +51,7 @@ defmodule Discovery.Manager do
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
+    Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
 
     messages = []
     services = []
@@ -60,7 +61,6 @@ defmodule Discovery.Manager do
       # TODO parse file_descriptors into user_entity
 
       for file <- file_descriptors do
-        file.name
         Enum.concat(messages, [extract_messages(file)])
         Enum.concat(services, [extract_services(file)])
       end
@@ -82,25 +82,21 @@ defmodule Discovery.Manager do
   end
 
   defp extract_messages(file) do
-    entity = %CloudstateEntity{
-      node: Node.self(),
-      proto: file.name
-    }
+    messages = []
+    for message <- file.message_type do
+      Enum.concat(messages, [%{name: message.name}])
+    end
 
-    Logger.debug("Descriptor proto -> #{inspect(entity)}.")
-
-    entity
+    messages
   end
 
   defp extract_services(file) do
-    entity = %CloudstateEntity{
-      node: Node.self(),
-      proto: file.name
-    }
+    services = []
+    for svc <- file.service do
+      Enum.concat(services, [%{name: svc.name}])
+    end
 
-    Logger.debug("Descriptor proto -> #{inspect(entity)}.")
-
-    entity
+    services
   end
 
   defp validate(message) do
