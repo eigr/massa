@@ -12,7 +12,7 @@ defmodule Discovery.Manager do
   # Generates a request id
   @req_id :os.system_time(:milli_seconds) |> Integer.to_string() |> IO.inspect()
 
-  @trace kind: :critical
+  @trace kind: :normal
   def discover(channel) do
     message =
       Cloudstate.ProxyInfo.new(
@@ -28,25 +28,13 @@ defmodule Discovery.Manager do
     |> handle_response
   end
 
+  @trace kind: :critical
   def report_error(channel, error) do
     {_, response} =
       channel
       |> Cloudstate.EntityDiscovery.Stub.report_error(error)
 
     Logger.info("User function report error reply #{inspect(response)}")
-  end
-
-  defp before_fun(ctx) do
-    ctx.target
-    |> Span.open(@req_id)
-    |> :otter.tag(:kind, ctx.meta[:kind])
-    |> :otter.log(">>> #{ctx.target} with #{ctx.args |> inspect}")
-  end
-
-  defp after_fun(ctx, span, res) do
-    span
-    |> :otter.log("<<< #{ctx.target} returned #{res}")
-    |> Span.close(@req_id)
   end
 
   defp handle_response(response) do
@@ -57,6 +45,7 @@ defmodule Discovery.Manager do
 
   defp register_entities(message) do
     # TODO: Registry entities here
+    message
   end
 
   defp validate(message) do
@@ -98,5 +87,19 @@ defmodule Discovery.Manager do
       _ ->
         Logger.error("Error -> #{inspect(response)}")
     end
+  end
+
+  defp before_fun(ctx) do
+    ctx.target
+    |> Span.open(@req_id)
+    |> :otter.tag(:kind, ctx.meta[:kind])
+    |> :otter.tag(:component, __MODULE__)
+    |> :otter.log(">>> #{ctx.target} with #{ctx.args |> inspect}")
+  end
+
+  defp after_fun(ctx, span, res) do
+    span
+    |> :otter.log("<<< #{ctx.target} returned #{res |> inspect}")
+    |> Span.close(@req_id)
   end
 end
