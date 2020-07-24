@@ -48,34 +48,51 @@ defmodule Discovery.Manager do
 
   defp register_entities({:ok, message}) do
     # TODO: Registry entities here
+    entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
-    Logger.debug("Descriptor proto -> #{inspect(descriptor)}.")
 
-    entities = message.entities
-    |> Flow.from_enumerable()
-    |> Flow.map(&Discovery.Manager.create_entity/1)
-    |> Enum.to_list()
+    messages = []
+    services = []
+    user_entities = []
 
     for user_entity  <- entities do
       # TODO parse file_descriptors into user_entity
+
+      for file <- file_descriptors do
+        file.name
+        Enum.concat(messages, [extract_messages(file)])
+        Enum.concat(services, [extract_services(file)])
+      end
+      
+      entity = %CloudstateEntity{
+        node: Node.self(),
+        entity_type: user_entity.entity_type,
+        service_name: user_entity.service_name,
+        persistence_id: user_entity.persistence_id,
+        messages: messages,
+        services: services
+      }
+
+      Logger.debug("Cloudstate Entity: #{inspect(entity)}.")
+
     end
     
-    entities
+    user_entities
   end
 
-  def create_entity(entity) do
-    user_entity = %CloudstateEntity{
-      entity_type: entity.entity_type,
-      service_name: entity.service_name,
-      persistence_id: entity.persistence_id,
-      node: Node.self()
+  defp extract_messages(file) do
+    entity = %CloudstateEntity{
+      node: Node.self(),
+      proto: file.name
     }
 
-    user_entity
+    Logger.debug("Descriptor proto -> #{inspect(entity)}.")
+
+    entity
   end
 
-  defp from_proto(file) do
+  defp extract_services(file) do
     entity = %CloudstateEntity{
       node: Node.self(),
       proto: file.name
