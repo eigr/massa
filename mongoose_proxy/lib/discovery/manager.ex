@@ -53,52 +53,59 @@ defmodule Discovery.Manager do
     file_descriptors = descriptor.file
     Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
 
-    messages = []
-    services = []
-    user_entities = []
+    user_entities =
+      entities
+      |> Flow.from_enumerable()
+      |> Flow.map(&parse_entity(&1, file_descriptors))
+      |> Enum.to_list()
 
-    for user_entity  <- entities do
-      # TODO parse file_descriptors into user_entity
-
-      for file <- file_descriptors do
-        Logger.info("File descriptor -> #{inspect(file)}")
-        Enum.concat(messages, [extract_messages(file)])
-        Enum.concat(services, [extract_services(file)])
-      end
-      
-      entity = %CloudstateEntity{
-        node: Node.self(),
-        entity_type: user_entity.entity_type,
-        service_name: user_entity.service_name,
-        persistence_id: user_entity.persistence_id,
-        messages: messages,
-        services: services
-      }
-
-      Enum.concat(user_entities, [entity])
-      
-    end
-
-    Logger.debug("Cloudstate Entity: #{inspect(user_entities)}.")
+    Logger.debug("Cloudstate Entities: #{inspect(user_entities)}.")
     user_entities
   end
 
-  defp extract_messages(file) do
-    messages = []
-    for message <- file.message_type do
-      Enum.concat(messages, [%{name: message.name}])
-    end
+  defp parse_entity(entity, file_descriptors) do
+    messages =
+      file_descriptors
+      |> Flow.from_enumerable()
+      |> Flow.map(&extract_messages/1)
+      |> Enum.to_list()
 
-    messages
+    services =
+      file_descriptors
+      |> Flow.from_enumerable()
+      |> Flow.map(&extract_services/1)
+      |> Enum.to_list()
+
+    entity = %CloudstateEntity{
+      node: Node.self(),
+      entity_type: entity.entity_type,
+      service_name: entity.service_name,
+      persistence_id: entity.persistence_id,
+      messages: messages,
+      services: services
+    }
+  end
+
+  defp extract_messages(file) do
+    file.message_type
+    |> Flow.from_enumerable()
+    |> Flow.map(&to_message_item/1)
+    |> Enum.to_list()
   end
 
   defp extract_services(file) do
-    services = []
-    for svc <- file.service do
-      Enum.concat(services, [%{name: svc.name}])
-    end
+    file.service
+    |> Flow.from_enumerable()
+    |> Flow.map(&to_service_item/1)
+    |> Enum.to_list()
+  end
 
-    services
+  defp to_message_item(message) do
+    %{name: message.name}
+  end
+
+  defp to_service_item(service) do
+    %{name: service.name}
   end
 
   defp validate(message) do

@@ -5,7 +5,7 @@ config :logger,
   backends: [:console],
   compile_time_purge_level: :debug
 
- config :protobuf, extensions: :enabled
+config :protobuf, extensions: :enabled
 
 # Our Console Backend-specific configuration
 config :logger, :console,
