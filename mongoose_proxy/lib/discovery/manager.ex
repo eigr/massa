@@ -61,6 +61,7 @@ defmodule Discovery.Manager do
       # TODO parse file_descriptors into user_entity
 
       for file <- file_descriptors do
+        Logger.info("File descriptor -> #{inspect(file)}")
         Enum.concat(messages, [extract_messages(file)])
         Enum.concat(services, [extract_services(file)])
       end
@@ -74,10 +75,11 @@ defmodule Discovery.Manager do
         services: services
       }
 
-      Logger.debug("Cloudstate Entity: #{inspect(entity)}.")
-
+      Enum.concat(user_entities, [entity])
+      
     end
-    
+
+    Logger.debug("Cloudstate Entity: #{inspect(user_entities)}.")
     user_entities
   end
 

@@ -5,6 +5,8 @@ config :logger,
   backends: [:console],
   compile_time_purge_level: :debug
 
+ config :protobuf, extensions: :enabled
+
 # Our Console Backend-specific configuration
 config :logger, :console,
   format: "$date $time [$node]:[$metadata]:[$level]:$levelpad$message\n",
