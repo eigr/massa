@@ -51,7 +51,7 @@ defmodule Discovery.Manager do
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
-    Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
+    # Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
 
     user_entities =
       entities
@@ -67,6 +67,7 @@ defmodule Discovery.Manager do
     messages =
       file_descriptors
       |> Flow.from_enumerable()
+      # TODO: Add filter step
       |> Flow.map(&extract_messages/1)
       |> Enum.to_list()
 
@@ -81,8 +82,8 @@ defmodule Discovery.Manager do
       entity_type: entity.entity_type,
       service_name: entity.service_name,
       persistence_id: entity.persistence_id,
-      messages: messages,
-      services: services
+      messages: Enum.filter(messages, fn x -> x != [] end),
+      services: Enum.filter(services, fn x -> x != [] end)
     }
   end
 
@@ -96,16 +97,68 @@ defmodule Discovery.Manager do
   defp extract_services(file) do
     file.service
     |> Flow.from_enumerable()
+    |> Flow.filter(&(String.trim(&1.name) != ""))
     |> Flow.map(&to_service_item/1)
     |> Enum.to_list()
   end
 
   defp to_message_item(message) do
-    %{name: message.name}
+    _attributes =
+      message.field
+      |> Flow.from_enumerable()
+      |> Flow.map(&extract_method_attributes/1)
+      |> Enum.to_list()
+
+    %{name: message.name, attributes: _attributes}
   end
 
   defp to_service_item(service) do
-    %{name: service.name}
+    _methods =
+      service.method
+      |> Flow.from_enumerable()
+      |> Flow.map(&extract_service_method/1)
+      |> Enum.to_list()
+
+    %{name: service.name, methods: _methods}
+  end
+
+  defp extract_method_attributes(field) do
+    %{
+      name: field.name,
+      number: field.number,
+      type: field.type,
+      label: field.label,
+      options: []
+    }
+  end
+
+  defp extract_service_method(method) do
+    %{
+      name: method.name,
+      unary: is_unary(method),
+      streamed: is_streamed(method),
+      input_type: method.input_type,
+      output_type: method.output_type,
+      stream_in: method.client_streaming,
+      stream_out: method.server_streaming,
+      options: []
+    }
+  end
+
+  defp is_unary(method) do
+    if method.client_streaming == false && method.server_streaming == false do
+      true
+    else
+      false
+    end
+  end
+
+  defp is_streamed(method) do
+    if method.client_streaming == true && method.server_streaming == true do
+      true
+    else
+      false
+    end
   end
 
   defp validate(message) do

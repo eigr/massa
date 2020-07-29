@@ -13,6 +13,7 @@ defmodule MongooseProxy.CloudstateEntity do
                 name: "",
                 number: 0,
                 type: nil,
+                label: nil,
                 options: [
                   type: nil
                 ]
