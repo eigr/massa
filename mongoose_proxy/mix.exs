@@ -5,10 +5,15 @@ defmodule MongooseProxy.MixProject do
     [
       app: :mongoose_proxy,
       version: "0.1.0",
-      elixir: "~> 1.11-dev",
-      # elixir: "1.9.0-rc.0",
+      elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      releases: [
+        mongoose_proxy: [
+          include_executables_for: [:unix],
+          applications: [runtime_tools: :permanent]
+        ]
+      ]
     ]
   end
 

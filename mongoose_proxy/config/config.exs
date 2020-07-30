@@ -33,10 +33,10 @@ config :otter,
   http_client: :hackney
 
 config :mongoose_proxy,
-  proxy_port: 9000,
-  proxy_http_port: 9001,
-  user_function_host: "127.0.0.1",
-  user_function_port: "8080",
-  user_function_uds_enable: true,
-  user_function_sock_addr: "/var/run/cloudstate.sock",
-  heartbeat_interval: 60_000
+  proxy_port: System.get_env("PROXY_PORT") || 9000,
+  proxy_http_port: System.get_env("PROXY_HTTP_PORT") || 9001,
+  user_function_host: System.get_env("USER_FUNCTION_HOST") || "127.0.0.1",
+  user_function_port: System.get_env("USER_FUNCTION_PORT") || "8080",
+  user_function_uds_enable: System.get_env("PROXY_UDS_MODE") || false,
+  user_function_sock_addr: System.get_env("PROXY_UDS_ADDRESS") || "/var/run/cloudstate.sock",
+  heartbeat_interval: System.get_env("PROXY_HEARTBEAT_INTERVAL") || 60_000

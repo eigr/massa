@@ -50,12 +50,7 @@ defmodule Discovery.Worker do
 
   ### Client API
   def start_link(state \\ []) do
-    Logger.info(
-      "Starting #{__MODULE__} on target function address unix://#{
-        get_address(@user_function_uds_enable)
-      }"
-    )
-
+    Logger.info("#{startup_message(@user_function_uds_enable)}")
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
@@ -66,6 +61,20 @@ defmodule Discovery.Worker do
 
   defp get_address(false), do: "#{@host}:#{@port}"
   defp get_address(true), do: "#{@user_function_sock_addr}"
+
+  defp startup_message(uds_enable) do
+    case uds_enable do
+      true ->
+        "Starting #{__MODULE__} on target function address unix://#{
+          get_address(@user_function_uds_enable)
+        }"
+
+      _ ->
+        "Starting #{__MODULE__} on target function address tcp://#{
+          get_address(@user_function_uds_enable)
+        }"
+    end
+  end
 
   defp get_connection(),
     do:
