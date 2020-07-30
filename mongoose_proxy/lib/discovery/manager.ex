@@ -5,6 +5,7 @@ defmodule Discovery.Manager do
   alias ExRay.Span
   alias MongooseProxy.CloudstateEntity
   alias Google.Protobuf.FileDescriptorSet
+  alias Google.Protobuf.FieldDescriptorProto
 
   @protocol_minor_version 1
   @protocol_major_version 0
@@ -88,6 +89,7 @@ defmodule Discovery.Manager do
   end
 
   defp extract_messages(file) do
+    Logger.info("Message -> #{inspect(file.message_type)}")
     file.message_type
     |> Flow.from_enumerable()
     |> Flow.map(&to_message_item/1)
@@ -123,12 +125,18 @@ defmodule Discovery.Manager do
   end
 
   defp extract_method_attributes(field) do
+    #Logger.info("Options -> #{inspect(field.options)}")
+    _field =
+      if field.options != nil && field.options.ctype != nil do
+        field.options.ctype
+      end
+
     %{
       name: field.name,
       number: field.number,
       type: field.type,
       label: field.label,
-      options: []
+      options: %{type: _field}
     }
   end
 

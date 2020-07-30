@@ -59,25 +59,27 @@ defmodule Discovery.Worker do
   defp startup_message(uds_enable) do
     case uds_enable do
       true ->
-        "Starting #{__MODULE__} on target function address unix://#{
-          get_address(uds_enable)
-        }"
+        "Starting #{__MODULE__} on target function address unix://#{get_address(uds_enable)}"
 
       _ ->
-        "Starting #{__MODULE__} on target function address tcp://#{
-          get_address(uds_enable)
-        }"
+        "Starting #{__MODULE__} on target function address tcp://#{get_address(uds_enable)}"
     end
   end
 
   defp get_connection(),
-    do:
-      GRPC.Stub.connect(get_address(is_uds_enable?), interceptors: [GRPC.Logger.Client])
+    do: GRPC.Stub.connect(get_address(is_uds_enable?), interceptors: [GRPC.Logger.Client])
 
   defp get_function_port(), do: Application.get_env(:mongoose_proxy, :user_function_port, 8080)
-  defp get_function_host(), do: Application.get_env(:mongoose_proxy, :user_function_host, "127.0.0.1")
-  defp get_heartbeat_interval(), do: Application.get_env(:mongoose_proxy, :heartbeat_interval, 60_000)
-  defp is_uds_enable?(), do: Application.get_env(:mongoose_proxy, :user_function_uds_enable, false)
-  defp get_uds_address(), do: Application.get_env(:mongoose_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")
 
+  defp get_function_host(),
+    do: Application.get_env(:mongoose_proxy, :user_function_host, "127.0.0.1")
+
+  defp get_heartbeat_interval(),
+    do: Application.get_env(:mongoose_proxy, :heartbeat_interval, 60_000)
+
+  defp is_uds_enable?(),
+    do: Application.get_env(:mongoose_proxy, :user_function_uds_enable, false)
+
+  defp get_uds_address(),
+    do: Application.get_env(:mongoose_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")
 end

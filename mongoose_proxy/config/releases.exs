@@ -15,14 +15,12 @@ config :logger, :console,
 # Cluster configurations
 config :libcluster,
   topologies: [
-    dev: [
-      strategy: Cluster.Strategy.Epmd,
+    kubernetes: [
+      strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
       config: [
-        hosts: [
-          :"a@127.0.0.1",
-          :"b@127.0.0.1",
-          :"c@127.0.0.1"
-        ]
+        service: "mongoose-proxy-svc",
+        application_name: "mongoose_proxy",
+        polling_interval: 3_000
       ]
     ]
   ]

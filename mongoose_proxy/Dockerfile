@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apk add --no-cache --update git
 
 RUN mkdir ./config
-COPY config ./config
+COPY config/prod.exs ./config
 COPY lib ./lib
 COPY priv ./priv
 COPY mix.exs .
@@ -18,7 +18,12 @@ RUN mix local.rebar --force \
     && mix local.hex --force \
     && mix deps.get \
     && mix deps.get \
-    && mix release
+    && mix release.init
+
+RUN echo "-name mongoose_proxy@${MY_POD_IP}" >> ./rel/vm.args.eex \
+      && echo "-setcookie ${NODE_COOKIE}" >> ./rel/vm.args.eex
+    
+RUN mix release
 
 # ---- Application Stage ----
 FROM alpine:3
@@ -34,4 +39,4 @@ USER app
 ENV MIX_ENV=prod
 ENV REPLACE_OS_VARS=true
 
-CMD ["./prod/rel/mongoose_proxy/bin/mongoose_proxy", "start"]
+ENTRYPOINT ["./prod/rel/mongoose_proxy/bin/mongoose_proxy", "start"]

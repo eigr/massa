@@ -9,6 +9,7 @@ defmodule MongooseProxy.Supervisor do
 
   def init(_args) do
     _port = get_http_port()
+
     children =
       [
         Plug.Cowboy.child_spec(
