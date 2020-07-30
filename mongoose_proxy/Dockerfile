@@ -7,6 +7,7 @@ WORKDIR /app
 
 RUN apk add --no-cache --update git
 
+RUN mkdir ./config
 COPY config ./config
 COPY lib ./lib
 COPY priv ./priv
@@ -30,6 +31,7 @@ RUN adduser app --disabled-password --home app
 RUN chown -R app: ./prod
 USER app
 
+ENV MIX_ENV=prod
 ENV REPLACE_OS_VARS=true
 
 CMD ["./prod/rel/mongoose_proxy/bin/mongoose_proxy", "start"]

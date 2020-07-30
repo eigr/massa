@@ -2,12 +2,6 @@ defmodule Discovery.Worker do
   use GenServer
   require Logger
 
-  @host Application.get_env(:mongoose_proxy, :user_function_host)
-  @port Application.get_env(:mongoose_proxy, :user_function_port)
-  @heartbeat_interval Application.get_env(:mongoose_proxy, :heartbeat_interval)
-  @user_function_uds_enable Application.get_env(:mongoose_proxy, :user_function_uds_enable)
-  @user_function_sock_addr Application.get_env(:mongoose_proxy, :user_function_sock_addr)
-
   @doc """
   GenServer.init/1 callback
   """
@@ -36,7 +30,7 @@ defmodule Discovery.Worker do
         {result, state} = get_connection
 
         Discovery.Manager.discover(state)
-        schedule_work(@heartbeat_interval)
+        schedule_work(get_heartbeat_interval())
 
         case result do
           :ok -> {:noreply, state}
@@ -50,7 +44,7 @@ defmodule Discovery.Worker do
 
   ### Client API
   def start_link(state \\ []) do
-    Logger.info("#{startup_message(@user_function_uds_enable)}")
+    Logger.info("#{startup_message(is_uds_enable?())}")
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
@@ -59,24 +53,31 @@ defmodule Discovery.Worker do
 
   defp schedule_work(time), do: Process.send_after(self(), :work, time)
 
-  defp get_address(false), do: "#{@host}:#{@port}"
-  defp get_address(true), do: "#{@user_function_sock_addr}"
+  defp get_address(false), do: "#{get_function_host()}:#{get_function_port()}"
+  defp get_address(true), do: "#{get_uds_address()}"
 
   defp startup_message(uds_enable) do
     case uds_enable do
       true ->
         "Starting #{__MODULE__} on target function address unix://#{
-          get_address(@user_function_uds_enable)
+          get_address(uds_enable)
         }"
 
       _ ->
         "Starting #{__MODULE__} on target function address tcp://#{
-          get_address(@user_function_uds_enable)
+          get_address(uds_enable)
         }"
     end
   end
 
   defp get_connection(),
     do:
-      GRPC.Stub.connect(get_address(@user_function_uds_enable), interceptors: [GRPC.Logger.Client])
+      GRPC.Stub.connect(get_address(is_uds_enable?), interceptors: [GRPC.Logger.Client])
+
+  defp get_function_port(), do: Application.get_env(:mongoose_proxy, :user_function_port, 8080)
+  defp get_function_host(), do: Application.get_env(:mongoose_proxy, :user_function_host, "127.0.0.1")
+  defp get_heartbeat_interval(), do: Application.get_env(:mongoose_proxy, :heartbeat_interval, 60_000)
+  defp is_uds_enable?(), do: Application.get_env(:mongoose_proxy, :user_function_uds_enable, false)
+  defp get_uds_address(), do: Application.get_env(:mongoose_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")
+
 end
