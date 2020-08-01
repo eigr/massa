@@ -17,6 +17,7 @@ defmodule MongooseProxy.Supervisor do
           plug: Http.Endpoint,
           options: [port: _port]
         ),
+        {MongooseProxy.StateHandoff, [] },
         cluster_supervisor(),
         {Horde.Registry, [name: MongooseProxy.GlobalRegistry, keys: :unique]},
         {Horde.DynamicSupervisor, [name: MongooseProxy.GlobalSupervisor, strategy: :one_for_one]},
@@ -28,6 +29,11 @@ defmodule MongooseProxy.Supervisor do
             :start_link,
             [
               fn ->
+                Node.list()
+                |> Enum.each(fn node -> 
+                  :ok = MongooseProxy.StateHandoff.join(node)
+                end)
+
                 MongooseProxy.HordeConnector.connect()
                 MongooseProxy.HordeConnector.start_children()
               end

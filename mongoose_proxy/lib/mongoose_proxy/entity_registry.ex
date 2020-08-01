@@ -3,36 +3,52 @@ defmodule MongooseProxy.EntityRegistry do
   use GenServer
   require Logger
 
-  def child_spec(opts) do
-    horde = :"h#{-:erlang.monotonic_time()}"
-    name = Keyword.get(opts, :name, horde)
-
+  def child_spec(service) do
     %{
-      id: "#{__MODULE__}_#{name}",
-      start: {__MODULE__, :start_link, [name]},
+      id: service,
+      start: {__MODULE__, :start_link, [service]},
       shutdown: 10_000,
       restart: :transient
     }
   end
 
-  def init(_opts) do
+  def start_link(service) do
+    Logger.info("Starting Registry for #{service}")
+    # note the change here in providing a name: instead of [] as the 3rd param
+    GenServer.start_link(__MODULE__, service, name: via_tuple(service))
+  end
+
+  # add entities to the service
+  def add(service, entities) do
+    GenServer.cast(via_tuple(service), { :add, entities })
+  end
+
+  # fetch current entities of the service
+  def contents(service) do
+    GenServer.call(via_tuple(service), { :contents })
+  end
+  
+  def init(service) do
     Logger.info("[MongooseProxy on #{inspect(Node.self())}][EntityRegistry]: Initializing...")
-
-    {:ok, nil}
+    Process.flag(:trap_exit, true)
+    entities = MongooseProxy.StateHandoff.pickup(service)
+    { :ok, { service, entities } }
+  end
+  
+  def handle_cast({ :add, new_entities }, { service, entities }) do
+    { :noreply, { service, entities ++ new_entities } }
+  end
+  
+  def handle_call({ :contents }, _from, state = { _, entities }) do
+    { :reply, entities, state }
   end
 
-  def start_link(name) do
-    case GenServer.start_link(__MODULE__, [], name: via_tuple(name)) do
-      {:ok, pid} ->
-        {:ok, pid}
-
-      {:error, {:already_started, pid}} ->
-        Logger.info("already started at #{name}:#{inspect(pid)}, returning :ignore")
-        :ignore
-    end
+  def terminate(reason, { service, entities }) do
+    MongooseProxy.StateHandoff.handoff(service, entities)
+    :ok
   end
 
-  defp via_tuple(name) do
-    {:via, Horde.Registry, {MongooseProxy.GlobalRegistry, name}}
+  defp via_tuple(service) do
+    { :via, Horde.Registry, { MongooseProxy.GlobalRegistry, service } }
   end
 end
