@@ -29,7 +29,7 @@ defmodule MongooseProxy.HordeConnector do
     members =
       [Node.self() | Node.list()]
       |> Enum.map(fn node ->
-        Logger.debug(
+        Logger.info(
           "[mongoose proxy on #{inspect(Node.self())}]: Connecting Horde to #{inspect(node)}"
         )
 

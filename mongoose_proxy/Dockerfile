@@ -20,7 +20,7 @@ RUN mix local.rebar --force \
     && mix deps.get \
     && mix release.init
 
-RUN echo "-name mongoose_proxy@${MY_POD_IP}" >> ./rel/vm.args.eex \
+RUN echo "-name mongoose_proxy@${PROXY_POD_IP}" >> ./rel/vm.args.eex \
       && echo "-setcookie ${NODE_COOKIE}" >> ./rel/vm.args.eex
     
 RUN mix release
