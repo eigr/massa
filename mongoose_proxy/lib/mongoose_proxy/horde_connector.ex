@@ -10,6 +10,7 @@ defmodule MongooseProxy.HordeConnector do
   end
 
   def start_children() do
+    # The order in which supervisors start matters, so be careful when you move here
     Logger.debug("Starting Supervisors...")
 
     Horde.DynamicSupervisor.start_child(

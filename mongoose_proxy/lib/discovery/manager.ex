@@ -67,12 +67,15 @@ defmodule Discovery.Manager do
 
   defp register_entity(entity) do
     Logger.debug("Registering Entity: #{inspect(entity)} ")
+
     case entity.entity_type do
-      "cloudstate.eventsourced.EventSourced" -> MongooseProxy.EntityRegistry.register("EventSourced", [entity])
-       _ -> Logger.warn("Unknown Entity #{entity.entity_type}")
-        
+      "cloudstate.eventsourced.EventSourced" ->
+        MongooseProxy.EntityRegistry.register("EventSourced", [entity])
+
+      _ ->
+        Logger.warn("Unknown Entity #{entity.entity_type}")
     end
-    
+
     entity
   end
 
@@ -101,7 +104,7 @@ defmodule Discovery.Manager do
   end
 
   defp extract_messages(file) do
-    #Logger.info("Message -> #{inspect(file.message_type)}")
+    # Logger.info("Message -> #{inspect(file.message_type)}")
 
     file.message_type
     |> Flow.from_enumerable()
