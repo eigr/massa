@@ -24,9 +24,9 @@ defmodule Cloudstate.Eventsourced.EventSourcedInit do
     )
   end
 
-  field :service_name, 1, type: :string
-  field :entity_id, 2, type: :string
-  field :snapshot, 3, type: Cloudstate.Eventsourced.EventSourcedSnapshot
+  field(:service_name, 1, type: :string)
+  field(:entity_id, 2, type: :string)
+  field(:snapshot, 3, type: Cloudstate.Eventsourced.EventSourcedSnapshot)
 end
 
 defmodule Cloudstate.Eventsourced.EventSourcedSnapshot do
@@ -53,8 +53,8 @@ defmodule Cloudstate.Eventsourced.EventSourcedSnapshot do
     )
   end
 
-  field :snapshot_sequence, 1, type: :int64
-  field :snapshot, 2, type: Google.Protobuf.Any
+  field(:snapshot_sequence, 1, type: :int64)
+  field(:snapshot, 2, type: Google.Protobuf.Any)
 end
 
 defmodule Cloudstate.Eventsourced.EventSourcedEvent do
@@ -79,8 +79,8 @@ defmodule Cloudstate.Eventsourced.EventSourcedEvent do
     )
   end
 
-  field :sequence, 1, type: :int64
-  field :payload, 2, type: Google.Protobuf.Any
+  field(:sequence, 1, type: :int64)
+  field(:payload, 2, type: Google.Protobuf.Any)
 end
 
 defmodule Cloudstate.Eventsourced.EventSourcedReply do
@@ -117,11 +117,11 @@ defmodule Cloudstate.Eventsourced.EventSourcedReply do
     )
   end
 
-  field :command_id, 1, type: :int64
-  field :client_action, 2, type: Cloudstate.ClientAction
-  field :side_effects, 3, repeated: true, type: Cloudstate.SideEffect
-  field :events, 4, repeated: true, type: Google.Protobuf.Any
-  field :snapshot, 5, type: Google.Protobuf.Any
+  field(:command_id, 1, type: :int64)
+  field(:client_action, 2, type: Cloudstate.ClientAction)
+  field(:side_effects, 3, repeated: true, type: Cloudstate.SideEffect)
+  field(:events, 4, repeated: true, type: Google.Protobuf.Any)
+  field(:snapshot, 5, type: Google.Protobuf.Any)
 end
 
 defmodule Cloudstate.Eventsourced.EventSourcedStreamIn do
@@ -151,10 +151,10 @@ defmodule Cloudstate.Eventsourced.EventSourcedStreamIn do
     )
   end
 
-  oneof :message, 0
-  field :init, 1, type: Cloudstate.Eventsourced.EventSourcedInit, oneof: 0
-  field :event, 2, type: Cloudstate.Eventsourced.EventSourcedEvent, oneof: 0
-  field :command, 3, type: Cloudstate.Command, oneof: 0
+  oneof(:message, 0)
+  field(:init, 1, type: Cloudstate.Eventsourced.EventSourcedInit, oneof: 0)
+  field(:event, 2, type: Cloudstate.Eventsourced.EventSourcedEvent, oneof: 0)
+  field(:command, 3, type: Cloudstate.Command, oneof: 0)
 end
 
 defmodule Cloudstate.Eventsourced.EventSourcedStreamOut do
@@ -181,9 +181,9 @@ defmodule Cloudstate.Eventsourced.EventSourcedStreamOut do
     )
   end
 
-  oneof :message, 0
-  field :reply, 1, type: Cloudstate.Eventsourced.EventSourcedReply, oneof: 0
-  field :failure, 2, type: Cloudstate.Failure, oneof: 0
+  oneof(:message, 0)
+  field(:reply, 1, type: Cloudstate.Eventsourced.EventSourcedReply, oneof: 0)
+  field(:failure, 2, type: Cloudstate.Failure, oneof: 0)
 end
 
 defmodule Cloudstate.Eventsourced.EventSourced.Service do
@@ -203,9 +203,11 @@ defmodule Cloudstate.Eventsourced.EventSourced.Service do
     )
   end
 
-  rpc :handle,
-      stream(Cloudstate.Eventsourced.EventSourcedStreamIn),
-      stream(Cloudstate.Eventsourced.EventSourcedStreamOut)
+  rpc(
+    :handle,
+    stream(Cloudstate.Eventsourced.EventSourcedStreamIn),
+    stream(Cloudstate.Eventsourced.EventSourcedStreamOut)
+  )
 end
 
 defmodule Cloudstate.Eventsourced.EventSourced.Stub do

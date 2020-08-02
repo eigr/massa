@@ -28,12 +28,11 @@ defmodule MongooseProxy.Supervisor do
             :start_link,
             [
               fn ->
-
                 MongooseProxy.HordeConnector.connect()
                 MongooseProxy.HordeConnector.start_children()
 
                 Node.list()
-                |> Enum.each(fn node -> 
+                |> Enum.each(fn node ->
                   :ok = MongooseProxy.StateHandoff.join(node)
                 end)
               end

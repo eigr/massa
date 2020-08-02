@@ -58,10 +58,22 @@ defmodule Discovery.Manager do
       entities
       |> Flow.from_enumerable()
       |> Flow.map(&parse_entity(&1, file_descriptors))
+      |> Flow.map(&register_entity/1)
       |> Enum.to_list()
 
     Logger.debug("Cloudstate Entities: #{inspect(user_entities)}.")
     user_entities
+  end
+
+  defp register_entity(entity) do
+    Logger.debug("Registering Entity: #{inspect(entity)} ")
+    case entity.entity_type do
+      "cloudstate.eventsourced.EventSourced" -> MongooseProxy.EntityRegistry.register("EventSourced", [entity])
+       _ -> Logger.warn("Unknown Entity #{entity.entity_type}")
+        
+    end
+    
+    entity
   end
 
   defp parse_entity(entity, file_descriptors) do
@@ -89,7 +101,8 @@ defmodule Discovery.Manager do
   end
 
   defp extract_messages(file) do
-    Logger.info("Message -> #{inspect(file.message_type)}")
+    #Logger.info("Message -> #{inspect(file.message_type)}")
+
     file.message_type
     |> Flow.from_enumerable()
     |> Flow.map(&to_message_item/1)
@@ -125,7 +138,7 @@ defmodule Discovery.Manager do
   end
 
   defp extract_method_attributes(field) do
-    #Logger.info("Options -> #{inspect(field.options)}")
+    # Logger.info("Options -> #{inspect(field.options)}")
     _field =
       if field.options != nil && field.options.ctype != nil do
         field.options.ctype

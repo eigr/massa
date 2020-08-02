@@ -18,37 +18,37 @@ defmodule MongooseProxy.EntityRegistry do
     GenServer.start_link(__MODULE__, service, name: via_tuple(service))
   end
 
-  # add entities to the service
-  def add(service, entities) do
-    GenServer.cast(via_tuple(service), { :add, entities })
-  end
-
-  # fetch current entities of the service
-  def contents(service) do
-    GenServer.call(via_tuple(service), { :contents })
-  end
-  
   def init(service) do
     Logger.info("[MongooseProxy on #{inspect(Node.self())}][EntityRegistry]: Initializing...")
     Process.flag(:trap_exit, true)
     entities = MongooseProxy.StateHandoff.pickup(service)
-    { :ok, { service, entities } }
-  end
-  
-  def handle_cast({ :add, new_entities }, { service, entities }) do
-    { :noreply, { service, entities ++ new_entities } }
-  end
-  
-  def handle_call({ :contents }, _from, state = { _, entities }) do
-    { :reply, entities, state }
+    {:ok, {service, entities}}
   end
 
-  def terminate(reason, { service, entities }) do
+  # register entities to the service
+  def register(service, entities) do
+    GenServer.cast(via_tuple(service), {:register, entities})
+  end
+
+  # fetch current entities of the service
+  def lookup(service) do
+    GenServer.call(via_tuple(service), {:get})
+  end
+
+  def handle_cast({:register, new_entities}, {service, entities}) do
+    {:noreply, {service, entities ++ new_entities}}
+  end
+
+  def handle_call({:get}, _from, state = {_, entities}) do
+    {:reply, entities, state}
+  end
+
+  def terminate(reason, {service, entities}) do
     MongooseProxy.StateHandoff.handoff(service, entities)
     :ok
   end
 
   defp via_tuple(service) do
-    { :via, Horde.Registry, { MongooseProxy.GlobalRegistry, service } }
+    {:via, Horde.Registry, {MongooseProxy.GlobalRegistry, service}}
   end
 end

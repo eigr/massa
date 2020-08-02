@@ -11,20 +11,30 @@ defmodule MongooseProxy.HordeConnector do
 
   def start_children() do
     Logger.debug("Starting Supervisors...")
-    
-    #Horde.DynamicSupervisor.start_child(
-    #  MongooseProxy.Supervisor,
-    #  MongooseProxy.EntityRegistry
-    #)
 
     Horde.DynamicSupervisor.start_child(
       MongooseProxy.Supervisor,
-      Discovery.Worker
+      {MongooseProxy.StateHandoff, []}
     )
 
     Horde.DynamicSupervisor.start_child(
       MongooseProxy.Supervisor,
-      {MongooseProxy.StateHandoff, [] }
+      {MongooseProxy.EntityRegistry, "EventSourced"}
+    )
+
+    Horde.DynamicSupervisor.start_child(
+      MongooseProxy.Supervisor,
+      {MongooseProxy.EntityRegistry, "CRDT"}
+    )
+
+    Horde.DynamicSupervisor.start_child(
+      MongooseProxy.Supervisor,
+      {MongooseProxy.EntityRegistry, "Stateless"}
+    )
+
+    Horde.DynamicSupervisor.start_child(
+      MongooseProxy.Supervisor,
+      Discovery.Worker
     )
 
     Horde.DynamicSupervisor.start_child(MongooseProxy.Supervisor, EventSourced.Router)
@@ -37,7 +47,7 @@ defmodule MongooseProxy.HordeConnector do
         Logger.info(
           "[mongoose proxy on #{inspect(Node.self())}]: Connecting Horde to #{inspect(node)}"
         )
-        
+
         {name, node}
       end)
 
