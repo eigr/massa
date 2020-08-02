@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy-test-pod
+  namespace: mongoose
+  labels:
+    app: mongoose-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: proxy-test-pod
+  template:
+    metadata:
+      labels:
+        app: proxy-test-pod
+    spec:
+      containers:
+
+        - name: user-func
+          image: cloudstateio/cloudstate-python-tck:latest
+          resources: {}
+
+        - name: mongoose-proxy
+          image: mungotinae/mongoose-proxy:0.1.0
+          imagePullPolicy: Never
+          resources: {}
+          env:
+            - name: PROXY_UDS_MODE
+              value: "false"
+            - name: PROXY_PORT
+              value: "9000"
+            - name: PROXY_HTTP_PORT
+              value: "9001"
+            - name: USER_FUNCTION_HOST
+              value: "127.0.0.1"
+            - name: USER_FUNCTION_PORT
+              value: "8080"
+            - name: PROXY_POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: NODE_COOKIE
+              value: cookie
+          
+      

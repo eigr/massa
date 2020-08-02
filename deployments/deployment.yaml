@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongoose-proxy
+  namespace: mongoose
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 0
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: mongoose-proxy
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: mongoose-proxy
+    spec:
+      containers:
+      - env:
+        - name: PROXY_UDS_MODE
+          value: "false"
+        - name: USER_FUNCTION_HOST
+          value: "127.0.0.1"
+        - name: USER_FUNCTION_PORT
+          value: "8080"
+        - name: PROXY_POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: NODE_COOKIE
+          value: cookie
+        image: mungotinae/mongoose-proxy:0.1.0
+        imagePullPolicy: Never
+        name: mongoose-proxy            
+        resources: {}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
