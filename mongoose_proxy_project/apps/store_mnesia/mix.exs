@@ -1,15 +1,15 @@
-defmodule StoreCassandra.MixProject do
+defmodule StoreMnesia.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :store_cassandra,
+      app: :store_mnesia,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.10",
+      elixir: "~> 1.11-dev",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -29,7 +29,7 @@ defmodule StoreCassandra.MixProject do
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
       # {:sibling_app_in_umbrella, in_umbrella: true}
 
-      {:xandra, "~> 0.13.1"}
+      {:amnesia, "~> 0.2.8"}
     ]
   end
 end
