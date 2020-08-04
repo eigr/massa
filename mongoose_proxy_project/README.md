@@ -1,4 +1,4 @@
-# MongooseProxyProject
+# Mongoose Proxy Project
 
-**TODO: Add description**
+## Umbrella Project Root of Mongoose Proxy 
 

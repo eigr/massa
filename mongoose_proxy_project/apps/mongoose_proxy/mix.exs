@@ -41,14 +41,9 @@ defmodule MongooseProxy.MixProject do
 
       # Grpc deps
       {:grpc, github: "elixir-grpc/grpc"},
+      #{:gun, "~> 2.0", hex: :grpc_gun, override: true},
       # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0
       {:cowlib, "~> 2.9.0", override: true},
-
-      # Data ingestion deps
-      {:broadway, "~> 0.6.1"},
-      # {:broadway_sqs, "~> 0.6.1"},
-      # {:broadway_rabbitmq, "~> 0.6.1"},
-      # {:broadway_cloud_pub_sub, "~> 0.6.0"},
 
       # Cluster deps
       # Node discovery for Kubernetes
