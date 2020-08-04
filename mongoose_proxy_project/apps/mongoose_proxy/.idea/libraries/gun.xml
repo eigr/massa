@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="gun" type="mix">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/_build/dev/lib/gun/ebin" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/deps/gun/src" />
+    </SOURCES>
+  </library>
+</component>

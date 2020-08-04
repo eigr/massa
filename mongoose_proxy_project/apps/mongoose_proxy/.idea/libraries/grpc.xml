@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="grpc" type="mix">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/_build/dev/lib/grpc/ebin" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/deps/grpc/lib" />
+      <root url="file://$PROJECT_DIR$/deps/grpc/src" />
+      <root url="file://$PROJECT_DIR$/deps/grpc/priv" />
+    </SOURCES>
+  </library>
+</component>
