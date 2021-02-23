@@ -49,7 +49,7 @@ defmodule MongooseProxy.MixProject do
       # Node discovery for Kubernetes
       {:libcluster, "~> 3.2.1"},
       # Cluster features/utilities
-      {:horde, "~> 0.7.1"},
+      {:horde, "~> 0.8.3"},
 
       # Observability deps
       # OpenTracing
