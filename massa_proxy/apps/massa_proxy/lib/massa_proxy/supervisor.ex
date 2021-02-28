@@ -1,4 +1,4 @@
-defmodule MongooseProxy.Supervisor do
+defmodule MassaProxy.Supervisor do
   @moduledoc false
   use Supervisor
   require Logger
@@ -18,28 +18,28 @@ defmodule MongooseProxy.Supervisor do
           options: [port: _port]
         ),
         cluster_supervisor(),
-        {Horde.Registry, [name: MongooseProxy.GlobalRegistry, keys: :unique]},
-        {Horde.DynamicSupervisor, [name: MongooseProxy.GlobalSupervisor, strategy: :one_for_one]},
+        {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
+        {Horde.DynamicSupervisor, [name: MassaProxy.GlobalSupervisor, strategy: :one_for_one]},
         %{
-          id: MongooseProxy.HordeConnector,
+          id: MassaProxy.HordeConnector,
           restart: :transient,
           start: {
             Task,
             :start_link,
             [
               fn ->
-                MongooseProxy.HordeConnector.connect()
-                MongooseProxy.HordeConnector.start_children()
+                MassaProxy.HordeConnector.connect()
+                MassaProxy.HordeConnector.start_children()
 
                 Node.list()
                 |> Enum.each(fn node ->
-                  :ok = MongooseProxy.StateHandoff.join(node)
+                  :ok = MassaProxy.StateHandoff.join(node)
                 end)
               end
             ]
           }
         },
-        MongooseProxy.NodeListener
+        MassaProxy.NodeListener
       ]
       |> Enum.reject(&is_nil/1)
 
@@ -51,7 +51,7 @@ defmodule MongooseProxy.Supervisor do
     topologies = Application.get_env(:libcluster, :topologies)
 
     if topologies && Code.ensure_compiled?(Cluster.Supervisor) do
-      {Cluster.Supervisor, [topologies, [name: MongooseProxy.ClusterSupervisor]]}
+      {Cluster.Supervisor, [topologies, [name: MassaProxy.ClusterSupervisor]]}
     end
   end
 

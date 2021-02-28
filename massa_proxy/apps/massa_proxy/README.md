@@ -1,6 +1,10 @@
-# Mongoose Cloudstate Proxy
+# Massa Cloudstate Proxy
 
-Mongoose is a [Cloudstate](https://github.com/cloudstateio/cloudstate) proxy implementation
+Massa is a Massive Serverless Systems Architecture.
+
+Relax this is just an inside joke. The name Massa is due to a river near the Eigr mountain in Switzerland.
+
+Now seriously Massa is just a [CloudState](https://github.com/cloudstateio/cloudstate) proxy implementation
 
 ## Installation
 

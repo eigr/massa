@@ -20,7 +20,7 @@ RUN mix local.rebar --force \
     && mix deps.get \
     && mix release.init
 
-RUN echo "-name mongoose_proxy@${PROXY_POD_IP}" >> ./rel/vm.args.eex \
+RUN echo "-name massa_proxy@${PROXY_POD_IP}" >> ./rel/vm.args.eex \
       && echo "-setcookie ${NODE_COOKIE}" >> ./rel/vm.args.eex
     
 RUN mix release
@@ -39,4 +39,4 @@ USER app
 ENV MIX_ENV=prod
 ENV REPLACE_OS_VARS=true
 
-ENTRYPOINT ["./prod/rel/mongoose_proxy/bin/mongoose_proxy", "start"]
+ENTRYPOINT ["./prod/rel/massa_proxy/bin/massa_proxy", "start"]

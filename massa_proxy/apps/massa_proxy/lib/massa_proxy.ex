@@ -1,7 +1,7 @@
-defmodule MongooseProxy do
+defmodule MassaProxy do
 end
 
-defmodule MongooseProxy.CloudstateEntity do
+defmodule MassaProxy.CloudstateEntity do
   defstruct node: Node.self(),
             entity_type: "",
             service_name: "",

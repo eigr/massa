@@ -1,4 +1,4 @@
-defmodule MongooseProxy.StateHandoff do
+defmodule MassaProxy.StateHandoff do
   use GenServer
   require Logger
 

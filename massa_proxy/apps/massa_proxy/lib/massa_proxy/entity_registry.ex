@@ -1,4 +1,4 @@
-defmodule MongooseProxy.EntityRegistry do
+defmodule MassaProxy.EntityRegistry do
   @moduledoc false
   use GenServer
   require Logger
@@ -19,9 +19,9 @@ defmodule MongooseProxy.EntityRegistry do
   end
 
   def init(service) do
-    Logger.info("[MongooseProxy on #{inspect(Node.self())}][EntityRegistry]: Initializing...")
+    Logger.info("[MassaProxy on #{inspect(Node.self())}][EntityRegistry]: Initializing...")
     Process.flag(:trap_exit, true)
-    entities = MongooseProxy.StateHandoff.pickup(service)
+    entities = MassaProxy.StateHandoff.pickup(service)
     {:ok, {service, entities}}
   end
 
@@ -44,11 +44,11 @@ defmodule MongooseProxy.EntityRegistry do
   end
 
   def terminate(reason, {service, entities}) do
-    MongooseProxy.StateHandoff.handoff(service, entities)
+    MassaProxy.StateHandoff.handoff(service, entities)
     :ok
   end
 
   defp via_tuple(service) do
-    {:via, Horde.Registry, {MongooseProxy.GlobalRegistry, service}}
+    {:via, Horde.Registry, {MassaProxy.GlobalRegistry, service}}
   end
 end

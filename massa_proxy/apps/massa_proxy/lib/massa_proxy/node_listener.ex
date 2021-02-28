@@ -1,4 +1,4 @@
-defmodule MongooseProxy.NodeListener do
+defmodule MassaProxy.NodeListener do
   use GenServer
   require Logger
 
@@ -11,15 +11,15 @@ defmodule MongooseProxy.NodeListener do
 
   def handle_info({:nodeup, _node, _node_type}, state) do
     Logger.debug("Node listener on event nodeup. Updating cluster members...")
-    set_members(MongooseProxy.GlobalRegistry)
-    set_members(MongooseProxy.GlobalSupervisor)
+    set_members(MassaProxy.GlobalRegistry)
+    set_members(MassaProxy.GlobalSupervisor)
     {:noreply, state}
   end
 
   def handle_info({:nodedown, _node, _node_type}, state) do
     Logger.debug("Node listener on event nodedown. Updating cluster members...")
-    set_members(MongooseProxy.GlobalRegistry)
-    set_members(MongooseProxy.GlobalSupervisor)
+    set_members(MassaProxy.GlobalRegistry)
+    set_members(MassaProxy.GlobalSupervisor)
     {:noreply, state}
   end
 

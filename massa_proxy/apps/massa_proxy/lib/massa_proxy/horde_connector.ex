@@ -1,12 +1,12 @@
-defmodule MongooseProxy.HordeConnector do
+defmodule MassaProxy.HordeConnector do
   @moduledoc false
   require Logger
 
   def connect() do
     Logger.info("Starting Proxy Cluster...")
 
-    set_members(MongooseProxy.GlobalRegistry)
-    set_members(MongooseProxy.GlobalSupervisor)
+    set_members(MassaProxy.GlobalRegistry)
+    set_members(MassaProxy.GlobalSupervisor)
   end
 
   def start_children() do
@@ -14,31 +14,31 @@ defmodule MongooseProxy.HordeConnector do
     Logger.debug("Starting Supervisors...")
 
     Horde.DynamicSupervisor.start_child(
-      MongooseProxy.Supervisor,
-      {MongooseProxy.StateHandoff, []}
+      MassaProxy.Supervisor,
+      {MassaProxy.StateHandoff, []}
     )
 
     Horde.DynamicSupervisor.start_child(
-      MongooseProxy.Supervisor,
-      {MongooseProxy.EntityRegistry, "EventSourced"}
+      MassaProxy.Supervisor,
+      {MassaProxy.EntityRegistry, "EventSourced"}
     )
 
     Horde.DynamicSupervisor.start_child(
-      MongooseProxy.Supervisor,
-      {MongooseProxy.EntityRegistry, "CRDT"}
+      MassaProxy.Supervisor,
+      {MassaProxy.EntityRegistry, "CRDT"}
     )
 
     Horde.DynamicSupervisor.start_child(
-      MongooseProxy.Supervisor,
-      {MongooseProxy.EntityRegistry, "Stateless"}
+      MassaProxy.Supervisor,
+      {MassaProxy.EntityRegistry, "Stateless"}
     )
 
     Horde.DynamicSupervisor.start_child(
-      MongooseProxy.Supervisor,
+      MassaProxy.Supervisor,
       Discovery.Worker
     )
 
-    Horde.DynamicSupervisor.start_child(MongooseProxy.Supervisor, EventSourced.Router)
+    Horde.DynamicSupervisor.start_child(MassaProxy.Supervisor, EventSourced.Router)
   end
 
   defp set_members(name) do
