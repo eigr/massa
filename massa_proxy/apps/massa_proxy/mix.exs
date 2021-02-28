@@ -1,4 +1,4 @@
-defmodule MongooseProxy.MixProject do
+defmodule MassaProxy.MixProject do
   use Mix.Project
 
   def project do
@@ -28,7 +28,7 @@ defmodule MongooseProxy.MixProject do
         :logger,
         :observer
       ],
-      mod: {MongooseProxy.Application, []}
+      mod: {MassaProxy.Application, []}
     ]
   end
 

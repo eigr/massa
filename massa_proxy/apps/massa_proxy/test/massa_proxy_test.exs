@@ -1,8 +1,8 @@
-defmodule MongooseProxyTest do
+defmodule MassaProxyTest do
   use ExUnit.Case
-  doctest MongooseProxy
+  doctest MassaProxy
 
   test "greets the world" do
-    assert MongooseProxy.hello() == :world
+    assert MassaProxy.hello() == :world
   end
 end

@@ -3,7 +3,7 @@ defmodule Discovery.Manager do
   require Logger
 
   alias ExRay.Span
-  alias MongooseProxy.CloudstateEntity
+  alias MassaProxy.CloudstateEntity
   alias Google.Protobuf.FileDescriptorSet
   alias Google.Protobuf.FieldDescriptorProto
 
@@ -70,7 +70,7 @@ defmodule Discovery.Manager do
 
     case entity.entity_type do
       "cloudstate.eventsourced.EventSourced" ->
-        MongooseProxy.EntityRegistry.register("EventSourced", [entity])
+        MassaProxy.EntityRegistry.register("EventSourced", [entity])
 
       _ ->
         Logger.warn("Unknown Entity #{entity.entity_type}")
