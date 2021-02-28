@@ -1,4 +1,4 @@
-# Mongoose Proxy Project
+# Massa Proxy Project
 
-## Umbrella Project Root of Mongoose Proxy 
+## Umbrella Project Root of Massa Proxy 
 
