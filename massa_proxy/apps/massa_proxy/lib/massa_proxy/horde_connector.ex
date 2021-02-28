@@ -46,7 +46,7 @@ defmodule MongooseProxy.HordeConnector do
       [Node.self() | Node.list()]
       |> Enum.map(fn node ->
         Logger.info(
-          "[mongoose proxy on #{inspect(Node.self())}]: Connecting Horde to #{inspect(node)}"
+          "[massa proxy on #{inspect(Node.self())}]: Connecting Horde to #{inspect(node)}"
         )
 
         {name, node}

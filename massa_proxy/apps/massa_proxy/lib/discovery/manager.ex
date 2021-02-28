@@ -9,7 +9,7 @@ defmodule Discovery.Manager do
 
   @protocol_minor_version 1
   @protocol_major_version 0
-  @proxy_name "mongoose-proxy"
+  @proxy_name "massa-proxy"
   @supported_entity_types ["cloudstate.eventsourced.EventSourced"]
 
   # Generates a request id
@@ -22,7 +22,7 @@ defmodule Discovery.Manager do
         protocol_major_version: @protocol_minor_version,
         protocol_minor_version: @protocol_minor_version,
         proxy_name: @proxy_name,
-        proxy_version: Application.spec(:mongoose_proxy, :vsn),
+        proxy_version: Application.spec(:massa_proxy, :vsn),
         supported_entity_types: @supported_entity_types
       )
 

@@ -3,7 +3,7 @@ defmodule MongooseProxy.MixProject do
 
   def project do
     [
-      app: :mongoose_proxy,
+      app: :massa_proxy,
       version: "0.1.0",
       elixir: "~> 1.10",
       build_path: "../../_build",
@@ -13,7 +13,7 @@ defmodule MongooseProxy.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       releases: [
-        mongoose_proxy: [
+        massa_proxy: [
           include_executables_for: [:unix],
           applications: [runtime_tools: :permanent]
         ]

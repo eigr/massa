@@ -55,5 +55,5 @@ defmodule MongooseProxy.Supervisor do
     end
   end
 
-  defp get_http_port(), do: Application.get_env(:mongoose_proxy, :proxy_http_port, 9001)
+  defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
 end

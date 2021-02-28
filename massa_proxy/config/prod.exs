@@ -15,14 +15,12 @@ config :logger, :console,
 # Cluster configurations
 config :libcluster,
   topologies: [
-    dev: [
-      strategy: Cluster.Strategy.Epmd,
+    kubernetes: [
+      strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
       config: [
-        hosts: [
-          :"a@127.0.0.1",
-          :"b@127.0.0.1",
-          :"c@127.0.0.1"
-        ]
+        service: "massa-proxy-svc",
+        application_name: "massa_proxy",
+        polling_interval: 3_000
       ]
     ]
   ]
@@ -30,15 +28,15 @@ config :libcluster,
 # OpenTracing configs
 config :otter,
   zipkin_collector_uri: 'http://127.0.0.1:9411/api/v1/spans',
-  zipkin_tag_host_service: "mongoose_proxy",
+  zipkin_tag_host_service: "massa_proxy",
   http_client: :hackney
 
 # Proxy configuration
-config :mongoose_proxy,
+config :massa_proxy,
   proxy_port: System.get_env("PROXY_PORT") || 9000,
   proxy_http_port: System.get_env("PROXY_HTTP_PORT") || 9001,
   user_function_host: System.get_env("USER_FUNCTION_HOST") || "127.0.0.1",
   user_function_port: System.get_env("USER_FUNCTION_PORT") || 8080,
   user_function_uds_enable: System.get_env("PROXY_UDS_MODE") || true,
   user_function_sock_addr: System.get_env("PROXY_UDS_ADDRESS") || "/var/run/cloudstate.sock",
-  heartbeat_interval: System.get_env("PROXY_HEARTBEAT_INTERVAL") || 240_000
+  heartbeat_interval: System.get_env("PROXY_HEARTBEAT_INTERVAL") || 60_000

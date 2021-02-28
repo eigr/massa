@@ -69,17 +69,17 @@ defmodule Discovery.Worker do
   defp get_connection(),
     do: GRPC.Stub.connect(get_address(is_uds_enable?), interceptors: [GRPC.Logger.Client])
 
-  defp get_function_port(), do: Application.get_env(:mongoose_proxy, :user_function_port, 8080)
+  defp get_function_port(), do: Application.get_env(:massa_proxy, :user_function_port, 8080)
 
   defp get_function_host(),
-    do: Application.get_env(:mongoose_proxy, :user_function_host, "127.0.0.1")
+    do: Application.get_env(:massa_proxy, :user_function_host, "127.0.0.1")
 
   defp get_heartbeat_interval(),
-    do: Application.get_env(:mongoose_proxy, :heartbeat_interval, 60_000)
+    do: Application.get_env(:massa_proxy, :heartbeat_interval, 60_000)
 
   defp is_uds_enable?(),
-    do: Application.get_env(:mongoose_proxy, :user_function_uds_enable, false)
+    do: Application.get_env(:massa_proxy, :user_function_uds_enable, false)
 
   defp get_uds_address(),
-    do: Application.get_env(:mongoose_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")
+    do: Application.get_env(:massa_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")
 end

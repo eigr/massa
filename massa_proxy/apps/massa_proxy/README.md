@@ -5,17 +5,17 @@ Mongoose is a [Cloudstate](https://github.com/cloudstateio/cloudstate) proxy imp
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `mongoose_proxy` to your list of dependencies in `mix.exs`:
+by adding `massa_proxy` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:mongoose_proxy, "~> 0.1.0"}
+    {:massa_proxy, "~> 0.1.0"}
   ]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/mongoose_proxy](https://hexdocs.pm/mongoose_proxy).
+be found at [https://hexdocs.pm/massa_proxy](https://hexdocs.pm/massa_proxy).
 

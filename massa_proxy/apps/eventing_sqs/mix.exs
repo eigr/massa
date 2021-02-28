@@ -1,9 +1,9 @@
-defmodule EventingCloudPubsub.MixProject do
+defmodule EventingSqs.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :eventing_cloud_pubsub,
+      app: :eventing_sqs,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -32,11 +32,11 @@ defmodule EventingCloudPubsub.MixProject do
       # Base deps
       {:flow, "~> 1.0"},
       {:protobuf, "~> 0.7.1"},
-      {:google_protos, "~> 0.1.0"},
+      {:google_protos, "~> 0.1.0"}
 
       # Data ingestion deps
-      {:broadway, "~> 0.6.1"},
-      {:broadway_cloud_pub_sub, "~> 0.6.0"}
+      # {:broadway, "~> 0.6.1"},
+      # {:broadway_sqs, "~> 0.6.1"}
     ]
   end
 end

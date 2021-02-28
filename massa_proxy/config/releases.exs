@@ -18,8 +18,8 @@ config :libcluster,
     kubernetes: [
       strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
       config: [
-        service: "mongoose-proxy-svc",
-        application_name: "mongoose_proxy",
+        service: "massa-proxy-svc",
+        application_name: "massa_proxy",
         polling_interval: 3_000
       ]
     ]
@@ -28,11 +28,11 @@ config :libcluster,
 # OpenTracing configs
 config :otter,
   zipkin_collector_uri: 'http://127.0.0.1:9411/api/v1/spans',
-  zipkin_tag_host_service: "mongoose_proxy",
+  zipkin_tag_host_service: "massa_proxy",
   http_client: :hackney
 
 # Proxy configuration
-config :mongoose_proxy,
+config :massa_proxy,
   proxy_port: System.get_env("PROXY_PORT") || 9000,
   proxy_http_port: System.get_env("PROXY_HTTP_PORT") || 9001,
   user_function_host: System.get_env("USER_FUNCTION_HOST") || "127.0.0.1",

@@ -32,11 +32,11 @@ defmodule EventingRabbitmq.MixProject do
       # Base deps
       {:flow, "~> 1.0"},
       {:protobuf, "~> 0.7.1"},
-      {:google_protos, "~> 0.1.0"},
+      {:google_protos, "~> 0.1.0"}
 
       # Data ingestion deps
-      {:broadway, "~> 0.6.1"},
-      {:broadway_rabbitmq, "~> 0.6.1"}
+      # {:broadway, "~> 0.6.1"},
+      # {:broadway_rabbitmq, "~> 0.6.1"}
     ]
   end
 end
