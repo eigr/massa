@@ -16,13 +16,13 @@ defmodule MassaProxy.Application do
       %Dotenv{},
       %Env{
         bindings: [
-          {:proxy_port, "PROXY_PORT", default: 9000, map: &String.to_integer/1},
-          {:proxy_http_port, "PROXY_HTTP_PORT", default: 9001, map: &String.to_integer/1},
-          {:user_function_host, "USER_FUNCTION_HOST", default: "0.0.0.0"},
-          {:user_function_port, "USER_FUNCTION_PORT", default: 8080, map: &String.to_integer/1},
-          {:user_function_uds_enable, "PROXY_UDS_MODE", default: false},
-          {:user_function_sock_addr, "PROXY_UDS_ADDRESS", default: "/var/run/cloudstate.sock"},
-          {:heartbeat_interval, "PROXY_HEARTBEAT_INTERVAL", default: 240_000}
+          {:proxy_port, "PROXY_PORT", default: 9000, map: &String.to_integer/1, required: false},
+          {:proxy_http_port, "PROXY_HTTP_PORT", default: 9001, map: &String.to_integer/1, required: false},
+          {:user_function_host, "USER_FUNCTION_HOST", default: "0.0.0.0", required: false},
+          {:user_function_port, "USER_FUNCTION_PORT", default: 8080, map: &String.to_integer/1, required: false},
+          {:user_function_uds_enable, "PROXY_UDS_MODE", default: false, required: false},
+          {:user_function_sock_addr, "PROXY_UDS_ADDRESS", default: "/var/run/cloudstate.sock", required: false},
+          {:heartbeat_interval, "PROXY_HEARTBEAT_INTERVAL", default: 240_000, required: false}
         ]
       }
     ]
