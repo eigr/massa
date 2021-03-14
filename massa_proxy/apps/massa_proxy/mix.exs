@@ -37,6 +37,7 @@ defmodule MassaProxy.MixProject do
     [
       # Base deps
       {:flow, "~> 1.0"},
+      {:vapor, "~> 0.10.0"},
       {:google_protos, "~> 0.1.0"},
 
       # Grpc deps
