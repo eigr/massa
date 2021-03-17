@@ -16,15 +16,8 @@ config :logger, :console,
 config :libcluster,
   topologies: [
     dev: [
-      strategy: Cluster.Strategy.Epmd,
-      config: [
-        hosts: [
-          :"a@127.0.0.1",
-          :"b@127.0.0.1",
-          :"c@127.0.0.1"
-        ]
+      strategy: Cluster.Strategy.Gossip
       ]
-    ]
   ]
 
 # OpenTracing configs
