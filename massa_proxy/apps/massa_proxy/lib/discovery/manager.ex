@@ -69,7 +69,7 @@ defmodule Discovery.Manager do
     Logger.debug("Registering Entity: #{inspect(entity)} ")
 
     case entity.entity_type do
-      "cloudtate.eventsourced.EventSourced" ->
+      "cloudstate.eventsourced.EventSourced" ->
         MassaProxy.EntityRegistry.register("EventSourced", [entity])
 
       _ ->
