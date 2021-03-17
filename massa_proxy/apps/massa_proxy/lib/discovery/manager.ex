@@ -61,7 +61,7 @@ defmodule Discovery.Manager do
       |> Flow.map(&register_entity/1)
       |> Enum.to_list()
 
-    Logger.debug("Cloudstate Entities: #{inspect(user_entities)}.")
+    Logger.debug("CloudState Entities: #{inspect(user_entities)}.")
     user_entities
   end
 
@@ -69,7 +69,7 @@ defmodule Discovery.Manager do
     Logger.debug("Registering Entity: #{inspect(entity)} ")
 
     case entity.entity_type do
-      "cloudstate.eventsourced.EventSourced" ->
+      "cloudtate.eventsourced.EventSourced" ->
         MassaProxy.EntityRegistry.register("EventSourced", [entity])
 
       _ ->
