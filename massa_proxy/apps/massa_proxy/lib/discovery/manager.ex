@@ -3,7 +3,7 @@ defmodule Discovery.Manager do
   require Logger
 
   alias ExRay.Span
-  alias MassaProxy.CloudstateEntity
+  alias MassaProxy.{Server, CloudstateEntity}
   alias Google.Protobuf.FileDescriptorSet
   alias Google.Protobuf.FieldDescriptorProto
 
@@ -14,6 +14,16 @@ defmodule Discovery.Manager do
 
   # Generates a request id
   @req_id :os.system_time(:milli_seconds) |> Integer.to_string() |> IO.inspect()
+
+  @trace kind: :critical
+  def report_error(channel, error) do
+    {_, response} =
+      channel
+      |> Cloudstate.EntityDiscovery.Stub.report_error(error)
+
+    Logger.info("User function report error reply #{inspect(response)}")
+    response
+  end
 
   @trace kind: :normal
   def discover(channel) do
@@ -26,19 +36,11 @@ defmodule Discovery.Manager do
         supported_entity_types: @supported_entity_types
       )
 
-    channel
-    |> Cloudstate.EntityDiscovery.Stub.discover(message)
-    |> handle_response
-  end
-
-  @trace kind: :critical
-  def report_error(channel, error) do
-    {_, response} =
-      channel
-      |> Cloudstate.EntityDiscovery.Stub.report_error(error)
-
-    Logger.info("User function report error reply #{inspect(response)}")
-    response
+    with {:ok, file_descriptors, user_entities} <-
+           channel
+           |> Cloudstate.EntityDiscovery.Stub.discover(message)
+           |> handle_response,
+         do: Server.start(file_descriptors, user_entities)
   end
 
   defp handle_response(response) do
@@ -62,7 +64,7 @@ defmodule Discovery.Manager do
       |> Enum.to_list()
 
     Logger.debug("CloudState Entities: #{inspect(user_entities)}.")
-    user_entities
+    {:ok, file_descriptors, user_entities}
   end
 
   defp register_entity(entity) do
