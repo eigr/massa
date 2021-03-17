@@ -4,7 +4,7 @@ Massa is a Massive Serverless Systems Architecture.
 
 Relax this is just an internal joke. The name Massa is due to a river near the Eigr mountain in Switzerland.
 
-Now seriously Massa is just a [CloudState](https://github.com/cloudstateio/cloudstate) proxy implementation
+Now seriously Massa is just [CloudState](https://github.com/cloudstateio/cloudstate) proxy implementation build on top of BEAM/Elixir
 
 ## Overview
 
@@ -21,29 +21,21 @@ Massa takes advantage of Elixir's simplicity and elegance, mainly because we kno
     - [ ] KV
 - [x] Cluster transparent
 - [x] Discovery Support
-- [ ] Eventing:
-    - [ ] Apache Kafka
-    - [ ] Amazon SQS
-    - [ ] Event Log
-    - [ ] Google Cloud Pub/Sub
-    - [ ] RabbitMQ
-    - [ ] Redis
-- [ ] Interoperability with Cloudstate reference implementation
+- [ ] Eventing
+- [x] Interoperability with Cloudstate reference implementation
 - [ ] Metadata Support
 - [x] Observability:
     - [x] Health Checks
     - [x] Metrics
     - [x] Open Tracing
 - [ ] State Store:
-    - [ ] Cassandra
     - [ ] In Memory
     - [ ] Mnesia
+    - [ ] Cassandra
     - [ ] MongoDB
     - [ ] MSSQL
     - [ ] MySql
     - [ ] Postgres
-    - [ ] Redis
-    - [ ] Riak
 - [ ] TCK
 - [x] Transports and Protocols
     - [x] GRPC
@@ -51,11 +43,7 @@ Massa takes advantage of Elixir's simplicity and elegance, mainly because we kno
         - [x] Client Unix Domain Sockets
         - [ ] Reflection
         - [ ] Server TCP 
-    - [ ] HTTP 
-        - [ ] Grpc-Web
-        - [ ] SSE
-        - [ ] Websockets
-- [x] Very Fast
+    - [ ] HTTP
 
 ## Main Concepts
 
