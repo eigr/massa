@@ -17,7 +17,7 @@ config :libcluster,
   topologies: [
     dev: [
       strategy: Cluster.Strategy.Gossip
-      ]
+    ]
   ]
 
 # OpenTracing configs

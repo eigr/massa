@@ -50,11 +50,10 @@ defmodule Discovery.Manager do
   end
 
   defp register_entities({:ok, message}) do
-    # TODO: Registry entities here
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
-    # Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
+    #Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
 
     user_entities =
       entities
@@ -63,7 +62,7 @@ defmodule Discovery.Manager do
       |> Flow.map(&register_entity/1)
       |> Enum.to_list()
 
-    Logger.debug("CloudState Entities: #{inspect(user_entities)}.")
+    Logger.debug("Found Entities: #{inspect(user_entities)}.")
     {:ok, file_descriptors, user_entities}
   end
 

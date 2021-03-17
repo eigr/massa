@@ -1,0 +1,9 @@
+defmodule <%= mod_name %>.ProxyService do
+  @moduledoc false
+  use GRPC.Server, service: <%= inspect(name) %>
+
+<%= Enum.map methods, fn(method) -> %>
+  def <%= method %>(message, stream), do: <%= handler %>
+<% end %>
+
+end

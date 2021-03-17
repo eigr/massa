@@ -1,0 +1,14 @@
+defmodule Massa.Server.Grpc.ProxyEndpoint do
+  use GRPC.Endpoint
+
+  intercept(GRPC.Logger.Server)
+  #intercept(GRPCPrometheus.ServerInterceptor)
+
+  services = [
+<%= Enum.map service, fn(service) -> %>
+      <%= method %>,
+<% end %>
+  ]
+
+  run(services)
+end
