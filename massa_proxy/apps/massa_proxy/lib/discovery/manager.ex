@@ -1,6 +1,7 @@
 defmodule Discovery.Manager do
-  use ExRay, pre: :before_fun, post: :after_fun
+  @moduledoc false
   require Logger
+  use ExRay, pre: :before_fun, post: :after_fun
 
   alias ExRay.Span
   alias MassaProxy.{Server, CloudstateEntity}

@@ -1,4 +1,5 @@
 defmodule MassaProxy.Server do
+  @moduledoc false
   require Logger
 
   alias Protobuf.Protoc.Context

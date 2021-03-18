@@ -1,4 +1,5 @@
 defmodule MassaProxy.StateHandoff do
+  @moduledoc false
   use GenServer
   require Logger
 

@@ -18,5 +18,5 @@ defmodule Google.Api.SourceInfo do
     )
   end
 
-  field :source_files, 1, repeated: true, type: Google.Protobuf.Any
+  field(:source_files, 1, repeated: true, type: Google.Protobuf.Any)
 end

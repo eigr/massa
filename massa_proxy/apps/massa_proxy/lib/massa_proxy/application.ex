@@ -1,4 +1,5 @@
 defmodule MassaProxy.Application do
+  @moduledoc false
   use Application
   alias Vapor.Provider.{Env, Dotenv}
 

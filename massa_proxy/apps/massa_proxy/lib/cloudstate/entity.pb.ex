@@ -17,7 +17,7 @@ defmodule Cloudstate.Reply do
     )
   end
 
-  field :payload, 1, type: Google.Protobuf.Any
+  field(:payload, 1, type: Google.Protobuf.Any)
 end
 
 defmodule Cloudstate.Forward do
@@ -45,9 +45,9 @@ defmodule Cloudstate.Forward do
     )
   end
 
-  field :service_name, 1, type: :string
-  field :command_name, 2, type: :string
-  field :payload, 3, type: Google.Protobuf.Any
+  field(:service_name, 1, type: :string)
+  field(:command_name, 2, type: :string)
+  field(:payload, 3, type: Google.Protobuf.Any)
 end
 
 defmodule Cloudstate.ClientAction do
@@ -75,10 +75,10 @@ defmodule Cloudstate.ClientAction do
     )
   end
 
-  oneof :action, 0
-  field :reply, 1, type: Cloudstate.Reply, oneof: 0
-  field :forward, 2, type: Cloudstate.Forward, oneof: 0
-  field :failure, 3, type: Cloudstate.Failure, oneof: 0
+  oneof(:action, 0)
+  field(:reply, 1, type: Cloudstate.Reply, oneof: 0)
+  field(:forward, 2, type: Cloudstate.Forward, oneof: 0)
+  field(:failure, 3, type: Cloudstate.Failure, oneof: 0)
 end
 
 defmodule Cloudstate.SideEffect do
@@ -109,10 +109,10 @@ defmodule Cloudstate.SideEffect do
     )
   end
 
-  field :service_name, 1, type: :string
-  field :command_name, 2, type: :string
-  field :payload, 3, type: Google.Protobuf.Any
-  field :synchronous, 4, type: :bool
+  field(:service_name, 1, type: :string)
+  field(:command_name, 2, type: :string)
+  field(:payload, 3, type: Google.Protobuf.Any)
+  field(:synchronous, 4, type: :bool)
 end
 
 defmodule Cloudstate.Command do
@@ -143,11 +143,11 @@ defmodule Cloudstate.Command do
     )
   end
 
-  field :entity_id, 1, type: :string
-  field :id, 2, type: :int64
-  field :name, 3, type: :string
-  field :payload, 4, type: Google.Protobuf.Any
-  field :streamed, 5, type: :bool
+  field(:entity_id, 1, type: :string)
+  field(:id, 2, type: :int64)
+  field(:name, 3, type: :string)
+  field(:payload, 4, type: Google.Protobuf.Any)
+  field(:streamed, 5, type: :bool)
 end
 
 defmodule Cloudstate.StreamCancelled do
@@ -170,8 +170,8 @@ defmodule Cloudstate.StreamCancelled do
     )
   end
 
-  field :entity_id, 1, type: :string
-  field :id, 2, type: :int64
+  field(:entity_id, 1, type: :string)
+  field(:id, 2, type: :int64)
 end
 
 defmodule Cloudstate.Failure do
@@ -195,8 +195,8 @@ defmodule Cloudstate.Failure do
     )
   end
 
-  field :command_id, 1, type: :int64
-  field :description, 2, type: :string
+  field(:command_id, 1, type: :int64)
+  field(:description, 2, type: :string)
 end
 
 defmodule Cloudstate.EntitySpec do
@@ -225,9 +225,9 @@ defmodule Cloudstate.EntitySpec do
     )
   end
 
-  field :proto, 1, type: :bytes
-  field :entities, 2, repeated: true, type: Cloudstate.Entity
-  field :service_info, 3, type: Cloudstate.ServiceInfo
+  field(:proto, 1, type: :bytes)
+  field(:entities, 2, repeated: true, type: Cloudstate.Entity)
+  field(:service_info, 3, type: Cloudstate.ServiceInfo)
 end
 
 defmodule Cloudstate.ServiceInfo do
@@ -268,11 +268,11 @@ defmodule Cloudstate.ServiceInfo do
     )
   end
 
-  field :service_name, 1, type: :string
-  field :service_version, 2, type: :string
-  field :service_runtime, 3, type: :string
-  field :support_library_name, 4, type: :string
-  field :support_library_version, 5, type: :string
+  field(:service_name, 1, type: :string)
+  field(:service_version, 2, type: :string)
+  field(:service_runtime, 3, type: :string)
+  field(:support_library_name, 4, type: :string)
+  field(:support_library_version, 5, type: :string)
 end
 
 defmodule Cloudstate.Entity do
@@ -299,9 +299,9 @@ defmodule Cloudstate.Entity do
     )
   end
 
-  field :entity_type, 1, type: :string
-  field :service_name, 2, type: :string
-  field :persistence_id, 3, type: :string
+  field(:entity_type, 1, type: :string)
+  field(:service_name, 2, type: :string)
+  field(:persistence_id, 3, type: :string)
 end
 
 defmodule Cloudstate.UserFunctionError do
@@ -323,7 +323,7 @@ defmodule Cloudstate.UserFunctionError do
     )
   end
 
-  field :message, 1, type: :string
+  field(:message, 1, type: :string)
 end
 
 defmodule Cloudstate.ProxyInfo do
@@ -365,11 +365,11 @@ defmodule Cloudstate.ProxyInfo do
     )
   end
 
-  field :protocol_major_version, 1, type: :int32
-  field :protocol_minor_version, 2, type: :int32
-  field :proxy_name, 3, type: :string
-  field :proxy_version, 4, type: :string
-  field :supported_entity_types, 5, repeated: true, type: :string
+  field(:protocol_major_version, 1, type: :int32)
+  field(:protocol_minor_version, 2, type: :int32)
+  field(:proxy_name, 3, type: :string)
+  field(:proxy_version, 4, type: :string)
+  field(:supported_entity_types, 5, repeated: true, type: :string)
 end
 
 defmodule Cloudstate.EntityDiscovery.Service do
@@ -391,9 +391,9 @@ defmodule Cloudstate.EntityDiscovery.Service do
     )
   end
 
-  rpc :discover, Cloudstate.ProxyInfo, Cloudstate.EntitySpec
+  rpc(:discover, Cloudstate.ProxyInfo, Cloudstate.EntitySpec)
 
-  rpc :reportError, Cloudstate.UserFunctionError, Google.Protobuf.Empty
+  rpc(:reportError, Cloudstate.UserFunctionError, Google.Protobuf.Empty)
 end
 
 defmodule Cloudstate.EntityDiscovery.Stub do

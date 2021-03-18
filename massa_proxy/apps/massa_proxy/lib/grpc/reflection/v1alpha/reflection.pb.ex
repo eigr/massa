@@ -35,13 +35,13 @@ defmodule Grpc.Reflection.V1alpha.ServerReflectionRequest do
     )
   end
 
-  oneof :message_request, 0
-  field :host, 1, type: :string
-  field :file_by_filename, 3, type: :string, oneof: 0
-  field :file_containing_symbol, 4, type: :string, oneof: 0
-  field :file_containing_extension, 5, type: Grpc.Reflection.V1alpha.ExtensionRequest, oneof: 0
-  field :all_extension_numbers_of_type, 6, type: :string, oneof: 0
-  field :list_services, 7, type: :string, oneof: 0
+  oneof(:message_request, 0)
+  field(:host, 1, type: :string)
+  field(:file_by_filename, 3, type: :string, oneof: 0)
+  field(:file_containing_symbol, 4, type: :string, oneof: 0)
+  field(:file_containing_extension, 5, type: Grpc.Reflection.V1alpha.ExtensionRequest, oneof: 0)
+  field(:all_extension_numbers_of_type, 6, type: :string, oneof: 0)
+  field(:list_services, 7, type: :string, oneof: 0)
 end
 
 defmodule Grpc.Reflection.V1alpha.ExtensionRequest do
@@ -67,8 +67,8 @@ defmodule Grpc.Reflection.V1alpha.ExtensionRequest do
     )
   end
 
-  field :containing_type, 1, type: :string
-  field :extension_number, 2, type: :int32
+  field(:containing_type, 1, type: :string)
+  field(:extension_number, 2, type: :int32)
 end
 
 defmodule Grpc.Reflection.V1alpha.ServerReflectionResponse do
@@ -120,20 +120,22 @@ defmodule Grpc.Reflection.V1alpha.ServerReflectionResponse do
     )
   end
 
-  oneof :message_response, 0
-  field :valid_host, 1, type: :string
-  field :original_request, 2, type: Grpc.Reflection.V1alpha.ServerReflectionRequest
+  oneof(:message_response, 0)
+  field(:valid_host, 1, type: :string)
+  field(:original_request, 2, type: Grpc.Reflection.V1alpha.ServerReflectionRequest)
 
-  field :file_descriptor_response, 4,
+  field(:file_descriptor_response, 4,
     type: Grpc.Reflection.V1alpha.FileDescriptorResponse,
     oneof: 0
+  )
 
-  field :all_extension_numbers_response, 5,
+  field(:all_extension_numbers_response, 5,
     type: Grpc.Reflection.V1alpha.ExtensionNumberResponse,
     oneof: 0
+  )
 
-  field :list_services_response, 6, type: Grpc.Reflection.V1alpha.ListServiceResponse, oneof: 0
-  field :error_response, 7, type: Grpc.Reflection.V1alpha.ErrorResponse, oneof: 0
+  field(:list_services_response, 6, type: Grpc.Reflection.V1alpha.ListServiceResponse, oneof: 0)
+  field(:error_response, 7, type: Grpc.Reflection.V1alpha.ErrorResponse, oneof: 0)
 end
 
 defmodule Grpc.Reflection.V1alpha.FileDescriptorResponse do
@@ -156,7 +158,7 @@ defmodule Grpc.Reflection.V1alpha.FileDescriptorResponse do
     )
   end
 
-  field :file_descriptor_proto, 1, repeated: true, type: :bytes
+  field(:file_descriptor_proto, 1, repeated: true, type: :bytes)
 end
 
 defmodule Grpc.Reflection.V1alpha.ExtensionNumberResponse do
@@ -182,8 +184,8 @@ defmodule Grpc.Reflection.V1alpha.ExtensionNumberResponse do
     )
   end
 
-  field :base_type_name, 1, type: :string
-  field :extension_number, 2, repeated: true, type: :int32
+  field(:base_type_name, 1, type: :string)
+  field(:extension_number, 2, repeated: true, type: :int32)
 end
 
 defmodule Grpc.Reflection.V1alpha.ListServiceResponse do
@@ -207,7 +209,7 @@ defmodule Grpc.Reflection.V1alpha.ListServiceResponse do
     )
   end
 
-  field :service, 1, repeated: true, type: Grpc.Reflection.V1alpha.ServiceResponse
+  field(:service, 1, repeated: true, type: Grpc.Reflection.V1alpha.ServiceResponse)
 end
 
 defmodule Grpc.Reflection.V1alpha.ServiceResponse do
@@ -228,7 +230,7 @@ defmodule Grpc.Reflection.V1alpha.ServiceResponse do
     )
   end
 
-  field :name, 1, type: :string
+  field(:name, 1, type: :string)
 end
 
 defmodule Grpc.Reflection.V1alpha.ErrorResponse do
@@ -253,8 +255,8 @@ defmodule Grpc.Reflection.V1alpha.ErrorResponse do
     )
   end
 
-  field :error_code, 1, type: :int32
-  field :error_message, 2, type: :string
+  field(:error_code, 1, type: :int32)
+  field(:error_message, 2, type: :string)
 end
 
 defmodule Grpc.Reflection.V1alpha.ServerReflection.Service do
@@ -275,9 +277,11 @@ defmodule Grpc.Reflection.V1alpha.ServerReflection.Service do
     )
   end
 
-  rpc :ServerReflectionInfo,
-      stream(Grpc.Reflection.V1alpha.ServerReflectionRequest),
-      stream(Grpc.Reflection.V1alpha.ServerReflectionResponse)
+  rpc(
+    :ServerReflectionInfo,
+    stream(Grpc.Reflection.V1alpha.ServerReflectionRequest),
+    stream(Grpc.Reflection.V1alpha.ServerReflectionResponse)
+  )
 end
 
 defmodule Grpc.Reflection.V1alpha.ServerReflection.Stub do
