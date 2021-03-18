@@ -6,6 +6,8 @@ set -o pipefail
 
 # CloudState Protocol
 
+protoc --elixir_out=gen_descriptors=true,plugins=grpc:./lib --proto_path=priv/protos/proxy/ priv/protos/proxy/grpc/reflection/v1alpha/reflection.proto
+
 protoc --elixir_out=gen_descriptors=true,plugins=grpc:./lib --proto_path=priv/protos/frontend/ priv/protos/frontend/google/api/http.proto
 protoc --elixir_out=gen_descriptors=true,plugins=grpc:./lib --proto_path=priv/protos/frontend/ priv/protos/frontend/google/api/annotations.proto
 protoc --elixir_out=gen_descriptors=true,plugins=grpc:./lib --proto_path=priv/protos/frontend/ priv/protos/frontend/google/api/httpbody.proto
