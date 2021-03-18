@@ -53,7 +53,7 @@ defmodule Discovery.Manager do
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
-    # Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
+    Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
 
     user_entities =
       entities

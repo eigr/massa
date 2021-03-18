@@ -12,6 +12,12 @@ defmodule MassaProxy.Server do
   end
 
   defp compile(descriptors) do
+    # ctx = %Context{global_type_mapping: %{"name.proto" => %{}}}
+    # desc = Google.Protobuf.FileDescriptorProto.new(name: "name.proto")
+    descriptors
+    |> Flow.from_enumerable()
+    |> Flow.filter(&skip_cloudstate_type/1)
+    |> Flow.filter(&skip_well_known_type/1)
   end
 
   defp generate_services(entities) do
@@ -44,4 +50,26 @@ defmodule MassaProxy.Server do
 
   defp start_proxy(args) do
   end
+
+  defp skip_cloudstate_type(descriptor),
+    do:
+      !Enum.member?(["cloudstate/entity_key.proto", "cloudstate/eventing.proto"], descriptor.name)
+
+  defp skip_well_known_type(descriptor),
+    do:
+      !Enum.member?(
+        [
+          "google/protobuf/any.proto",
+          "google/protobuf/empty.proto",
+          "google/protobuf/timestamp.proto",
+          "google/protobuf/struct.proto",
+          "google/protobuf/duration.proto",
+          "google/api/http.proto",
+          "google/api/httpbody.proto",
+          "google/api/annotations.proto",
+          "google/api/auth.proto",
+          "google/api/source_info.proto"
+        ],
+        descriptor.name
+      )
 end
