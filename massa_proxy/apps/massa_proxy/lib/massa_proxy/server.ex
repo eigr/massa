@@ -3,7 +3,8 @@ defmodule MassaProxy.Server do
   require Logger
 
   alias Protobuf.Protoc.Context
-  alias Protobuf.Protoc.Generator.Extension, as: Generator
+  alias Protobuf.Protoc.Generator.Util
+  alias Protobuf.Protoc.Generator.Message, as: Generator
 
   def start(descriptors, entities) do
     descriptors
@@ -13,12 +14,18 @@ defmodule MassaProxy.Server do
   end
 
   defp compile(descriptors) do
-    # ctx = %Context{global_type_mapping: %{"name.proto" => %{}}}
-    # desc = Google.Protobuf.FileDescriptorProto.new(name: "name.proto")
-    descriptors
-    |> Flow.from_enumerable()
-    |> Flow.filter(&skip_cloudstate_type/1)
-    |> Flow.filter(&skip_well_known_type/1)
+    d = %{name: nil, dependencies: [], descriptor: nil, ctx: nil}
+
+    files =
+      descriptors
+      |> Flow.from_enumerable()
+      |> Enum.to_list()
+      |> MassaProxy.Reflection.compile()
+
+    for file <- files do
+      result = Code.eval_string(file)
+      Logger.debug("Compiled module: #{inspect(result)}")
+    end
   end
 
   defp generate_services(entities) do
@@ -65,6 +72,7 @@ defmodule MassaProxy.Server do
           "google/protobuf/timestamp.proto",
           "google/protobuf/struct.proto",
           "google/protobuf/duration.proto",
+          "google/protobuf/descriptor.proto",
           "google/api/http.proto",
           "google/api/httpbody.proto",
           "google/api/annotations.proto",
