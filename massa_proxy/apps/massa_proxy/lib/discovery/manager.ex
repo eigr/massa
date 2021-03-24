@@ -4,7 +4,8 @@ defmodule Discovery.Manager do
   use ExRay, pre: :before_fun, post: :after_fun
 
   alias ExRay.Span
-  alias MassaProxy.{Server, CloudstateEntity}
+  alias MassaProxy.CloudstateEntity
+  alias MassaProxy.Server.GrpcServer
   alias Google.Protobuf.FileDescriptorSet
   alias Google.Protobuf.FieldDescriptorProto
 
@@ -41,7 +42,7 @@ defmodule Discovery.Manager do
            channel
            |> Cloudstate.EntityDiscovery.Stub.discover(message)
            |> handle_response,
-         do: Server.start(file_descriptors, user_entities)
+         do: GrpcServer.start(file_descriptors, user_entities)
   end
 
   defp handle_response(response) do

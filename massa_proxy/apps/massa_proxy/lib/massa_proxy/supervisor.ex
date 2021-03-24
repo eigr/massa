@@ -8,14 +8,12 @@ defmodule MassaProxy.Supervisor do
   end
 
   def init(_args) do
-    _port = get_http_port()
-
     children =
       [
         Plug.Cowboy.child_spec(
           scheme: :http,
           plug: Http.Endpoint,
-          options: [port: _port]
+          options: [port: get_http_port()]
         ),
         cluster_supervisor(),
         {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
@@ -50,7 +48,7 @@ defmodule MassaProxy.Supervisor do
   defp cluster_supervisor() do
     topologies = Application.get_env(:libcluster, :topologies)
 
-    if topologies && Code.ensure_compiled?(Cluster.Supervisor) do
+    if topologies && Code.ensure_compiled(Cluster.Supervisor) do
       {Cluster.Supervisor, [topologies, [name: MassaProxy.ClusterSupervisor]]}
     end
   end
