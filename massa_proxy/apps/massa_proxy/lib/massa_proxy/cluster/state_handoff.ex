@@ -1,4 +1,4 @@
-defmodule MassaProxy.StateHandoff do
+defmodule MassaProxy.Cluster.StateHandoff do
   @moduledoc false
   use GenServer
   require Logger
@@ -47,7 +47,7 @@ defmodule MassaProxy.StateHandoff do
   # other_node is actuall a tuple { __MODULE__, other_node } passed from above,
   #  by using that in GenServer.call we are sending a message to the process
   #  named __MODULE__ on other_node
-  def handle_call({:set_neighbours, other_node}, from, this_crdt_pid) do
+  def handle_call({:set_neighbours, other_node}, _from, this_crdt_pid) do
     Logger.warn(
       "Sending :set_neighbours to #{inspect(other_node)} with #{inspect(this_crdt_pid)}"
     )

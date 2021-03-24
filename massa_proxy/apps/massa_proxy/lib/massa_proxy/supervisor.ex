@@ -19,25 +19,25 @@ defmodule MassaProxy.Supervisor do
         {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
         {Horde.DynamicSupervisor, [name: MassaProxy.GlobalSupervisor, strategy: :one_for_one]},
         %{
-          id: MassaProxy.HordeConnector,
+          id: MassaProxy.Cluster.HordeConnector,
           restart: :transient,
           start: {
             Task,
             :start_link,
             [
               fn ->
-                MassaProxy.HordeConnector.connect()
-                MassaProxy.HordeConnector.start_children()
+                MassaProxy.Cluster.HordeConnector.connect()
+                MassaProxy.Cluster.HordeConnector.start_children()
 
                 Node.list()
                 |> Enum.each(fn node ->
-                  :ok = MassaProxy.StateHandoff.join(node)
+                  :ok = MassaProxy.Cluster.StateHandoff.join(node)
                 end)
               end
             ]
           }
         },
-        MassaProxy.NodeListener
+        MassaProxy.Cluster.NodeListener
       ]
       |> Enum.reject(&is_nil/1)
 
