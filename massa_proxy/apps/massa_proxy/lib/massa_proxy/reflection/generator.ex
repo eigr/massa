@@ -25,7 +25,7 @@ defmodule MassaProxy.Generator do
       EnumGenerator.generate_list(ctx, desc.enum_type) ++
         enums ++ msgs ++ ServiceGenerator.generate_list(ctx, desc.service)
 
-    Logger.debug("List of Services #{inspect list}")
+    # Logger.debug("List of Services #{inspect(list)}")
 
     list
     |> List.flatten()

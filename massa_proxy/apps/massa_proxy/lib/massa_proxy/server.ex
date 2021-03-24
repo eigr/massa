@@ -6,9 +6,13 @@ defmodule MassaProxy.Server do
   alias Protobuf.Protoc.Generator.Util
   alias Protobuf.Protoc.Generator.Message, as: Generator
 
+  @grpc_template_path Path.expand("./templates/grpc_service.ex.eex", :code.priv_dir(:massa_proxy))
+
   def start(descriptors, entities) do
     descriptors
     |> compile
+
+    generate_services(entities)
 
     # TODO: Create grpc ==> entities |> generate_services |> generate_endpoint |> start_proxy
   end
@@ -18,17 +22,50 @@ defmodule MassaProxy.Server do
 
     files =
       descriptors
-      |> Flow.from_enumerable()
-      |> Enum.to_list()
       |> MassaProxy.Reflection.compile()
 
     for file <- files do
+      Logger.info("Compiling module: #{inspect(file)}")
       result = Code.eval_string(file)
       Logger.debug("Compiled module: #{inspect(result)}")
     end
   end
 
+  defp normalize_service_name(name) do
+    name
+    |> String.split(".")
+    |> Enum.map(&Macro.camelize(&1))
+    |> Enum.join(".")
+  end
+
+  defp normalize_mehod_name(name), do: Macro.underscore(name)
+
   defp generate_services(entities) do
+
+    for entity <- entities do
+      name = Enum.join([normalize_service_name(entity.service_name), "Service"], ".")
+      services = Enum.at(entity.services, 0) |> Enum.at(0)
+      methods =
+        services.methods
+        |> Flow.from_enumerable()
+        |> Flow.map(&normalize_mehod_name(&1.name))
+        |> Enum.to_list()
+
+      Logger.info("Generating Service #{name} with Methods: #{inspect methods}")
+      mod =
+        EEx.eval_file(
+          @grpc_template_path,
+          mod_name: name,
+          name: name,
+          methods: methods,
+          handler: "Massa.EventSourced.Handler"
+        )
+
+      Logger.info("Service defined: #{mod}")
+      mod_compiled = Code.eval_string(mod)
+      Logger.info("Service compiled: #{inspect mod_compiled}")
+    end
+
     # TODO compile templates with entities infos
     # Ex.: EEx.eval_file(
     #         "apps/massa_proxy/priv/templates/grpc_service.ex.eex",

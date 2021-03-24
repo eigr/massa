@@ -54,7 +54,7 @@ defmodule Discovery.Manager do
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
-    Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
+    # Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
 
     user_entities =
       entities
@@ -68,7 +68,7 @@ defmodule Discovery.Manager do
   end
 
   defp register_entity(entity) do
-    Logger.debug("Registering Entity: #{inspect(entity)} ")
+    # Logger.debug("Registering Entity: #{inspect(entity)} ")
 
     case entity.entity_type do
       "cloudstate.eventsourced.EventSourced" ->
@@ -133,13 +133,13 @@ defmodule Discovery.Manager do
   end
 
   defp to_service_item(service) do
-    _methods =
+    methods =
       service.method
       |> Flow.from_enumerable()
       |> Flow.map(&extract_service_method/1)
       |> Enum.to_list()
 
-    %{name: service.name, methods: _methods}
+    %{name: service.name, methods: methods}
   end
 
   defp extract_method_attributes(field) do
