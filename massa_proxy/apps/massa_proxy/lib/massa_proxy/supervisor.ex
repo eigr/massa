@@ -10,11 +10,7 @@ defmodule MassaProxy.Supervisor do
   def init(_args) do
     children =
       [
-        Plug.Cowboy.child_spec(
-          scheme: :http,
-          plug: Http.Endpoint,
-          options: [port: get_http_port()]
-        ),
+        http_server(),
         cluster_supervisor(),
         {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
         {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
@@ -55,4 +51,15 @@ defmodule MassaProxy.Supervisor do
   end
 
   defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
+
+  defp http_server() do
+    port = get_http_port()
+    Logger.info("Starting HTTP Server on port #{port}")
+
+    Plug.Cowboy.child_spec(
+      scheme: :http,
+      plug: Http.Endpoint,
+      options: [port: get_http_port()]
+    )
+  end
 end

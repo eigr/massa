@@ -8,11 +8,23 @@ defmodule MassaProxy.Server.GrpcServer do
                                  :code.priv_dir(:massa_proxy)
                                )
 
-  def start(descriptors, entities) do
-    with {:ok, descriptors} <- descriptors |> compile,
-         {:ok, _} <- generate_services(entities),
-         {:ok, _} <- generate_endpoints(entities),
-         do: start_proxy([])
+  def start(descriptors, entities), do: start_grpc(descriptors, entities)
+
+  defp start_grpc(descriptors, entities) do
+    {uSecs, result} =
+      :timer.tc(fn ->
+        with {:ok, descriptors} <- descriptors |> compile,
+             {:ok, _} <- generate_services(entities),
+             {:ok, _} <- generate_endpoints(entities) do
+          start_proxy([])
+        else
+          _ -> Logger.error("Error during gRPC Server initialization")
+        end
+
+        :ok
+      end)
+
+    Logger.info("Started gRPC Server in #{uSecs/1_000_000}ms")
   end
 
   defp compile(descriptors) do
@@ -52,9 +64,9 @@ defmodule MassaProxy.Server.GrpcServer do
           persistence_id: entity.persistence_id
         )
 
-      Logger.info("Service defined: #{mod}")
+      Logger.debug("Service defined: #{mod}")
       mod_compiled = Code.eval_string(mod)
-      Logger.info("Service compiled: #{inspect(mod_compiled)}")
+      Logger.debug("Service compiled: #{inspect(mod_compiled)}")
     end
 
     {:ok, entities}
@@ -75,9 +87,9 @@ defmodule MassaProxy.Server.GrpcServer do
         service_names: services
       )
 
-    Logger.info("Endpoint defined: #{mod}")
+    Logger.debug("Endpoint defined: #{mod}")
     mod_compiled = Code.eval_string(mod)
-    Logger.info("Endpoint compiled: #{inspect(mod_compiled)}")
+    Logger.debug("Endpoint compiled: #{inspect(mod_compiled)}")
 
     {:ok, entities}
   end

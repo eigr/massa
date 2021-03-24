@@ -3,7 +3,7 @@ defmodule Metrics.Setup do
 
   def setup do
     Metrics.ProxyInstrumenter.setup()
-    GRPCPrometheus.ServerInterceptor.setup()
     Http.MetricsExporter.setup()
+    GRPCPrometheus.ServerInterceptor.setup()
   end
 end
