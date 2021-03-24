@@ -42,7 +42,7 @@ Massa takes advantage of Elixir's simplicity and elegance, mainly because we kno
         - [x] Client TCP
         - [x] Client Unix Domain Sockets
         - [ ] Reflection
-        - [ ] Server TCP 
+        - [x] Server TCP 
     - [ ] HTTP
 
 ## Main Concepts
