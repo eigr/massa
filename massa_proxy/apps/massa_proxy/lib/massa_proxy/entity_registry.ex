@@ -21,7 +21,7 @@ defmodule MassaProxy.EntityRegistry do
   def init(service) do
     Logger.info("[MassaProxy on #{inspect(Node.self())}][EntityRegistry]: Initializing...")
     Process.flag(:trap_exit, true)
-    entities = MassaProxy.StateHandoff.pickup(service)
+    entities = MassaProxy.Cluster.StateHandoff.pickup(service)
     {:ok, {service, entities}}
   end
 
@@ -44,7 +44,7 @@ defmodule MassaProxy.EntityRegistry do
   end
 
   def terminate(reason, {service, entities}) do
-    MassaProxy.StateHandoff.handoff(service, entities)
+    MassaProxy.Cluster.StateHandoff.handoff(service, entities)
     :ok
   end
 
