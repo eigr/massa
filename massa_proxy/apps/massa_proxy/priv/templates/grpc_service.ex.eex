@@ -3,7 +3,8 @@ defmodule <%= mod_name %>.ProxyService do
   use GRPC.Server, service: <%= name %>
 
 <%= Enum.map methods, fn(method) -> %>
-  def <%= method %>(message, stream), do: <%= handler %>.handle(message, stream)
+  def <%= method %>(message, stream), 
+    do: <%= handler %>.dispatch(%{entity_type: "<%= entity_type %>", persistence_id: "<%= persistence_id %>", message: message, stream: stream})
 <% end %>
 
 end

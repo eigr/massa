@@ -3,38 +3,30 @@ defmodule MassaProxy.Server.GrpcServer do
   require Logger
 
   @grpc_template_path Path.expand("./templates/grpc_service.ex.eex", :code.priv_dir(:massa_proxy))
+  @grpc_endpoint_template_path Path.expand(
+                                 "./templates/grpc_endpoint.ex.eex",
+                                 :code.priv_dir(:massa_proxy)
+                               )
 
   def start(descriptors, entities) do
-    descriptors
-    |> compile
-
-    generate_services(entities)
-
-    # TODO: Create grpc ==> entities |> generate_services |> generate_endpoint |> start_proxy
+    with {:ok, descriptors} <- descriptors |> compile,
+         {:ok, _} <- generate_services(entities),
+         {:ok, _} <- generate_endpoints(entities),
+         do: start_proxy([])
   end
 
   defp compile(descriptors) do
-    #d = %{name: nil, dependencies: [], descriptor: nil, ctx: nil}
-
     files =
       descriptors
       |> MassaProxy.Reflection.compile()
 
     for file <- files do
-      Logger.info("Compiling module: #{inspect(file)}")
       result = Code.eval_string(file)
       Logger.debug("Compiled module: #{inspect(result)}")
     end
-  end
 
-  defp normalize_service_name(name) do
-    name
-    |> String.split(".")
-    |> Enum.map(&Macro.camelize(&1))
-    |> Enum.join(".")
+    {:ok, descriptors}
   end
-
-  defp normalize_mehod_name(name), do: Macro.underscore(name)
 
   defp generate_services(entities) do
     for entity <- entities do
@@ -55,24 +47,54 @@ defmodule MassaProxy.Server.GrpcServer do
           mod_name: name,
           name: name,
           methods: methods,
-          handler: "Massa.EventSourced.Handler"
+          handler: "MassaProxy.Server.Dispatcher",
+          entity_type: entity.entity_type,
+          persistence_id: entity.persistence_id
         )
 
       Logger.info("Service defined: #{mod}")
       mod_compiled = Code.eval_string(mod)
       Logger.info("Service compiled: #{inspect(mod_compiled)}")
     end
+
+    {:ok, entities}
   end
 
-  defp generate_endpoints(services) do
-    # Ex.: EEx.eval_file(
-    #         "apps/massa_proxy/priv/templates/grpc_endpoint.ex.eex",
-    #         [
-    #            services: services.names
-    #          ]
-    #      )
+  defp generate_endpoints(entities) do
+    services =
+      entities
+      |> Flow.from_enumerable()
+      |> Flow.map(
+        &Enum.join([normalize_service_name(&1.service_name), "Service.ProxyService"], ".")
+      )
+      |> Enum.to_list()
+
+    mod =
+      EEx.eval_file(
+        @grpc_endpoint_template_path,
+        service_names: services
+      )
+
+    Logger.info("Endpoint defined: #{mod}")
+    mod_compiled = Code.eval_string(mod)
+    Logger.info("Endpoint compiled: #{inspect(mod_compiled)}")
+
+    {:ok, entities}
   end
 
   defp start_proxy(args) do
+    Logger.info("Starting gRPC Server...")
+    Application.put_env(:grpc, :start_server, true, persistent: true)
+    spec = {GRPC.Server.Supervisor, {Massa.Server.Grpc.ProxyEndpoint, 9980}}
+    DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, spec)
   end
+
+  defp normalize_service_name(name) do
+    name
+    |> String.split(".")
+    |> Enum.map(&Macro.camelize(&1))
+    |> Enum.join(".")
+  end
+
+  defp normalize_mehod_name(name), do: Macro.underscore(name)
 end

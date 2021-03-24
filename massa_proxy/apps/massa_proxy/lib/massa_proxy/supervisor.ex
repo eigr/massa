@@ -16,6 +16,7 @@ defmodule MassaProxy.Supervisor do
           options: [port: get_http_port()]
         ),
         cluster_supervisor(),
+        {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
         {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
         {Horde.DynamicSupervisor, [name: MassaProxy.GlobalSupervisor, strategy: :one_for_one]},
         %{
