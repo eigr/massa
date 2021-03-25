@@ -1,0 +1,23 @@
+defmodule <%= mod_name %>.ProxyService do
+  @moduledoc """
+  This <%= mod_name %>.ProxyService module only passes 
+  incoming gRPC requests to the respective Entity handlers.
+
+  """
+  @moduledoc since: "0.1.0"
+
+  use GRPC.Server, service: <%= name %>
+
+<%= Enum.map methods, fn(method) -> %>
+  @spec <%= method %>(type :: any(), GRPC.Server.Stream.t()) :: type :: any()
+  def <%= method %>(message, stream), 
+    do: 
+      <%= handler %>.dispatch(%{
+        entity_type: "<%= entity_type %>", 
+        persistence_id: "<%= persistence_id %>", 
+        message: message, 
+        stream: stream
+      })
+<% end %>
+
+end

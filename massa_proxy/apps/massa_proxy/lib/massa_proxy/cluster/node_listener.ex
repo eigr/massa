@@ -1,4 +1,5 @@
-defmodule MassaProxy.NodeListener do
+defmodule MassaProxy.Cluster.NodeListener do
+  @moduledoc false
   use GenServer
   require Logger
 

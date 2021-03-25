@@ -3,7 +3,9 @@ import Config
 # Our Logger general configuration
 config :logger,
   backends: [:console],
-  compile_time_purge_level: :debug
+  compile_time_purge_matching: [
+    [level_lower_than: :debug]
+  ]
 
 config :protobuf, extensions: :enabled
 
@@ -16,14 +18,7 @@ config :logger, :console,
 config :libcluster,
   topologies: [
     dev: [
-      strategy: Cluster.Strategy.Epmd,
-      config: [
-        hosts: [
-          :"a@127.0.0.1",
-          :"b@127.0.0.1",
-          :"c@127.0.0.1"
-        ]
-      ]
+      strategy: Cluster.Strategy.Gossip
     ]
   ]
 

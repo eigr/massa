@@ -1,4 +1,4 @@
-defmodule MassaProxy.HordeConnector do
+defmodule MassaProxy.Cluster.HordeConnector do
   @moduledoc false
   require Logger
 
@@ -15,7 +15,7 @@ defmodule MassaProxy.HordeConnector do
 
     Horde.DynamicSupervisor.start_child(
       MassaProxy.Supervisor,
-      {MassaProxy.StateHandoff, []}
+      {MassaProxy.Cluster.StateHandoff, []}
     )
 
     Horde.DynamicSupervisor.start_child(

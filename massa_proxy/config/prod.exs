@@ -3,7 +3,9 @@ import Config
 # Our Logger general configuration
 config :logger,
   backends: [:console],
-  compile_time_purge_level: :debug
+  compile_time_purge_matching: [
+    [level_lower_than: :debug]
+  ]
 
 config :protobuf, extensions: :enabled
 

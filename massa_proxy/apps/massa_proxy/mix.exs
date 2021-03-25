@@ -37,13 +37,15 @@ defmodule MassaProxy.MixProject do
     [
       # Base deps
       {:flow, "~> 1.0"},
+      {:vapor, "~> 0.10.0"},
       {:google_protos, "~> 0.1.0"},
 
       # Grpc deps
-      {:grpc, github: "elixir-grpc/grpc"},
+      {:grpc, github: "elixir-grpc/grpc", override: true},
       # {:gun, "~> 2.0", hex: :grpc_gun, override: true},
       # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0
       {:cowlib, "~> 2.9.0", override: true},
+      {:grpc_prometheus, "~> 0.1.0"},
 
       # Cluster deps
       # Node discovery for Kubernetes
@@ -61,7 +63,10 @@ defmodule MassaProxy.MixProject do
 
       # Http facilities
       {:plug_cowboy, "~> 2.3"},
-      {:poison, "~> 4.0"}
+      {:poison, "~> 4.0"},
+
+      # Best practices
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end
 end

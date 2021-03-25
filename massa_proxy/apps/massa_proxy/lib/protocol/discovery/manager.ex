@@ -1,11 +1,12 @@
 defmodule Discovery.Manager do
-  use ExRay, pre: :before_fun, post: :after_fun
+  @moduledoc false
   require Logger
+  use ExRay, pre: :before_fun, post: :after_fun
 
   alias ExRay.Span
   alias MassaProxy.CloudstateEntity
+  alias MassaProxy.Server.GrpcServer
   alias Google.Protobuf.FileDescriptorSet
-  alias Google.Protobuf.FieldDescriptorProto
 
   @protocol_minor_version 1
   @protocol_major_version 0
@@ -14,6 +15,16 @@ defmodule Discovery.Manager do
 
   # Generates a request id
   @req_id :os.system_time(:milli_seconds) |> Integer.to_string() |> IO.inspect()
+
+  @trace kind: :critical
+  def report_error(channel, error) do
+    {_, response} =
+      channel
+      |> Cloudstate.EntityDiscovery.Stub.report_error(error)
+
+    Logger.info("User function report error reply #{inspect(response)}")
+    response
+  end
 
   @trace kind: :normal
   def discover(channel) do
@@ -26,19 +37,11 @@ defmodule Discovery.Manager do
         supported_entity_types: @supported_entity_types
       )
 
-    channel
-    |> Cloudstate.EntityDiscovery.Stub.discover(message)
-    |> handle_response
-  end
-
-  @trace kind: :critical
-  def report_error(channel, error) do
-    {_, response} =
-      channel
-      |> Cloudstate.EntityDiscovery.Stub.report_error(error)
-
-    Logger.info("User function report error reply #{inspect(response)}")
-    response
+    with {:ok, file_descriptors, user_entities} <-
+           channel
+           |> Cloudstate.EntityDiscovery.Stub.discover(message)
+           |> handle_response,
+         do: GrpcServer.start(file_descriptors, user_entities)
   end
 
   defp handle_response(response) do
@@ -48,11 +51,9 @@ defmodule Discovery.Manager do
   end
 
   defp register_entities({:ok, message}) do
-    # TODO: Registry entities here
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
-    # Logger.debug("file_descriptors -> #{inspect(file_descriptors)}")
 
     user_entities =
       entities
@@ -61,13 +62,11 @@ defmodule Discovery.Manager do
       |> Flow.map(&register_entity/1)
       |> Enum.to_list()
 
-    Logger.debug("Cloudstate Entities: #{inspect(user_entities)}.")
-    user_entities
+    Logger.debug("Found #{Enum.count(user_entities)} Entities to processing.")
+    {:ok, file_descriptors, user_entities}
   end
 
   defp register_entity(entity) do
-    Logger.debug("Registering Entity: #{inspect(entity)} ")
-
     case entity.entity_type do
       "cloudstate.eventsourced.EventSourced" ->
         MassaProxy.EntityRegistry.register("EventSourced", [entity])
@@ -93,7 +92,7 @@ defmodule Discovery.Manager do
       |> Flow.map(&extract_services/1)
       |> Enum.to_list()
 
-    entity = %CloudstateEntity{
+    %CloudstateEntity{
       node: Node.self(),
       entity_type: entity.entity_type,
       service_name: entity.service_name,
@@ -104,8 +103,6 @@ defmodule Discovery.Manager do
   end
 
   defp extract_messages(file) do
-    # Logger.info("Message -> #{inspect(file.message_type)}")
-
     file.message_type
     |> Flow.from_enumerable()
     |> Flow.map(&to_message_item/1)
@@ -121,28 +118,27 @@ defmodule Discovery.Manager do
   end
 
   defp to_message_item(message) do
-    _attributes =
+    attributes =
       message.field
       |> Flow.from_enumerable()
       |> Flow.map(&extract_method_attributes/1)
       |> Enum.to_list()
 
-    %{name: message.name, attributes: _attributes}
+    %{name: message.name, attributes: attributes}
   end
 
   defp to_service_item(service) do
-    _methods =
+    methods =
       service.method
       |> Flow.from_enumerable()
       |> Flow.map(&extract_service_method/1)
       |> Enum.to_list()
 
-    %{name: service.name, methods: _methods}
+    %{name: service.name, methods: methods}
   end
 
   defp extract_method_attributes(field) do
-    # Logger.info("Options -> #{inspect(field.options)}")
-    _field =
+    type_options =
       if field.options != nil && field.options.ctype != nil do
         field.options.ctype
       end
@@ -152,7 +148,7 @@ defmodule Discovery.Manager do
       number: field.number,
       type: field.type,
       label: field.label,
-      options: %{type: _field}
+      options: %{type: type_options}
     }
   end
 
@@ -214,10 +210,8 @@ defmodule Discovery.Manager do
   end
 
   defp extract_message(response) do
-    {:ok, message} = response
-
     case response do
-      ok ->
+      {:ok, message} ->
         Logger.info("Received EntitySpec from user function with info: #{inspect(message)}")
         message
 

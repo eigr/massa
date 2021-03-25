@@ -1,7 +1,9 @@
 defmodule MassaProxy do
+  @moduledoc false
 end
 
 defmodule MassaProxy.CloudstateEntity do
+  @moduledoc false
   defstruct node: Node.self(),
             entity_type: "",
             service_name: "",
