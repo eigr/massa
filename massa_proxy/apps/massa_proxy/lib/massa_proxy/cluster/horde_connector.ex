@@ -20,17 +20,17 @@ defmodule MassaProxy.Cluster.HordeConnector do
 
     Horde.DynamicSupervisor.start_child(
       MassaProxy.Supervisor,
-      {MassaProxy.EntityRegistry, "EventSourced"}
+      {MassaProxy.Entity.EntityRegistry, "EventSourced"}
     )
 
     Horde.DynamicSupervisor.start_child(
       MassaProxy.Supervisor,
-      {MassaProxy.EntityRegistry, "CRDT"}
+      {MassaProxy.Entity.EntityRegistry, "CRDT"}
     )
 
     Horde.DynamicSupervisor.start_child(
       MassaProxy.Supervisor,
-      {MassaProxy.EntityRegistry, "Stateless"}
+      {MassaProxy.Entity.EntityRegistry, "Stateless"}
     )
 
     Horde.DynamicSupervisor.start_child(
