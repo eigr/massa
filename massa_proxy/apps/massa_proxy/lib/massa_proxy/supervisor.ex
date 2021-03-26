@@ -50,8 +50,6 @@ defmodule MassaProxy.Supervisor do
     end
   end
 
-  defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
-
   defp http_server() do
     port = get_http_port()
     Logger.info("Starting HTTP Server on port #{port}")
@@ -62,4 +60,7 @@ defmodule MassaProxy.Supervisor do
       options: [port: get_http_port()]
     )
   end
+
+  defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
+
 end
