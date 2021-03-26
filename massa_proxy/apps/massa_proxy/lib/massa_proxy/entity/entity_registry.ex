@@ -1,4 +1,4 @@
-defmodule MassaProxy.EntityRegistry do
+defmodule MassaProxy.Entity.EntityRegistry do
   @moduledoc false
   use GenServer
   require Logger

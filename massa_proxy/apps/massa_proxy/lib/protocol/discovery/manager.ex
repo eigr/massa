@@ -69,7 +69,7 @@ defmodule Discovery.Manager do
   defp register_entity(entity) do
     case entity.entity_type do
       "cloudstate.eventsourced.EventSourced" ->
-        MassaProxy.EntityRegistry.register("EventSourced", [entity])
+        MassaProxy.Entity.EntityRegistry.register("EventSourced", [entity])
 
       _ ->
         Logger.warn("Unknown Entity #{entity.entity_type}")
