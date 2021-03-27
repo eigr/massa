@@ -36,9 +36,9 @@ defmodule MassaProxy.MixProject do
   defp deps do
     [
       # Base deps
+      {:cloudstate_protocol, in_umbrella: true},
       {:flow, "~> 1.0"},
       {:vapor, "~> 0.10.0"},
-      {:google_protos, "~> 0.1.0"},
 
       # Grpc deps
       {:grpc, github: "elixir-grpc/grpc", override: true},

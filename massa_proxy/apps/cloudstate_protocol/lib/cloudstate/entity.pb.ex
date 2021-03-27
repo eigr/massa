@@ -1,23 +1,80 @@
+defmodule Cloudstate.Metadata do
+  @moduledoc false
+  use Protobuf, syntax: :proto3
+
+  @type t :: %__MODULE__{
+          entries: [Cloudstate.MetadataEntry.t()]
+        }
+
+  defstruct [:entries]
+
+  def descriptor do
+    # credo:disable-for-next-line
+    Elixir.Google.Protobuf.DescriptorProto.decode(
+      <<10, 8, 77, 101, 116, 97, 100, 97, 116, 97, 18, 51, 10, 7, 101, 110, 116, 114, 105, 101,
+        115, 24, 1, 32, 3, 40, 11, 50, 25, 46, 99, 108, 111, 117, 100, 115, 116, 97, 116, 101, 46,
+        77, 101, 116, 97, 100, 97, 116, 97, 69, 110, 116, 114, 121, 82, 7, 101, 110, 116, 114,
+        105, 101, 115>>
+    )
+  end
+
+  field(:entries, 1, repeated: true, type: Cloudstate.MetadataEntry)
+end
+
+defmodule Cloudstate.MetadataEntry do
+  @moduledoc false
+  use Protobuf, syntax: :proto3
+
+  @type t :: %__MODULE__{
+          value: {atom, any},
+          key: String.t()
+        }
+
+  defstruct [:value, :key]
+
+  def descriptor do
+    # credo:disable-for-next-line
+    Elixir.Google.Protobuf.DescriptorProto.decode(
+      <<10, 13, 77, 101, 116, 97, 100, 97, 116, 97, 69, 110, 116, 114, 121, 18, 16, 10, 3, 107,
+        101, 121, 24, 1, 32, 1, 40, 9, 82, 3, 107, 101, 121, 18, 35, 10, 12, 115, 116, 114, 105,
+        110, 103, 95, 118, 97, 108, 117, 101, 24, 2, 32, 1, 40, 9, 72, 0, 82, 11, 115, 116, 114,
+        105, 110, 103, 86, 97, 108, 117, 101, 18, 33, 10, 11, 98, 121, 116, 101, 115, 95, 118, 97,
+        108, 117, 101, 24, 3, 32, 1, 40, 12, 72, 0, 82, 10, 98, 121, 116, 101, 115, 86, 97, 108,
+        117, 101, 66, 7, 10, 5, 118, 97, 108, 117, 101>>
+    )
+  end
+
+  oneof(:value, 0)
+  field(:key, 1, type: :string)
+  field(:string_value, 2, type: :string, oneof: 0)
+  field(:bytes_value, 3, type: :bytes, oneof: 0)
+end
+
 defmodule Cloudstate.Reply do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          payload: Google.Protobuf.Any.t() | nil
+          payload: Google.Protobuf.Any.t() | nil,
+          metadata: Cloudstate.Metadata.t() | nil
         }
 
-  defstruct [:payload]
+  defstruct [:payload, :metadata]
 
   def descriptor do
     # credo:disable-for-next-line
     Elixir.Google.Protobuf.DescriptorProto.decode(
       <<10, 5, 82, 101, 112, 108, 121, 18, 46, 10, 7, 112, 97, 121, 108, 111, 97, 100, 24, 1, 32,
         1, 40, 11, 50, 20, 46, 103, 111, 111, 103, 108, 101, 46, 112, 114, 111, 116, 111, 98, 117,
-        102, 46, 65, 110, 121, 82, 7, 112, 97, 121, 108, 111, 97, 100>>
+        102, 46, 65, 110, 121, 82, 7, 112, 97, 121, 108, 111, 97, 100, 18, 48, 10, 8, 109, 101,
+        116, 97, 100, 97, 116, 97, 24, 2, 32, 1, 40, 11, 50, 20, 46, 99, 108, 111, 117, 100, 115,
+        116, 97, 116, 101, 46, 77, 101, 116, 97, 100, 97, 116, 97, 82, 8, 109, 101, 116, 97, 100,
+        97, 116, 97>>
     )
   end
 
   field(:payload, 1, type: Google.Protobuf.Any)
+  field(:metadata, 2, type: Cloudstate.Metadata)
 end
 
 defmodule Cloudstate.Forward do
@@ -27,10 +84,11 @@ defmodule Cloudstate.Forward do
   @type t :: %__MODULE__{
           service_name: String.t(),
           command_name: String.t(),
-          payload: Google.Protobuf.Any.t() | nil
+          payload: Google.Protobuf.Any.t() | nil,
+          metadata: Cloudstate.Metadata.t() | nil
         }
 
-  defstruct [:service_name, :command_name, :payload]
+  defstruct [:service_name, :command_name, :payload, :metadata]
 
   def descriptor do
     # credo:disable-for-next-line
@@ -41,13 +99,16 @@ defmodule Cloudstate.Forward do
         2, 32, 1, 40, 9, 82, 11, 99, 111, 109, 109, 97, 110, 100, 78, 97, 109, 101, 18, 46, 10, 7,
         112, 97, 121, 108, 111, 97, 100, 24, 3, 32, 1, 40, 11, 50, 20, 46, 103, 111, 111, 103,
         108, 101, 46, 112, 114, 111, 116, 111, 98, 117, 102, 46, 65, 110, 121, 82, 7, 112, 97,
-        121, 108, 111, 97, 100>>
+        121, 108, 111, 97, 100, 18, 48, 10, 8, 109, 101, 116, 97, 100, 97, 116, 97, 24, 4, 32, 1,
+        40, 11, 50, 20, 46, 99, 108, 111, 117, 100, 115, 116, 97, 116, 101, 46, 77, 101, 116, 97,
+        100, 97, 116, 97, 82, 8, 109, 101, 116, 97, 100, 97, 116, 97>>
     )
   end
 
   field(:service_name, 1, type: :string)
   field(:command_name, 2, type: :string)
   field(:payload, 3, type: Google.Protobuf.Any)
+  field(:metadata, 4, type: Cloudstate.Metadata)
 end
 
 defmodule Cloudstate.ClientAction do
@@ -89,10 +150,11 @@ defmodule Cloudstate.SideEffect do
           service_name: String.t(),
           command_name: String.t(),
           payload: Google.Protobuf.Any.t() | nil,
-          synchronous: boolean
+          synchronous: boolean,
+          metadata: Cloudstate.Metadata.t() | nil
         }
 
-  defstruct [:service_name, :command_name, :payload, :synchronous]
+  defstruct [:service_name, :command_name, :payload, :synchronous, :metadata]
 
   def descriptor do
     # credo:disable-for-next-line
@@ -105,7 +167,9 @@ defmodule Cloudstate.SideEffect do
         111, 111, 103, 108, 101, 46, 112, 114, 111, 116, 111, 98, 117, 102, 46, 65, 110, 121, 82,
         7, 112, 97, 121, 108, 111, 97, 100, 18, 32, 10, 11, 115, 121, 110, 99, 104, 114, 111, 110,
         111, 117, 115, 24, 4, 32, 1, 40, 8, 82, 11, 115, 121, 110, 99, 104, 114, 111, 110, 111,
-        117, 115>>
+        117, 115, 18, 48, 10, 8, 109, 101, 116, 97, 100, 97, 116, 97, 24, 5, 32, 1, 40, 11, 50,
+        20, 46, 99, 108, 111, 117, 100, 115, 116, 97, 116, 101, 46, 77, 101, 116, 97, 100, 97,
+        116, 97, 82, 8, 109, 101, 116, 97, 100, 97, 116, 97>>
     )
   end
 
@@ -113,6 +177,7 @@ defmodule Cloudstate.SideEffect do
   field(:command_name, 2, type: :string)
   field(:payload, 3, type: Google.Protobuf.Any)
   field(:synchronous, 4, type: :bool)
+  field(:metadata, 5, type: Cloudstate.Metadata)
 end
 
 defmodule Cloudstate.Command do
@@ -124,10 +189,11 @@ defmodule Cloudstate.Command do
           id: integer,
           name: String.t(),
           payload: Google.Protobuf.Any.t() | nil,
-          streamed: boolean
+          streamed: boolean,
+          metadata: Cloudstate.Metadata.t() | nil
         }
 
-  defstruct [:entity_id, :id, :name, :payload, :streamed]
+  defstruct [:entity_id, :id, :name, :payload, :streamed, :metadata]
 
   def descriptor do
     # credo:disable-for-next-line
@@ -139,7 +205,9 @@ defmodule Cloudstate.Command do
         24, 4, 32, 1, 40, 11, 50, 20, 46, 103, 111, 111, 103, 108, 101, 46, 112, 114, 111, 116,
         111, 98, 117, 102, 46, 65, 110, 121, 82, 7, 112, 97, 121, 108, 111, 97, 100, 18, 26, 10,
         8, 115, 116, 114, 101, 97, 109, 101, 100, 24, 5, 32, 1, 40, 8, 82, 8, 115, 116, 114, 101,
-        97, 109, 101, 100>>
+        97, 109, 101, 100, 18, 48, 10, 8, 109, 101, 116, 97, 100, 97, 116, 97, 24, 6, 32, 1, 40,
+        11, 50, 20, 46, 99, 108, 111, 117, 100, 115, 116, 97, 116, 101, 46, 77, 101, 116, 97, 100,
+        97, 116, 97, 82, 8, 109, 101, 116, 97, 100, 97, 116, 97>>
     )
   end
 
@@ -148,6 +216,7 @@ defmodule Cloudstate.Command do
   field(:name, 3, type: :string)
   field(:payload, 4, type: Google.Protobuf.Any)
   field(:streamed, 5, type: :bool)
+  field(:metadata, 6, type: Cloudstate.Metadata)
 end
 
 defmodule Cloudstate.StreamCancelled do
@@ -180,10 +249,11 @@ defmodule Cloudstate.Failure do
 
   @type t :: %__MODULE__{
           command_id: integer,
-          description: String.t()
+          description: String.t(),
+          restart: boolean
         }
 
-  defstruct [:command_id, :description]
+  defstruct [:command_id, :description, :restart]
 
   def descriptor do
     # credo:disable-for-next-line
@@ -191,12 +261,14 @@ defmodule Cloudstate.Failure do
       <<10, 7, 70, 97, 105, 108, 117, 114, 101, 18, 29, 10, 10, 99, 111, 109, 109, 97, 110, 100,
         95, 105, 100, 24, 1, 32, 1, 40, 3, 82, 9, 99, 111, 109, 109, 97, 110, 100, 73, 100, 18,
         32, 10, 11, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 24, 2, 32, 1, 40, 9, 82,
-        11, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110>>
+        11, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 18, 24, 10, 7, 114, 101, 115,
+        116, 97, 114, 116, 24, 3, 32, 1, 40, 8, 82, 7, 114, 101, 115, 116, 97, 114, 116>>
     )
   end
 
   field(:command_id, 1, type: :int64)
   field(:description, 2, type: :string)
+  field(:restart, 3, type: :bool)
 end
 
 defmodule Cloudstate.EntitySpec do
@@ -239,7 +311,9 @@ defmodule Cloudstate.ServiceInfo do
           service_version: String.t(),
           service_runtime: String.t(),
           support_library_name: String.t(),
-          support_library_version: String.t()
+          support_library_version: String.t(),
+          protocol_major_version: integer,
+          protocol_minor_version: integer
         }
 
   defstruct [
@@ -247,7 +321,9 @@ defmodule Cloudstate.ServiceInfo do
     :service_version,
     :service_runtime,
     :support_library_name,
-    :support_library_version
+    :support_library_version,
+    :protocol_major_version,
+    :protocol_minor_version
   ]
 
   def descriptor do
@@ -264,7 +340,13 @@ defmodule Cloudstate.ServiceInfo do
         82, 18, 115, 117, 112, 112, 111, 114, 116, 76, 105, 98, 114, 97, 114, 121, 78, 97, 109,
         101, 18, 54, 10, 23, 115, 117, 112, 112, 111, 114, 116, 95, 108, 105, 98, 114, 97, 114,
         121, 95, 118, 101, 114, 115, 105, 111, 110, 24, 5, 32, 1, 40, 9, 82, 21, 115, 117, 112,
-        112, 111, 114, 116, 76, 105, 98, 114, 97, 114, 121, 86, 101, 114, 115, 105, 111, 110>>
+        112, 111, 114, 116, 76, 105, 98, 114, 97, 114, 121, 86, 101, 114, 115, 105, 111, 110, 18,
+        52, 10, 22, 112, 114, 111, 116, 111, 99, 111, 108, 95, 109, 97, 106, 111, 114, 95, 118,
+        101, 114, 115, 105, 111, 110, 24, 6, 32, 1, 40, 5, 82, 20, 112, 114, 111, 116, 111, 99,
+        111, 108, 77, 97, 106, 111, 114, 86, 101, 114, 115, 105, 111, 110, 18, 52, 10, 22, 112,
+        114, 111, 116, 111, 99, 111, 108, 95, 109, 105, 110, 111, 114, 95, 118, 101, 114, 115,
+        105, 111, 110, 24, 7, 32, 1, 40, 5, 82, 20, 112, 114, 111, 116, 111, 99, 111, 108, 77,
+        105, 110, 111, 114, 86, 101, 114, 115, 105, 111, 110>>
     )
   end
 
@@ -273,6 +355,8 @@ defmodule Cloudstate.ServiceInfo do
   field(:service_runtime, 3, type: :string)
   field(:support_library_name, 4, type: :string)
   field(:support_library_version, 5, type: :string)
+  field(:protocol_major_version, 6, type: :int32)
+  field(:protocol_minor_version, 7, type: :int32)
 end
 
 defmodule Cloudstate.Entity do
@@ -282,10 +366,11 @@ defmodule Cloudstate.Entity do
   @type t :: %__MODULE__{
           entity_type: String.t(),
           service_name: String.t(),
-          persistence_id: String.t()
+          persistence_id: String.t(),
+          passivation_strategy: Cloudstate.EntityPassivationStrategy.t() | nil
         }
 
-  defstruct [:entity_type, :service_name, :persistence_id]
+  defstruct [:entity_type, :service_name, :persistence_id, :passivation_strategy]
 
   def descriptor do
     # credo:disable-for-next-line
@@ -295,13 +380,67 @@ defmodule Cloudstate.Entity do
         101, 18, 33, 10, 12, 115, 101, 114, 118, 105, 99, 101, 95, 110, 97, 109, 101, 24, 2, 32,
         1, 40, 9, 82, 11, 115, 101, 114, 118, 105, 99, 101, 78, 97, 109, 101, 18, 37, 10, 14, 112,
         101, 114, 115, 105, 115, 116, 101, 110, 99, 101, 95, 105, 100, 24, 3, 32, 1, 40, 9, 82,
-        13, 112, 101, 114, 115, 105, 115, 116, 101, 110, 99, 101, 73, 100>>
+        13, 112, 101, 114, 115, 105, 115, 116, 101, 110, 99, 101, 73, 100, 18, 88, 10, 20, 112,
+        97, 115, 115, 105, 118, 97, 116, 105, 111, 110, 95, 115, 116, 114, 97, 116, 101, 103, 121,
+        24, 4, 32, 1, 40, 11, 50, 37, 46, 99, 108, 111, 117, 100, 115, 116, 97, 116, 101, 46, 69,
+        110, 116, 105, 116, 121, 80, 97, 115, 115, 105, 118, 97, 116, 105, 111, 110, 83, 116, 114,
+        97, 116, 101, 103, 121, 82, 19, 112, 97, 115, 115, 105, 118, 97, 116, 105, 111, 110, 83,
+        116, 114, 97, 116, 101, 103, 121>>
     )
   end
 
   field(:entity_type, 1, type: :string)
   field(:service_name, 2, type: :string)
   field(:persistence_id, 3, type: :string)
+  field(:passivation_strategy, 4, type: Cloudstate.EntityPassivationStrategy)
+end
+
+defmodule Cloudstate.EntityPassivationStrategy do
+  @moduledoc false
+  use Protobuf, syntax: :proto3
+
+  @type t :: %__MODULE__{
+          strategy: {atom, any}
+        }
+
+  defstruct [:strategy]
+
+  def descriptor do
+    # credo:disable-for-next-line
+    Elixir.Google.Protobuf.DescriptorProto.decode(
+      <<10, 25, 69, 110, 116, 105, 116, 121, 80, 97, 115, 115, 105, 118, 97, 116, 105, 111, 110,
+        83, 116, 114, 97, 116, 101, 103, 121, 18, 66, 10, 7, 116, 105, 109, 101, 111, 117, 116,
+        24, 1, 32, 1, 40, 11, 50, 38, 46, 99, 108, 111, 117, 100, 115, 116, 97, 116, 101, 46, 84,
+        105, 109, 101, 111, 117, 116, 80, 97, 115, 115, 105, 118, 97, 116, 105, 111, 110, 83, 116,
+        114, 97, 116, 101, 103, 121, 72, 0, 82, 7, 116, 105, 109, 101, 111, 117, 116, 66, 10, 10,
+        8, 115, 116, 114, 97, 116, 101, 103, 121>>
+    )
+  end
+
+  oneof(:strategy, 0)
+  field(:timeout, 1, type: Cloudstate.TimeoutPassivationStrategy, oneof: 0)
+end
+
+defmodule Cloudstate.TimeoutPassivationStrategy do
+  @moduledoc false
+  use Protobuf, syntax: :proto3
+
+  @type t :: %__MODULE__{
+          timeout: integer
+        }
+
+  defstruct [:timeout]
+
+  def descriptor do
+    # credo:disable-for-next-line
+    Elixir.Google.Protobuf.DescriptorProto.decode(
+      <<10, 26, 84, 105, 109, 101, 111, 117, 116, 80, 97, 115, 115, 105, 118, 97, 116, 105, 111,
+        110, 83, 116, 114, 97, 116, 101, 103, 121, 18, 24, 10, 7, 116, 105, 109, 101, 111, 117,
+        116, 24, 1, 32, 1, 40, 3, 82, 7, 116, 105, 109, 101, 111, 117, 116>>
+    )
+  end
+
+  field(:timeout, 1, type: :int64)
 end
 
 defmodule Cloudstate.UserFunctionError do
