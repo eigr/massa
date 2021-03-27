@@ -62,5 +62,4 @@ defmodule MassaProxy.Supervisor do
   end
 
   defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
-
 end

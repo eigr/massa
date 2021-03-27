@@ -12,7 +12,7 @@ defmodule Discovery.Worker do
   end
 
   def handle_call(:connect, _from, _) do
-    {result, state} = get_connection
+    {result, state} = get_connection()
 
     case result do
       :ok -> {:reply, result, state}
@@ -28,7 +28,7 @@ defmodule Discovery.Worker do
   def handle_info(msg, state) do
     case msg do
       :work ->
-        {result, state} = get_connection
+        {result, state} = get_connection()
 
         Discovery.Manager.discover(state)
         schedule_work(get_heartbeat_interval())
@@ -68,7 +68,7 @@ defmodule Discovery.Worker do
   end
 
   defp get_connection(),
-    do: GRPC.Stub.connect(get_address(is_uds_enable?), interceptors: [GRPC.Logger.Client])
+    do: GRPC.Stub.connect(get_address(is_uds_enable?()), interceptors: [GRPC.Logger.Client])
 
   defp get_function_port(), do: Application.get_env(:massa_proxy, :user_function_port, 8080)
 
