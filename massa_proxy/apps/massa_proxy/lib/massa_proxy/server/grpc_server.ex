@@ -15,7 +15,7 @@ defmodule MassaProxy.Server.GrpcServer do
   defp start_grpc(descriptors, entities) do
     {uSecs, _} =
       :timer.tc(fn ->
-        with {:ok, descriptors} <- descriptors |> compile,
+        with {:ok, descriptors} <- descriptors |> compile(),
              {:ok, _} <- generate_services(entities),
              {:ok, _} <- generate_endpoints(entities) do
           start_proxy([])
@@ -55,15 +55,25 @@ defmodule MassaProxy.Server.GrpcServer do
 
       Logger.info("Generating Service #{name} with Methods: #{inspect(methods)}")
 
+      original_methods = get_method_names(services)
+      input_types = get_input_type(services)
+      output_types = get_output_type(services)
+      request_types = get_request_type(services)
+
       mod =
         Util.get_module(
           @grpc_template_path,
           mod_name: name,
           name: name,
           methods: methods,
+          original_methods: original_methods,
           handler: "MassaProxy.Server.Dispatcher",
           entity_type: entity.entity_type,
-          persistence_id: entity.persistence_id
+          persistence_id: entity.persistence_id,
+          service_name: entity.service_name,
+          input_types: input_types,
+          output_types: output_types,
+          request_types: request_types
         )
 
       Logger.debug("Service defined: #{mod}")
@@ -105,5 +115,53 @@ defmodule MassaProxy.Server.GrpcServer do
        {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port)}}
 
     DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, spec)
+  end
+
+  defp get_method_names(services),
+    do:
+      Enum.reduce(services.methods, %{}, fn method, acc ->
+        Map.put(
+          acc,
+          Util.normalize_mehod_name(method.name),
+          method.name
+        )
+      end)
+
+  defp get_input_type(services),
+    do:
+      Enum.reduce(services.methods, %{}, fn method, acc ->
+        Map.put(
+          acc,
+          Util.normalize_mehod_name(method.name),
+          String.replace_leading(Util.normalize_service_name(method.input_type), ".", "")
+        )
+      end)
+
+  defp get_output_type(services),
+    do:
+      Enum.reduce(services.methods, %{}, fn method, acc ->
+        Map.put(
+          acc,
+          Util.normalize_mehod_name(method.name),
+          String.replace_leading(Util.normalize_service_name(method.output_type), ".", "")
+        )
+      end)
+
+  defp get_request_type(services),
+    do:
+      Enum.reduce(services.methods, %{}, fn method, acc ->
+        Map.put(acc, Util.normalize_mehod_name(method.name), get_type(method))
+      end)
+
+  defp get_type(method) do
+    type =
+      cond do
+        method.unary == true -> "unary"
+        method.streamed == true -> "streamed"
+        method.stream_in == true -> "stream_in"
+        method.stream_out == true -> "stream_out"
+      end
+
+    type
   end
 end

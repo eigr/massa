@@ -46,6 +46,7 @@ defmodule MassaProxy.MixProject do
       # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0
       {:cowlib, "~> 2.9.0", override: true},
       {:grpc_prometheus, "~> 0.1.0"},
+      {:jason, "~> 1.2"},
 
       # Cluster deps
       # Node discovery for Kubernetes

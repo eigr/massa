@@ -13,10 +13,15 @@ defmodule <%= mod_name %>.ProxyService do
   def <%= method %>(message, stream), 
     do: 
       <%= handler %>.dispatch(%{
+        service_name: "<%= service_name %>",
         entity_type: "<%= entity_type %>", 
-        persistence_id: "<%= persistence_id %>", 
+        persistence_id: "<%= persistence_id %>",
+        original_method: "<%= Map.get(original_methods, method) %>",
         message: message, 
-        stream: stream
+        stream: stream,
+        input_type: <%= Map.get(input_types, method) %>,
+        output_type: <%= Map.get(output_types, method) %>,
+        request_type: "<%= Map.get(request_types, method) %>"
       })
 <% end %>
 

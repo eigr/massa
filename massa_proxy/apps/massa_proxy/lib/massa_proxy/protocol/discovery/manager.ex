@@ -11,7 +11,10 @@ defmodule Discovery.Manager do
   @protocol_minor_version 1
   @protocol_major_version 0
   @proxy_name "massa-proxy"
-  @supported_entity_types ["cloudstate.eventsourced.EventSourced"]
+  @supported_entity_types [
+    "cloudstate.action.ActionProtocol",
+    "cloudstate.eventsourced.EventSourced"
+  ]
 
   # Generates a request id
   @req_id :os.system_time(:milli_seconds) |> Integer.to_string() |> IO.inspect()
@@ -70,6 +73,9 @@ defmodule Discovery.Manager do
     case entity.entity_type do
       "cloudstate.eventsourced.EventSourced" ->
         MassaProxy.Entity.EntityRegistry.register("EventSourced", [entity])
+
+      "cloudstate.action.ActionProtocol" ->
+        MassaProxy.Entity.EntityRegistry.register("Action", [entity])
 
       _ ->
         Logger.warn("Unknown Entity #{entity.entity_type}")
