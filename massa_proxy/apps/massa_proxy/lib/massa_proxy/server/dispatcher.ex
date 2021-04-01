@@ -20,8 +20,8 @@ defmodule MassaProxy.Server.Dispatcher do
     )
 
     case entity_type do
-      "cloudstate.eventsourced.EventSourced" -> EventSourcedHandler.handle(payload)
       "cloudstate.action.ActionProtocol" -> ActionHandler.handle(payload)
+      "cloudstate.eventsourced.EventSourced" -> EventSourcedHandler.handle(payload)
       _ -> Logger.error("Not Implemented Entity type #{entity_type}")
     end
   end
