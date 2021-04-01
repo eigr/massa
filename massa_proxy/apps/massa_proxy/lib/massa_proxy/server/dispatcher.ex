@@ -1,6 +1,7 @@
 defmodule MassaProxy.Server.Dispatcher do
   require Logger
   alias MassaProxy.Protocol.EventSourced.Handler, as: EventSourcedHandler
+  alias MassaProxy.Protocol.Action.Handler, as: ActionHandler
 
   def dispatch(
         %{
@@ -20,6 +21,7 @@ defmodule MassaProxy.Server.Dispatcher do
 
     case entity_type do
       "cloudstate.eventsourced.EventSourced" -> EventSourcedHandler.handle(payload)
+      "cloudstate.action.ActionProtocol" -> ActionHandler.handle(payload)
       _ -> Logger.error("Not Implemented Entity type #{entity_type}")
     end
   end
