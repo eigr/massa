@@ -1,4 +1,4 @@
-image=mungotinae/massa-proxy:0.1.0
+image=eigr.io/massa-proxy:0.1.0
 port=8080
 
 .PHONY: all clean
