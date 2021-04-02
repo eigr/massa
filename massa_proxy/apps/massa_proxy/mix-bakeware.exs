@@ -31,6 +31,7 @@ defmodule MassaProxy.MixProject do
   defp deps do
     [
       # Base deps
+      {:bakeware, "~> 0.1.5"},
       {:cloudstate_protocol, in_umbrella: true},
       {:flow, "~> 1.0"},
       {:vapor, "~> 0.10.0"},
@@ -70,7 +71,13 @@ defmodule MassaProxy.MixProject do
     [
       massa_proxy: [
         include_executables_for: [:unix],
-        applications: [runtime_tools: :permanent]
+        applications: [runtime_tools: :permanent],
+        #cookie: "massa_proxy_6eycE1E/S341t4Bcto262ffyFWklCWHQIKloJDJYR7Y=",
+        steps: [
+          :assemble,
+          &Bakeware.assemble/1
+        ],
+        compression_level: 19
       ]
     ]
   end

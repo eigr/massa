@@ -12,6 +12,7 @@ defmodule MassaProxy.Supervisor do
       [
         http_server(),
         cluster_supervisor(),
+        {Task.Supervisor, name: MassaProxy.TaskSupervisor},
         {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
         {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
         {Horde.DynamicSupervisor, [name: MassaProxy.GlobalSupervisor, strategy: :one_for_one]},
@@ -43,14 +44,20 @@ defmodule MassaProxy.Supervisor do
 
   # Run libcluster supervisor if configuration is set.
   defp cluster_supervisor() do
-    topologies = Application.get_env(:libcluster, :topologies)
+    cluster_strategy = Application.get_env(:massa_proxy, :proxy_cluster_strategy)
+
+    topologies =
+      case cluster_strategy do
+        "kubernetes-dns" -> get_dns_strategy()
+        _ -> Application.get_env(:libcluster, :topologies)
+      end
 
     if topologies && Code.ensure_compiled(Cluster.Supervisor) do
+      Logger.info("Cluster Strategy #{Application.get_env(:massa_proxy, :proxy_cluster_strategy)}")
+      Logger.debug("Cluster topology #{inspect(topologies)}")
       {Cluster.Supervisor, [topologies, [name: MassaProxy.ClusterSupervisor]]}
     end
   end
-
-  defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
 
   defp http_server() do
     port = get_http_port()
@@ -61,5 +68,22 @@ defmodule MassaProxy.Supervisor do
       plug: Http.Endpoint,
       options: [port: get_http_port()]
     )
+  end
+
+  defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
+
+  defp get_dns_strategy() do
+    topologies = [
+      proxy: [
+        strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
+        config: [
+          service: Application.get_env(:massa_proxy, :proxy_headless_service),
+          application_name: Application.get_env(:massa_proxy, :proxy_app_name),
+          polling_interval: Application.get_env(:massa_proxy, :proxy_cluster_poling_interval)
+        ]
+      ]
+    ]
+
+    topologies
   end
 end
