@@ -17,14 +17,19 @@ RUN mix local.rebar --force \
     && mix local.hex --force \
     && mix deps.get 
 
-RUN echo "-name massa_proxy@${PROXY_POD_IP}" >> /app/massa_proxy/apps/massa_proxy/rel/vm.args.eex \
-      && echo "-setcookie ${NODE_COOKIE}" >> /app/massa_proxy/apps/massa_proxy/rel/vm.args.eex
+#RUN echo "export RELEASE_NAME=proxy" >> /app/massa_proxy/apps/massa_proxy/rel/env.sh.eex \
+#      && echo "export RELEASE_NODE=proxy@${PROXY_POD_IP}" >> /app/massa_proxy/apps/massa_proxy/rel/env.sh.eex \
+#      && echo "-setcookie ${NODE_COOKIE}" >> /app/massa_proxy/apps/massa_proxy/rel/vm.args.eex
 
 RUN rm -fr /app/massa_proxy/_build \
     && cd /app/massa_proxy/apps/massa_proxy \
     && mix deps.get \
-    && mix release.init \
-    && mix release
+    && mix release.init
+
+#RUN echo "-sname proxy@${PROXY_POD_IP}" >> /app/massa_proxy/apps/massa_proxy/rel/vm.args.eex \
+#      && echo "-setcookie ${NODE_COOKIE}" >> /app/massa_proxy/apps/massa_proxy/rel/vm.args.eex
+
+RUN cd /app/massa_proxy/apps/massa_proxy && mix release
 
 # ---- Application Stage ----
 FROM alpine:3

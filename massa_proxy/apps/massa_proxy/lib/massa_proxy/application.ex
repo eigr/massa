@@ -7,6 +7,9 @@ defmodule MassaProxy.Application do
   @impl true
   def start(_type, _args) do
     load_system_env()
+    Node.set_cookie(String.to_atom(Application.get_env(:massa_proxy, :proxy_cookie)))
+    Logger.info("Set cookie #{inspect(Node.get_cookie())}")
+
     ExRay.Store.create()
     Metrics.Setup.setup()
     MassaProxy.Supervisor.start_link([])
@@ -17,6 +20,7 @@ defmodule MassaProxy.Application do
       %Dotenv{},
       %Env{
         bindings: [
+          {:proxy_cookie, "NODE_COOKIE", default: "massa_proxy", required: false},
           {:proxy_cluster_strategy, "PROXY_CLUSTER_STRATEGY", default: "gossip", required: false},
           {:proxy_headless_service, "PROXY_HEADLESS_SERVICE",
            default: "proxy-headless-svc", required: false},
@@ -43,6 +47,7 @@ defmodule MassaProxy.Application do
   end
 
   defp set_vars(config) do
+    Application.put_env(:massa_proxy, :proxy_cookie, config.proxy_cookie)
     Application.put_env(:massa_proxy, :proxy_cluster_strategy, config.proxy_cluster_strategy)
     Application.put_env(:massa_proxy, :proxy_headless_service, config.proxy_headless_service)
     Application.put_env(:massa_proxy, :proxy_app_name, config.proxy_app_name)

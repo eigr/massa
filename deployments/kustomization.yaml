@@ -8,7 +8,7 @@ configMapGenerator:
 
 images:
   - name: docker.io/eigr/massa-proxy
-    newTag: 0.1.6
+    newTag: 0.1.22
   
 resources:
 - service.yaml

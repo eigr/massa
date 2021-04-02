@@ -2,15 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: massa-proxy
-  name: massa-proxy
+    app: proxy
+  name: proxy
 spec:
   progressDeadlineSeconds: 600
   replicas: 2
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: massa-proxy
+      app: proxy
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -22,8 +22,12 @@ spec:
         prometheus.io/port: "9001"
         prometheus.io/scrape: "true"
       labels:
-        app: massa-proxy
+        app: proxy
     spec:
+      hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+        - "proxy.local"
       containers:
       - name: massa-proxy
         image: docker.io/eigr/massa-proxy:0.1.0
@@ -33,6 +37,8 @@ spec:
         - containerPort: 4369
         imagePullPolicy: Always
         env:
+        - name: NODE_COOKIE
+          value: "massa_proxy_6eycE1E/S341t4Bcto262ffyFWklCWHQIKloJDJYR7Y="
         - name: PROXY_POD_IP
           valueFrom:
             fieldRef:

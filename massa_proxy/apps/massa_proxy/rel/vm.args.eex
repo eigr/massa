@@ -11,7 +11,7 @@
 ##-env ERL_FULLSWEEP_AFTER 10
 
 ## Name of the node
--name ex_cluster@${PROXY_POD_IP}
+-name proxy@${PROXY_POD_IP}
 
 ## Cookie for distributed erlang
--setcookie ${NODE_COOKIE}
+##-setcookie ${NODE_COOKIE}

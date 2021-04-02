@@ -13,7 +13,7 @@ RUN mix local.rebar --force \
     && mix local.hex --force \
     && mix deps.get 
 
-RUN echo "-name massa_proxy@${PROXY_POD_IP}" >> /app/massa_proxy/apps/massa_proxy/rel/vm.args.eex \
+RUN echo "-sname proxy@${PROXY_POD_IP}" >> /app/massa_proxy/apps/massa_proxy/rel/vm.args.eex \
       && echo "-setcookie ${NODE_COOKIE}" >> /app/massa_proxy/apps/massa_proxy/rel/vm.args.eex
 
 RUN cd /app/massa_proxy/apps/massa_proxy \

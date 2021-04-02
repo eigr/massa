@@ -6,7 +6,7 @@ metadata:
 spec:
   clusterIP: None
   selector:
-    app: massa-proxy
+    app: proxy
   ports:
     - name: epmd
       port: 4369
