@@ -4,7 +4,7 @@ defmodule MassaProxy.Protocol.Action.Unary.Handler do
   alias Cloudstate.{Action.ActionCommand, Metadata}
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
 
-  alias MassaProxy.Util
+  import MassaProxy.Util, only: [get_connection: 0, get_type_url: 1]
 
   def handle_unary(payload) do
     # I think it is better to handle unary calls through Tasks, so we create a process by request
@@ -31,7 +31,7 @@ defmodule MassaProxy.Protocol.Action.Unary.Handler do
       )
 
     response =
-      with {:ok, channel} <- Util.get_connection() do
+      with {:ok, channel} <- get_connection() do
         channel
         |> ActionClient.handle_unary(message)
       else
@@ -63,21 +63,5 @@ defmodule MassaProxy.Protocol.Action.Unary.Handler do
   end
 
   defp handle_side_effects(side_effects) do
-  end
-
-  defp get_type_url(type) do
-    parts =
-      type
-      |> to_string
-      |> String.replace("Elixir.", "")
-      |> String.split(".")
-
-    package_name =
-      with {_, list} <- parts |> List.pop_at(-1),
-           do: list |> Enum.map(&String.downcase(&1)) |> Enum.join(".")
-
-    type_name = parts |> List.last()
-
-    "type.googleapis.com/#{package_name}.#{type_name}"
   end
 end

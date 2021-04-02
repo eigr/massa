@@ -1,4 +1,20 @@
 defmodule MassaProxy.Util do
+  def get_type_url(type) do
+    parts =
+      type
+      |> to_string
+      |> String.replace("Elixir.", "")
+      |> String.split(".")
+
+    package_name =
+      with {_, list} <- parts |> List.pop_at(-1),
+           do: list |> Enum.map(&String.downcase(&1)) |> Enum.join(".")
+
+    type_name = parts |> List.last()
+
+    "type.googleapis.com/#{package_name}.#{type_name}"
+  end
+
   def compile(file), do: Code.eval_string(file)
 
   def normalize_service_name(name) do

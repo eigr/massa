@@ -1,12 +1,12 @@
 defmodule MassaProxy.Application do
   @moduledoc false
   use Application
+  require Logger
   alias Vapor.Provider.{Env, Dotenv}
 
   @impl true
   def start(_type, _args) do
     load_system_env()
-
     ExRay.Store.create()
     Metrics.Setup.setup()
     MassaProxy.Supervisor.start_link([])
@@ -17,6 +17,12 @@ defmodule MassaProxy.Application do
       %Dotenv{},
       %Env{
         bindings: [
+          {:proxy_cluster_strategy, "PROXY_CLUSTER_STRATEGY", default: "gossip", required: false},
+          {:proxy_headless_service, "PROXY_HEADLESS_SERVICE",
+           default: "proxy-headless-svc", required: false},
+          {:proxy_app_name, "PROXY_APP_NAME", default: "massa-proxy", required: false},
+          {:proxy_cluster_poling_interval, "PROXY_CLUSTER_POLLING",
+           default: 3_000, map: &String.to_integer/1, required: false},
           {:proxy_port, "PROXY_PORT", default: 9000, map: &String.to_integer/1, required: false},
           {:proxy_http_port, "PROXY_HTTP_PORT",
            default: 9001, map: &String.to_integer/1, required: false},
@@ -37,6 +43,16 @@ defmodule MassaProxy.Application do
   end
 
   defp set_vars(config) do
+    Application.put_env(:massa_proxy, :proxy_cluster_strategy, config.proxy_cluster_strategy)
+    Application.put_env(:massa_proxy, :proxy_headless_service, config.proxy_headless_service)
+    Application.put_env(:massa_proxy, :proxy_app_name, config.proxy_app_name)
+
+    Application.put_env(
+      :massa_proxy,
+      :proxy_cluster_poling_interval,
+      config.proxy_cluster_poling_interval
+    )
+
     Application.put_env(:massa_proxy, :proxy_port, config.proxy_port)
     Application.put_env(:massa_proxy, :proxy_http_port, config.proxy_http_port)
     Application.put_env(:massa_proxy, :user_function_host, config.user_function_host)

@@ -44,9 +44,17 @@ defmodule MassaProxy.Supervisor do
 
   # Run libcluster supervisor if configuration is set.
   defp cluster_supervisor() do
-    topologies = Application.get_env(:libcluster, :topologies)
+    cluster_strategy = Application.get_env(:massa_proxy, :proxy_cluster_strategy)
+
+    topologies =
+      case cluster_strategy do
+        "kubernetes-dns" -> get_dns_strategy()
+        _ -> Application.get_env(:libcluster, :topologies)
+      end
 
     if topologies && Code.ensure_compiled(Cluster.Supervisor) do
+      Logger.info("Cluster Strategy #{Application.get_env(:massa_proxy, :proxy_cluster_strategy)}")
+      Logger.debug("Cluster topology #{inspect(topologies)}")
       {Cluster.Supervisor, [topologies, [name: MassaProxy.ClusterSupervisor]]}
     end
   end
@@ -63,4 +71,19 @@ defmodule MassaProxy.Supervisor do
   end
 
   defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
+
+  defp get_dns_strategy() do
+    topologies = [
+      proxy: [
+        strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
+        config: [
+          service: Application.get_env(:massa_proxy, :proxy_headless_service),
+          application_name: Application.get_env(:massa_proxy, :proxy_app_name),
+          polling_interval: Application.get_env(:massa_proxy, :proxy_cluster_poling_interval)
+        ]
+      ]
+    ]
+
+    topologies
+  end
 end

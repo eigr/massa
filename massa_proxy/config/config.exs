@@ -17,7 +17,7 @@ config :logger, :console,
 # Cluster configurations
 config :libcluster,
   topologies: [
-    dev: [
+    proxy: [
       strategy: Cluster.Strategy.Gossip
     ]
   ]

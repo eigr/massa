@@ -1,11 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongoose-proxy-svc
-  namespace: mongoose
+  name: proxy-headless-svc
+  namespace: default
 spec:
-  ports:
-    - port: 8080
-  selector:
-    app: mongoose-proxy
   clusterIP: None
+  selector:
+    app: massa-proxy
+  ports:
+    - name: epmd
+      port: 4369
+    - name: proxy
+      port: 9000
+    - name: http
+      port: 9001
