@@ -13,13 +13,13 @@ defmodule MassaProxy.Entity.EntityRegistry do
   end
 
   def start_link(service) do
-    Logger.info("Starting Registry for #{service}")
+    Logger.debug("Starting Registry for #{service}")
     # note the change here in providing a name: instead of [] as the 3rd param
     GenServer.start_link(__MODULE__, service, name: via_tuple(service))
   end
 
   def init(service) do
-    Logger.info("[MassaProxy on #{inspect(Node.self())}][EntityRegistry]: Initializing...")
+    Logger.debug("[MassaProxy on #{inspect(Node.self())}][EntityRegistry]: Initializing...")
     Process.flag(:trap_exit, true)
     entities = MassaProxy.Cluster.StateHandoff.pickup(service)
     {:ok, {service, entities}}

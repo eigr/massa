@@ -4,12 +4,6 @@ defmodule MassaProxy.Server.GrpcServer do
 
   alias MassaProxy.Util
 
-  @grpc_template_path Path.expand("./templates/grpc_service.ex.eex", :code.priv_dir(:massa_proxy))
-  @grpc_endpoint_template_path Path.expand(
-                                 "./templates/grpc_endpoint.ex.eex",
-                                 :code.priv_dir(:massa_proxy)
-                               )
-
   def start(descriptors, entities), do: start_grpc(descriptors, entities)
 
   defp start_grpc(descriptors, entities) do
@@ -43,6 +37,19 @@ defmodule MassaProxy.Server.GrpcServer do
   end
 
   defp generate_services(entities) do
+    root_template_path =
+      Application.get_env(
+        :massa_proxy,
+        :proxy_root_template_path,
+        :code.priv_dir(:massa_proxy)
+      )
+
+    grpc_template_path =
+      Path.expand(
+        "./templates/grpc_service.ex.eex",
+        root_template_path
+      )
+
     for entity <- entities do
       name = Enum.join([Util.normalize_service_name(entity.service_name), "Service"], ".")
       services = Enum.at(entity.services, 0) |> Enum.at(0)
@@ -62,7 +69,7 @@ defmodule MassaProxy.Server.GrpcServer do
 
       mod =
         Util.get_module(
-          @grpc_template_path,
+          grpc_template_path,
           mod_name: name,
           name: name,
           methods: methods,
@@ -85,6 +92,19 @@ defmodule MassaProxy.Server.GrpcServer do
   end
 
   defp generate_endpoints(entities) do
+    root_template_path =
+      Application.get_env(
+        :massa_proxy,
+        :proxy_root_template_path,
+        :code.priv_dir(:massa_proxy)
+      )
+
+    grpc_endpoint_template_path =
+      Path.expand(
+        "./templates/grpc_endpoint.ex.eex",
+        root_template_path
+      )
+
     services =
       entities
       |> Flow.from_enumerable()
@@ -95,7 +115,7 @@ defmodule MassaProxy.Server.GrpcServer do
 
     mod =
       Util.get_module(
-        @grpc_endpoint_template_path,
+        grpc_endpoint_template_path,
         service_names: services
       )
 

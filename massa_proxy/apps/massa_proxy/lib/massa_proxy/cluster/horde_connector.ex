@@ -33,11 +33,6 @@ defmodule MassaProxy.Cluster.HordeConnector do
       {MassaProxy.Entity.EntityRegistry, "Stateless"}
     )
 
-    Horde.DynamicSupervisor.start_child(
-      MassaProxy.Supervisor,
-      Discovery.Worker
-    )
-
     Horde.DynamicSupervisor.start_child(MassaProxy.Supervisor, EventSourced.Router)
   end
 
@@ -45,7 +40,7 @@ defmodule MassaProxy.Cluster.HordeConnector do
     members =
       [Node.self() | Node.list()]
       |> Enum.map(fn node ->
-        Logger.info(
+        Logger.debug(
           "[massa proxy on #{inspect(Node.self())}]: Connecting Horde to #{inspect(node)}"
         )
 
