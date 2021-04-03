@@ -1,33 +1,23 @@
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  labels:
-    app: proxy
   name: proxy
+  namespace: default
 spec:
-  progressDeadlineSeconds: 600
-  replicas: 0
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: proxy
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
+  serviceName: proxy-headless-svc
+  replicas: 1
   template:
     metadata:
       annotations:
-        prometheus.io/port: "9001"
+        rometheus.io/port: "9001"
         prometheus.io/scrape: "true"
       labels:
         app: proxy
     spec:
-      hostAliases:
-      - ip: "127.0.0.1"
-        hostnames:
-        - "proxy.local"
       containers:
       - name: massa-proxy
         image: docker.io/eigr/massa-proxy:0.1.0
@@ -63,9 +53,9 @@ spec:
         envFrom:
         - configMapRef:
             name: proxy-cm
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-      
+
+      - name: user-function
+        image: docker.io/cloudstateio/cloudstate-python-tck:latest
+        ports:
+        - containerPort: 8080
+          name: http

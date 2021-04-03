@@ -23,7 +23,7 @@ defmodule MassaProxy.MixProject do
         :logger,
         :observer
       ],
-      mod: {MassaProxy.Application, []}
+      mod: {MassaProxy, []}
     ]
   end
 
@@ -72,7 +72,6 @@ defmodule MassaProxy.MixProject do
       massa_proxy: [
         include_executables_for: [:unix],
         applications: [runtime_tools: :permanent],
-        #cookie: "massa_proxy_6eycE1E/S341t4Bcto262ffyFWklCWHQIKloJDJYR7Y=",
         steps: [
           :assemble,
           &Bakeware.assemble/1

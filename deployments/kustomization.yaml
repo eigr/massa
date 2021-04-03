@@ -8,8 +8,11 @@ configMapGenerator:
 
 images:
   - name: docker.io/eigr/massa-proxy
-    newTag: 0.1.22
+    newTag: 0.1.29
+  - name: docker.io/cloudstateio/cloudstate-python-tck
+    newTag: latest
   
 resources:
 - service.yaml
-- deployment.yaml
+- statefulset.yaml
+#- deployment.yaml

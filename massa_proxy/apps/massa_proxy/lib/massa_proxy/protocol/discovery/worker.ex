@@ -54,7 +54,9 @@ defmodule Discovery.Worker do
 
   defp schedule_work(time), do: Process.send_after(self(), :work, time)
 
-  defp get_address(false), do: "#{get_function_host()}:#{get_function_port()}"
+  defp get_address("false"), do: "#{get_function_host()}:#{get_function_port()}"
+  defp get_address(false), do: get_address(false)
+  defp get_address("true"), do: get_address(true)
   defp get_address(true), do: "#{get_uds_address()}"
 
   defp startup_message(uds_enable) do

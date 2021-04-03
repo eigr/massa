@@ -35,7 +35,8 @@ defmodule MassaProxy.Supervisor do
             ]
           }
         },
-        MassaProxy.Cluster.NodeListener
+        MassaProxy.Cluster.NodeListener,
+        Discovery.Worker
       ]
       |> Enum.reject(&is_nil/1)
 
@@ -53,7 +54,10 @@ defmodule MassaProxy.Supervisor do
       end
 
     if topologies && Code.ensure_compiled(Cluster.Supervisor) do
-      Logger.info("Cluster Strategy #{Application.get_env(:massa_proxy, :proxy_cluster_strategy)}")
+      Logger.info(
+        "Cluster Strategy #{Application.get_env(:massa_proxy, :proxy_cluster_strategy)}"
+      )
+
       Logger.debug("Cluster topology #{inspect(topologies)}")
       {Cluster.Supervisor, [topologies, [name: MassaProxy.ClusterSupervisor]]}
     end
