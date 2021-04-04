@@ -1,4 +1,4 @@
-defmodule EventSourced.Router do
+defmodule MassaProxy.Protocol.Router do
   use GenServer
 
   def init(state) do

@@ -2,16 +2,9 @@ defmodule MassaProxy.Cluster.HordeConnector do
   @moduledoc false
   require Logger
 
-  def connect() do
-    Logger.info("Starting Proxy Cluster...")
-
-    set_members(MassaProxy.GlobalRegistry)
-    set_members(MassaProxy.GlobalSupervisor)
-  end
-
   def start_children() do
     # The order in which supervisors start matters, so be careful when you move here
-    Logger.debug("Starting Supervisors...")
+    Logger.debug("Starting Proxy Supervisors...")
 
     Horde.DynamicSupervisor.start_child(
       MassaProxy.Supervisor,
@@ -20,20 +13,16 @@ defmodule MassaProxy.Cluster.HordeConnector do
 
     Horde.DynamicSupervisor.start_child(
       MassaProxy.Supervisor,
-      {MassaProxy.Entity.EntityRegistry, "EventSourced"}
+      {MassaProxy.Protocol.Discovery.Worker, []}
     )
 
-    Horde.DynamicSupervisor.start_child(
-      MassaProxy.Supervisor,
-      {MassaProxy.Entity.EntityRegistry, "CRDT"}
-    )
+    Horde.DynamicSupervisor.start_child(MassaProxy.Supervisor, MassaProxy.Protocol.Router)
+  end
 
-    Horde.DynamicSupervisor.start_child(
-      MassaProxy.Supervisor,
-      {MassaProxy.Entity.EntityRegistry, "Stateless"}
-    )
-
-    Horde.DynamicSupervisor.start_child(MassaProxy.Supervisor, EventSourced.Router)
+  def connect() do
+    Logger.info("Starting Cluster...")
+    set_members(MassaProxy.GlobalRegistry)
+    set_members(MassaProxy.GlobalSupervisor)
   end
 
   defp set_members(name) do

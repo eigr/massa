@@ -1,7 +1,21 @@
-defmodule Discovery.Worker do
+defmodule MassaProxy.Protocol.Discovery.Worker do
   @moduledoc false
   use GenServer
   require Logger
+
+  alias MassaProxy.Protocol.Discovery.Manager
+
+  def child_spec(opts \\ []) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]}
+    }
+  end
+
+  def start_link(state \\ []) do
+    Logger.info("#{startup_message(is_uds_enable?())}")
+    GenServer.start_link(__MODULE__, state, name: __MODULE__)
+  end
 
   @doc """
   GenServer.init/1 callback
@@ -21,7 +35,7 @@ defmodule Discovery.Worker do
   end
 
   def handle_call(:discover, _from, state) do
-    Discovery.Manager.discover(state)
+    Manager.discover(state)
     {:reply, :ok, state}
   end
 
@@ -30,7 +44,7 @@ defmodule Discovery.Worker do
       :work ->
         {result, state} = get_connection()
 
-        Discovery.Manager.discover(state)
+        Manager.discover(state)
         schedule_work(get_heartbeat_interval())
 
         case result do
@@ -43,19 +57,13 @@ defmodule Discovery.Worker do
     end
   end
 
-  ### Client API
-  def start_link(state \\ []) do
-    Logger.info("#{startup_message(is_uds_enable?())}")
-    GenServer.start_link(__MODULE__, state, name: __MODULE__)
-  end
-
   def connect, do: GenServer.call(__MODULE__, :connect)
   def discover, do: GenServer.call(__MODULE__, :discover)
 
   defp schedule_work(time), do: Process.send_after(self(), :work, time)
 
-  defp get_address("false"), do: "#{get_function_host()}:#{get_function_port()}"
-  defp get_address(false), do: get_address(false)
+  defp get_address("false"), do: get_address(false)
+  defp get_address(false), do: "#{get_function_host()}:#{get_function_port()}"
   defp get_address("true"), do: get_address(true)
   defp get_address(true), do: "#{get_uds_address()}"
 
