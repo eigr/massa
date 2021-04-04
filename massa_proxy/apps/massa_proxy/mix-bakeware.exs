@@ -45,16 +45,13 @@ defmodule MassaProxy.MixProject do
       {:jason, "~> 1.2"},
 
       # Cluster deps
-      # Node discovery for Kubernetes
       {:libcluster, "~> 3.2.1"},
-      # Cluster features/utilities
       {:horde, "~> 0.8.3"},
+      {:phoenix_pubsub, "~> 2.0"},
 
       # Observability deps
-      # OpenTracing
       {:ex_ray, "~> 0.1.4"},
       {:hackney, "~> 1.16"},
-      # Metrics
       {:prometheus, "~> 4.6"},
       {:prometheus_plugs, "~> 1.1"},
 

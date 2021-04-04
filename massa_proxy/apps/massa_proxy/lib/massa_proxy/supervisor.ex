@@ -13,6 +13,7 @@ defmodule MassaProxy.Supervisor do
         http_server(),
         cluster_supervisor(),
         {Task.Supervisor, name: MassaProxy.TaskSupervisor},
+        {Registry, [name: MassaProxy.LocalRegistry, keys: :unique]},
         {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
         {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
         {Horde.DynamicSupervisor, [name: MassaProxy.GlobalSupervisor, strategy: :one_for_one]},
@@ -36,7 +37,7 @@ defmodule MassaProxy.Supervisor do
           }
         },
         MassaProxy.Cluster.NodeListener,
-        Discovery.Worker
+        {MassaProxy.Entity.EntityRegistry.Supervisor, []}
       ]
       |> Enum.reject(&is_nil/1)
 

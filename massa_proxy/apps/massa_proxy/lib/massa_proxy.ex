@@ -15,13 +15,15 @@ defmodule MassaProxy do
   end
 
   defp load_system_env() do
+    template_root_path = :code.priv_dir(:massa_proxy)
+
     providers = [
       %Dotenv{},
       %Env{
         bindings: [
           {:proxy_cookie, "NODE_COOKIE", default: "massa_proxy", required: false},
           {:proxy_root_template_path, "PROXY_ROOT_TEMPLATE_PATH",
-           default: "massa_proxy/apps/massa_proxy/priv/templates", required: false},
+           default: template_root_path, required: false},
           {:proxy_cluster_strategy, "PROXY_CLUSTER_STRATEGY", default: "gossip", required: false},
           {:proxy_headless_service, "PROXY_HEADLESS_SERVICE",
            default: "proxy-headless-svc", required: false},
@@ -37,7 +39,8 @@ defmodule MassaProxy do
           {:user_function_uds_enable, "PROXY_UDS_MODE", default: false, required: false},
           {:user_function_sock_addr, "PROXY_UDS_ADDRESS",
            default: "/var/run/cloudstate.sock", required: false},
-          {:heartbeat_interval, "PROXY_HEARTBEAT_INTERVAL", default: 240_000, map: &String.to_integer/1, required: false}
+          {:heartbeat_interval, "PROXY_HEARTBEAT_INTERVAL",
+           default: 240_000, map: &String.to_integer/1, required: false}
         ]
       }
     ]
