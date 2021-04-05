@@ -1,4 +1,7 @@
 defmodule MassaProxy.Protocol.Action.Unary.Handler do
+  @moduledoc """
+  This module is responsible for handling unary requests of the Action protocol
+  """
   require Logger
   alias Google.Protobuf.Any
   alias Cloudstate.{Action.ActionCommand, Metadata}
@@ -31,11 +34,13 @@ defmodule MassaProxy.Protocol.Action.Unary.Handler do
       )
 
     response =
-      with {:ok, channel} <- get_connection() do
-        channel
-        |> ActionClient.handle_unary(message)
-      else
-        reason -> {:error, reason}
+      case get_connection() do
+        {:ok, channel} ->
+          channel
+          |> ActionClient.handle_unary(message)
+
+        _ ->
+          {:error, "Failure to make unary request"}
       end
 
     Logger.debug("User function response: #{inspect(response)} ")
@@ -52,7 +57,6 @@ defmodule MassaProxy.Protocol.Action.Unary.Handler do
   end
 
   defp handle_action_response(reply) do
-    # TODO implement correct handler for this
     handle_side_effects(reply.side_effects)
 
     case reply.response do

@@ -17,7 +17,7 @@ defmodule MassaProxy.Supervisor do
         {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
         {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
         {Horde.DynamicSupervisor, [name: MassaProxy.GlobalSupervisor, strategy: :one_for_one]},
-        {MassaProxy.Entity.EntityRegistry.Supervisor, %{}},
+        {MassaProxy.Entity.EntityRegistry.Supervisor, [%{}]},
         %{
           id: MassaProxy.Cluster.HordeConnector,
           restart: :transient,

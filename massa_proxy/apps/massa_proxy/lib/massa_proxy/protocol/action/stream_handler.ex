@@ -1,4 +1,7 @@
 defmodule MassaProxy.Protocol.Action.Stream.Handler do
+  @moduledoc """
+  This module is responsible for handling stream requests of the Action protocol
+  """
   require Logger
 
   defp handle_streamed(

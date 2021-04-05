@@ -1,4 +1,7 @@
 defmodule MassaProxy.Protocol.EventSourced.Handler do
+  @moduledoc """
+  This module is responsible for handling requests of the EventSourced protocol
+  """
   @behaviour MassaProxy.Protocol.Handler
 
   @impl true

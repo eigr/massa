@@ -7,7 +7,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
 
   @topic "entities"
 
-  def child_spec(state) do
+  def child_spec(state \\ %{}) do
     %{
       id: __MODULE__,
       start: {__MODULE__, :start_link, [state]},
@@ -16,14 +16,38 @@ defmodule MassaProxy.Entity.EntityRegistry do
     }
   end
 
+  @impl true
   def init(state) do
-    Logger.debug("Initializing Entity Registry...")
     Process.flag(:trap_exit, true)
+    Logger.debug("Initializing Entity Registry with state #{inspect(state)}")
     PubSub.subscribe(:entity_channel, @topic)
     {:ok, state}
   end
 
+  @impl true
   def handle_cast({:register, new_entities}, state) do
+    # convert initial state to map if empty list
+    actual_state =
+      case state do
+        [] -> %{}
+        _ -> state
+      end
+
+    # Accumulate new entities for the node key
+    new_state =
+      Enum.reduce(new_entities, actual_state, fn entity, acc ->
+        acc_entity = Map.get(acc, entity.node)
+
+        entities =
+          case acc_entity do
+            nil -> [entity]
+            _ -> [entity] ++ Map.get(acc, entity.node)
+          end
+
+        Map.put(acc, entity.node, entities)
+      end)
+
+    # send new entities of this node to all connected nodes
     node = Node.self()
 
     PubSub.broadcast(
@@ -32,29 +56,49 @@ defmodule MassaProxy.Entity.EntityRegistry do
       {:join, %{node => new_entities}}
     )
 
-    {:noreply, state ++ new_entities}
+    {:noreply, new_state}
   end
 
-  def handle_call({:get}, _from, state = {_, entities}) do
-    {:reply, entities, state}
-  end
+  @impl true
+  def handle_call({:get, entity_type}, _from, state) do
+    nodes =
+      state
+      |> Enum.reduce([], fn {key, value}, acc ->
+        for entity <- value do
+          if entity.entity_type == entity_type do
+            [key] ++ acc
+          end
+        end
+      end)
+      |> List.flatten()
 
-  def handle_info({:join, message}, state) do
-    self = Node.self()
-
-    if !Map.has_key?(message, self) do
-      Logger.debug("New Entity join. Entity: #{inspect(message)}")
-      {:noreply, include_entity(state, message)}
+    if Enum.all?(nodes, &is_nil/1) do
+      {:reply, [], state}
     else
-      Logger.debug("Ignoring Entity join of Node: [#{inspect(Node.self())}]")
-      {:noreply, state}
+      {:reply, nodes, state}
     end
   end
 
+  @impl true
+  def handle_info({:join, message}, state) do
+    self = Node.self()
+
+    if Map.has_key?(message, self) do
+      Logger.debug("Ignoring Entity join of Node: [#{inspect(Node.self())}]")
+      {:noreply, state}
+    else
+      Logger.debug("New Entity join. Entity: #{inspect(message)}")
+      {:noreply, include_entities(state, message)}
+    end
+  end
+
+  @impl true
   def handle_info({:leave, message}, state) do
+    Logger.debug("Rebalancing after Entity leaves the cluster")
     {:noreply, message}
   end
 
+  @impl true
   def terminate(_reason, state) do
     node = Node.self()
 
@@ -78,16 +122,9 @@ defmodule MassaProxy.Entity.EntityRegistry do
   end
 
   # fetch current entities of the service
-  def lookup(_args) do
-    GenServer.call(__MODULE__, {:get})
+  def lookup(entity_type) do
+    GenServer.call(__MODULE__, {:get, entity_type})
   end
 
-  defp include_entity(state, message) do
-    new_state =
-      message
-      |> Enum.map(fn {key, value} -> {key, value} end)
-      |> Enum.into(state)
-
-    new_state
-  end
+  defp include_entities(state, message), do: Map.merge(state, message)
 end

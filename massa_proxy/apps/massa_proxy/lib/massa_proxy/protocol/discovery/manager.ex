@@ -17,7 +17,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
   ]
 
   # Generates a request id
-  @req_id :os.system_time(:milli_seconds) |> Integer.to_string() |> IO.inspect()
+  @req_id "#{inspect(:os.system_time(:milli_seconds) |> Integer.to_string())}"
 
   @trace kind: :critical
   def report_error(channel, error) do
@@ -40,11 +40,17 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
         supported_entity_types: @supported_entity_types
       )
 
-    with {:ok, file_descriptors, user_entities} <-
-           channel
-           |> Cloudstate.EntityDiscovery.Stub.discover(message)
-           |> handle_response,
-         do: GrpcServer.start(file_descriptors, user_entities)
+    case :ets.lookup(:servers, :grpc) do
+      [] ->
+        with {:ok, file_descriptors, user_entities} <-
+               channel
+               |> Cloudstate.EntityDiscovery.Stub.discover(message)
+               |> handle_response,
+             do: GrpcServer.start(file_descriptors, user_entities)
+
+      _ ->
+        Logger.debug("The user's function has already been registered. Nothing to do!")
+    end
   end
 
   defp handle_response(response) do
@@ -88,7 +94,6 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     messages =
       file_descriptors
       |> Flow.from_enumerable()
-      # TODO: Add filter step
       |> Flow.map(&extract_messages/1)
       |> Enum.to_list()
 

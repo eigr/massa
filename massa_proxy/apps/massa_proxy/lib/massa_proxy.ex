@@ -6,6 +6,7 @@ defmodule MassaProxy do
 
   @impl true
   def start(_type, _args) do
+    :ets.new(:servers, [:set, :public, :named_table])
     load_system_env()
     Node.set_cookie(get_cookie())
 
@@ -40,7 +41,7 @@ defmodule MassaProxy do
           {:user_function_sock_addr, "PROXY_UDS_ADDRESS",
            default: "/var/run/cloudstate.sock", required: false},
           {:heartbeat_interval, "PROXY_HEARTBEAT_INTERVAL",
-           default: 240_000, map: &String.to_integer/1, required: false}
+           default: 60_000, map: &String.to_integer/1, required: false}
         ]
       }
     ]
