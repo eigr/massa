@@ -1,4 +1,5 @@
 defmodule MassaProxy.Util do
+  @moduledoc false
   def get_type_url(type) do
     parts =
       type

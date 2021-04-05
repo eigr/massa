@@ -4,10 +4,15 @@ defmodule MassaProxy.Server.GrpcServer do
 
   alias MassaProxy.Util
 
-  def start(descriptors, entities), do: start_grpc(descriptors, entities)
+  def start(descriptors, entities) do
+    case :ets.lookup(:servers, :grpc) do
+      [] -> start_grpc(descriptors, entities)
+      _ -> Logger.debug("gRPC Server already started")
+    end
+  end
 
   defp start_grpc(descriptors, entities) do
-    {uSecs, _} =
+    {u_secs, _} =
       :timer.tc(fn ->
         with {:ok, descriptors} <- descriptors |> compile(),
              {:ok, _} <- generate_services(entities),
@@ -20,7 +25,7 @@ defmodule MassaProxy.Server.GrpcServer do
         :ok
       end)
 
-    Logger.info("Started gRPC Server in #{uSecs / 1_000_000}ms")
+    Logger.info("Started gRPC Server in #{u_secs / 1_000_000}ms")
   end
 
   defp compile(descriptors) do
@@ -135,6 +140,7 @@ defmodule MassaProxy.Server.GrpcServer do
        {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port)}}
 
     DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, spec)
+    :ets.insert(:servers, {:grpc, true})
   end
 
   defp get_method_names(services),

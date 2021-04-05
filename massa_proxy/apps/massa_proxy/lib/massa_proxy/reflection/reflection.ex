@@ -1,4 +1,5 @@
 defmodule MassaProxy.Reflection do
+  @moduledoc false
   require Logger
 
   def compile(file_descriptor) do

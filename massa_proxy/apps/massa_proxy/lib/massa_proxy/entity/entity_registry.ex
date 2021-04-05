@@ -5,50 +5,126 @@ defmodule MassaProxy.Entity.EntityRegistry do
 
   alias Phoenix.PubSub
 
-  def child_spec(service) do
+  @topic "entities"
+
+  def child_spec(state \\ %{}) do
     %{
       id: __MODULE__,
-      start: {__MODULE__, :start_link, [__MODULE__]},
+      start: {__MODULE__, :start_link, [state]},
       shutdown: 10_000,
       restart: :transient
     }
   end
 
-  def init(service) do
-    Logger.debug("Initializing EntityRegistry...")
+  @impl true
+  def init(state) do
     Process.flag(:trap_exit, true)
-    PubSub.subscribe(:entity_channel, "entities")
-    {:ok, {service, service}}
+    Logger.debug("Initializing Entity Registry with state #{inspect(state)}")
+    PubSub.subscribe(:entity_channel, @topic)
+    {:ok, state}
   end
 
-  def handle_cast({:register, new_entities}, {service, entities}) do
-    {:noreply, {service, entities ++ new_entities}}
+  @impl true
+  def handle_cast({:register, new_entities}, state) do
+    # convert initial state to map if empty list
+    actual_state =
+      case state do
+        [] -> %{}
+        _ -> state
+      end
+
+    # Accumulate new entities for the node key
+    new_state =
+      Enum.reduce(new_entities, actual_state, fn entity, acc ->
+        acc_entity = Map.get(acc, entity.node)
+
+        entities =
+          case acc_entity do
+            nil -> [entity]
+            _ -> [entity] ++ Map.get(acc, entity.node)
+          end
+
+        Map.put(acc, entity.node, entities)
+      end)
+
+    # send new entities of this node to all connected nodes
+    node = Node.self()
+
+    PubSub.broadcast(
+      :entity_channel,
+      @topic,
+      {:join, %{node => new_entities}}
+    )
+
+    {:noreply, new_state}
   end
 
-  def handle_call({:get}, _from, state = {_, entities}) do
-    {:reply, entities, state}
+  @impl true
+  def handle_call({:get, entity_type}, _from, state) do
+    nodes =
+      state
+      |> Enum.reduce([], fn {key, value}, acc ->
+        for entity <- value do
+          if entity.entity_type == entity_type do
+            [key] ++ acc
+          end
+        end
+      end)
+      |> List.flatten()
+
+    if Enum.all?(nodes, &is_nil/1) do
+      {:reply, [], state}
+    else
+      {:reply, nodes, state}
+    end
   end
 
-  def terminate(reason, {service, entities}) do
+  @impl true
+  def handle_info({:join, message}, state) do
+    self = Node.self()
+
+    if Map.has_key?(message, self) do
+      Logger.debug("Ignoring Entity join of Node: [#{inspect(Node.self())}]")
+      {:noreply, state}
+    else
+      Logger.debug("New Entity join. Entity: #{inspect(message)}")
+      {:noreply, include_entities(state, message)}
+    end
+  end
+
+  @impl true
+  def handle_info({:leave, message}, state) do
+    Logger.debug("Rebalancing after Entity leaves the cluster")
+    {:noreply, message}
+  end
+
+  @impl true
+  def terminate(_reason, state) do
+    node = Node.self()
+
+    PubSub.broadcast(
+      :entity_channel,
+      @topic,
+      {:leave, %{node => state}}
+    )
+
     :ok
   end
 
-  def start_link(service) do
+  def start_link(_args) do
     # note the change here in providing a name: instead of [] as the 3rd param
-    GenServer.start_link(__MODULE__, [], name: via_tuple(service))
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   # register entities to the service
-  def register(service, entities) do
-    # GenServer.cast(via_tuple(service), {:register, entities})
+  def register(_args, entities) do
+    GenServer.cast(__MODULE__, {:register, entities})
   end
 
   # fetch current entities of the service
-  def lookup(service) do
-    # GenServer.call(via_tuple(service), {:get})
+  def lookup(entity_type) do
+    GenServer.call(__MODULE__, {:get, entity_type})
   end
 
-  defp via_tuple(service) do
-    {:via, Registry, {MassaProxy.LocalRegistry, service}}
-  end
+  defp include_entities(state, message), do: Map.merge(state, message)
 end

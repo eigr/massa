@@ -1,5 +1,5 @@
 defmodule MassaProxy.Protocol.Handler do
-  @doc """
+  @moduledoc """
   This Behavior must be implemented by each entity protocol to handle
   requests that arrive through the gRPC flow.
 

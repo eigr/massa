@@ -1,5 +1,5 @@
 defmodule MassaProxy.Protocol.Action.Handler do
-  @doc """
+  @moduledoc """
   This handler is responsible for handling the Action protocol's gRPC requests.
   The Action protocol reflects the gRPC protocol in a 1:1 manner,
   so it is necessary to identify in the payload the type of request

@@ -21,7 +21,7 @@ defmodule MassaProxy.Protocol.Discovery.Worker do
   GenServer.init/1 callback
   """
   def init(state) do
-    schedule_work(1_000)
+    schedule_work(50)
     {:ok, state}
   end
 
