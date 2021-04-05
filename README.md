@@ -13,14 +13,19 @@ Massa takes advantage of Elixir's simplicity and elegance, mainly because we kno
 ## Features
 
 - [ ] ARM Support
+- [x] Discovery Support
 - [ ] Cloudstate Entity Types:
-    - [ ] Actions (Stateless Support)
+    - [ ] Actions (Stateless Support):
+        - [x] Unary Requests
+        - [ ] Streamed Requests
+        - [ ] StreamIn Requests
+        - [ ] StreamOut Requests
+        - [ ] Multi Node Forward and Side Effects
+    - [ ] Value Entities
     - [ ] CRDT's
     - [ ] EventSourced Support
         - [ ] Multi Node Forward and Side Effects
-    - [ ] KV
-- [x] Cluster transparent
-- [x] Discovery Support
+- [x] Transparent cluster formation
 - [ ] Eventing
 - [x] Interoperability with Cloudstate reference implementation
 - [ ] Metadata Support
