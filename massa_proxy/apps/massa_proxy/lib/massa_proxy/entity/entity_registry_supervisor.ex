@@ -5,6 +5,7 @@ defmodule MassaProxy.Entity.EntityRegistry.Supervisor do
     Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
+  @impl true
   def init(args) do
     children = [
       {Phoenix.PubSub, name: :entity_channel},
