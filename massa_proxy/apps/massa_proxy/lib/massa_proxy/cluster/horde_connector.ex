@@ -16,7 +16,6 @@ defmodule MassaProxy.Cluster.HordeConnector do
       {MassaProxy.Protocol.Discovery.Worker, []}
     )
 
-    Horde.DynamicSupervisor.start_child(MassaProxy.Supervisor, MassaProxy.Protocol.Router)
   end
 
   def connect() do

@@ -63,6 +63,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
+    #Logger.debug("File descriptors #{inspect(file_descriptors)}")
 
     user_entities =
       entities
