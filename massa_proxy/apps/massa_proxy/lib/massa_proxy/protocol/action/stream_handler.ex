@@ -4,23 +4,23 @@ defmodule MassaProxy.Protocol.Action.Stream.Handler do
   """
   require Logger
 
-  defp handle_streamed(
-         %{
-           stream: stream,
-           input_type: input_type,
-           output_type: output_type
-         } = payload
-       ) do
+  def handle_streamed(
+        %{
+          stream: stream,
+          input_type: input_type,
+          output_type: output_type
+        } = payload
+      ) do
     Enum.each(stream, fn msg ->
       Logger.info("Decode request from #{inspect(msg)}")
       handle_streamed_message(stream, msg)
     end)
   end
 
-  defp handle_stream_in(payload) do
+  def handle_stream_in(payload) do
   end
 
-  defp handle_stream_out(payload) do
+  def handle_stream_out(payload) do
   end
 
   defp handle_streamed_message(stream, message) do

@@ -63,7 +63,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
-    #Logger.debug("File descriptors #{inspect(file_descriptors)}")
+    # Logger.debug("File descriptors #{inspect(file_descriptors)}")
 
     user_entities =
       entities
@@ -133,7 +133,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     attributes =
       message.field
       |> Flow.from_enumerable()
-      |> Flow.map(&extract_method_attributes/1)
+      |> Flow.map(&extract_field_attributes/1)
       |> Enum.to_list()
 
     %{name: message.name, attributes: attributes}
@@ -149,7 +149,14 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     %{name: service.name, methods: methods}
   end
 
-  defp extract_method_attributes(field) do
+  defp extract_field_attributes(field) do
+    has_key =
+      if field.options != nil do
+        MassaProxy.Util.contains_key?(field)
+      end
+
+    Logger.debug("Has key?: #{inspect(has_key)}")
+
     type_options =
       if field.options != nil && field.options.ctype != nil do
         field.options.ctype
@@ -160,11 +167,34 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
       number: field.number,
       type: field.type,
       label: field.label,
+      entity_id: has_key,
       options: %{type: type_options}
     }
   end
 
   defp extract_service_method(method) do
+    http_options =
+      if method.options != nil do
+        http_rules = MassaProxy.Util.get_http_rule(method)
+        Logger.debug("MehodOptions: #{inspect(http_rules)}")
+
+        %{
+          type: "http",
+          data: http_rules
+        }
+      end
+
+    eventing_options =
+      if method.options != nil do
+        evt_rules = MassaProxy.Util.get_eventing_rule(method)
+        Logger.debug("MehodOptions: #{inspect(evt_rules)}")
+
+        %{
+          type: "eventing",
+          data: evt_rules
+        }
+      end
+
     %{
       name: method.name,
       unary: is_unary(method),
@@ -173,7 +203,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
       output_type: method.output_type,
       stream_in: method.client_streaming,
       stream_out: method.server_streaming,
-      options: []
+      options: [http_options, eventing_options]
     }
   end
 

@@ -1,4 +1,4 @@
-image=eigr/massa-proxy:0.1.29
+image=eigr/massa-proxy:0.1.30
 port=8080
 
 .PHONY: all clean
@@ -11,7 +11,7 @@ build:
 
 run: 
 
-	docker run --rm --name=massa-proxy --net=host -e PROXY_HEARTBEAT_INTERVAL=240_000 -e PROXY_HTTP_PORT=9001 -e PROXY_PORT=9000 -e PROXY_UDS_ADDRESS=false -e PROXY_UDS_MODE=/var/run/cloudstate.sock -e USER_FUNCTION_HOST=127.0.0.1 -e USER_FUNCTION_PORT=${port} ${image}
+	docker run --rm --name=massa-proxy --net=host -e PROXY_POD_IP=127.0.0.1 -e PROXY_HEARTBEAT_INTERVAL=240000 -e PROXY_HTTP_PORT=9001 -e PROXY_PORT=9000 -e PROXY_UDS_ADDRESS=false -e PROXY_UDS_MODE=/var/run/cloudstate.sock -e USER_FUNCTION_HOST=127.0.0.1 -e USER_FUNCTION_PORT=${port} ${image}
 
 install:
 

@@ -6,7 +6,6 @@ defmodule MassaProxy do
 
   @impl true
   def start(_type, _args) do
-    :ets.new(:servers, [:set, :public, :named_table])
     load_system_env()
     Node.set_cookie(get_cookie())
 
