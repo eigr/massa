@@ -1,0 +1,76 @@
+// Copyright 2019 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Extension for specifying which topics a gRPC endpoint should be connected
+// to, in order to facilitate consuming and producing events from a message broker.
+
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+package cloudstate;
+
+option java_package = "io.cloudstate";
+option java_multiple_files = true;
+option java_outer_classname = "EventsProto";
+option go_package = "github.com/cloudstateio/go-support/cloudstate;cloudstate";
+
+// Eventing configuration for a gRPC method.
+message Eventing {
+  // The event source in configuration.
+  EventSource in = 1;
+
+  // The event destination out configuration.
+  //
+  // Optional, if unset, messages out will not be published anywhere.
+  EventDestination out = 2;
+}
+
+// Event source configuration
+message EventSource {
+
+    // The consumer group id.
+    //
+    // By default, all rpc methods on a given service with the same source will be part of the same virtual consumer
+    // group, messages will be routed to the different methods by type. This can be used to override that, if you want
+    // multiple methods to act as independent consumers of the same source (ie, if you want the same event to be
+    // published to each consumer) then give each consumer a unique name.
+    //
+    // Note that this does depend on the event source supporting multiple consumer groups. Queue based event sources
+    // may not support this.
+    string consumer_group = 1;
+
+    oneof source {
+
+        // A topic source.
+        //
+        // This will consume events from the given topic name.
+        string topic = 2;
+
+        // An event log source.
+        //
+        // This will consume events from the given event log with the given persistence id.
+        string event_log = 3;
+    }
+}
+
+message EventDestination {
+    oneof destination {
+        string topic = 1;
+    }
+}
+
+extend google.protobuf.MethodOptions {
+    Eventing eventing = 1081;
+}

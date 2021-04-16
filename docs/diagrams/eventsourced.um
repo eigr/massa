@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam responseMessageBelowArrow true
+
+participant Client order 20
+participant gRPC_Server order 30
+participant Handler order 40
+participant Horde_Registry_DynamicSupervisor order 50
+participant EntityProcess order 60
+participant EntityStateProcess order 70
+participant UserFunctionSupport order 80
+
+Client -> gRPC_Server: gRPC Request
+gRPC_Server -> Handler: payload
+Handler -> Horde_Registry_DynamicSupervisor: Lookup EntityProcess by EntityId + PersistenceId
+
+Horde_Registry_DynamicSupervisor -> Horde_Registry_DynamicSupervisor: Lookup EntityProcess
+EntityProcess -> Horde_Registry_DynamicSupervisor: Lookup EntityStateProcess
+Horde_Registry_DynamicSupervisor -> Horde_Registry_DynamicSupervisor: Lookup EntityStateProcess
+Horde_Registry_DynamicSupervisor -> EntityProcess: EntityStateProcess PID Lookup
+Horde_Registry_DynamicSupervisor -> Handler: EntityProcess PID Lookup
+
+Handler -> EntityProcess: Send payload
+EntityProcess -> EntityStateProcess: Get State
+EntityStateProcess -> EntityStateProcess: Check State (if empty get on Storage)
+EntityStateProcess -> EntityProcess: Response State
+
+EntityProcess -> UserFunctionSupport: Send Protocol Request Message + State
+UserFunctionSupport -> EntityProcess: Send Procol Response Message
+EntityProcess -> EntityStateProcess: Set State
+EntityStateProcess -> EntityStateProcess: Update itself and on Storage
+EntityStateProcess -> EntityProcess: Return ok or error
+
+EntityProcess -> Handler: Send Protocol Reply
+Handler -> gRPC_Server: Send Response
+gRPC_Server -> Client: Forward Response
+
+@enduml

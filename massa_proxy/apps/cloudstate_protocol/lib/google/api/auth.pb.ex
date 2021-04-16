@@ -87,6 +87,7 @@ defmodule Google.Api.JwtLocation do
   end
 
   oneof(:in, 0)
+
   field(:header, 1, type: :string, oneof: 0)
   field(:query, 2, type: :string, oneof: 0)
   field(:value_prefix, 3, type: :string)

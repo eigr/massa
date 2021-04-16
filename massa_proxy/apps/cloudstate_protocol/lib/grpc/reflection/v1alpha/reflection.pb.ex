@@ -36,6 +36,7 @@ defmodule Grpc.Reflection.V1alpha.ServerReflectionRequest do
   end
 
   oneof(:message_request, 0)
+
   field(:host, 1, type: :string)
   field(:file_by_filename, 3, type: :string, oneof: 0)
   field(:file_containing_symbol, 4, type: :string, oneof: 0)
@@ -121,6 +122,7 @@ defmodule Grpc.Reflection.V1alpha.ServerReflectionResponse do
   end
 
   oneof(:message_response, 0)
+
   field(:valid_host, 1, type: :string)
   field(:original_request, 2, type: Grpc.Reflection.V1alpha.ServerReflectionRequest)
 

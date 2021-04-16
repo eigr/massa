@@ -45,6 +45,7 @@ defmodule Cloudstate.MetadataEntry do
   end
 
   oneof(:value, 0)
+
   field(:key, 1, type: :string)
   field(:string_value, 2, type: :string, oneof: 0)
   field(:bytes_value, 3, type: :bytes, oneof: 0)
@@ -137,6 +138,7 @@ defmodule Cloudstate.ClientAction do
   end
 
   oneof(:action, 0)
+
   field(:reply, 1, type: Cloudstate.Reply, oneof: 0)
   field(:forward, 2, type: Cloudstate.Forward, oneof: 0)
   field(:failure, 3, type: Cloudstate.Failure, oneof: 0)
@@ -418,6 +420,7 @@ defmodule Cloudstate.EntityPassivationStrategy do
   end
 
   oneof(:strategy, 0)
+
   field(:timeout, 1, type: Cloudstate.TimeoutPassivationStrategy, oneof: 0)
 end
 

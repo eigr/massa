@@ -23,6 +23,7 @@ defmodule Cloudstate.Valueentity.ValueEntityStreamIn do
   end
 
   oneof(:message, 0)
+
   field(:init, 1, type: Cloudstate.Valueentity.ValueEntityInit, oneof: 0)
   field(:command, 2, type: Cloudstate.Command, oneof: 0)
 end
@@ -106,6 +107,7 @@ defmodule Cloudstate.Valueentity.ValueEntityStreamOut do
   end
 
   oneof(:message, 0)
+
   field(:reply, 1, type: Cloudstate.Valueentity.ValueEntityReply, oneof: 0)
   field(:failure, 2, type: Cloudstate.Failure, oneof: 0)
 end
@@ -174,6 +176,7 @@ defmodule Cloudstate.Valueentity.ValueEntityAction do
   end
 
   oneof(:action, 0)
+
   field(:update, 1, type: Cloudstate.Valueentity.ValueEntityUpdate, oneof: 0)
   field(:delete, 2, type: Cloudstate.Valueentity.ValueEntityDelete, oneof: 0)
 end

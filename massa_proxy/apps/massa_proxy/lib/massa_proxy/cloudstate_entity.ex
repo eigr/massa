@@ -12,6 +12,7 @@ defmodule MassaProxy.CloudstateEntity do
                 number: 0,
                 type: nil,
                 label: nil,
+                entity_id: nil,
                 options: [
                   type: nil
                 ]
@@ -28,7 +29,10 @@ defmodule MassaProxy.CloudstateEntity do
                 stream_out: false,
                 streamed: false,
                 options: [
-                  type: nil
+                  option: [
+                    type: nil,
+                    data: nil
+                  ]
                 ]
               ]
             ]
