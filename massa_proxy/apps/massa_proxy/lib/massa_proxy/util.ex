@@ -48,7 +48,11 @@ defmodule MassaProxy.Util do
     "type.googleapis.com/#{package_name}.#{type_name}"
   end
 
-  def compile(file), do: Code.eval_string(file)
+  def compile(file) do
+    #if Code.ensure_compiled(file) do
+      Code.eval_string(file)
+    #end
+  end
 
   def normalize_service_name(name) do
     name

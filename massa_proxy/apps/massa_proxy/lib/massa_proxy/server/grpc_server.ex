@@ -17,7 +17,7 @@ defmodule MassaProxy.Server.GrpcServer do
         with {:ok, descriptors} <- descriptors |> compile(),
              {:ok, _} <- generate_services(entities),
              {:ok, _} <- generate_endpoints(entities) do
-          start_proxy(descriptors)
+          start_proxy(descriptors, entities)
         else
           _ -> Logger.error("Error during gRPC Server initialization")
         end
@@ -31,7 +31,7 @@ defmodule MassaProxy.Server.GrpcServer do
   defp compile(descriptors) do
     files =
       descriptors
-      |> MassaProxy.Reflection.compile()
+      |> MassaProxy.Reflection.prepare()
 
     for file <- files do
       result = Util.compile(file)
@@ -131,7 +131,7 @@ defmodule MassaProxy.Server.GrpcServer do
     {:ok, entities}
   end
 
-  defp start_proxy(args) do
+  defp start_proxy(descriptors, entities) do
     Logger.info("Starting gRPC Server...")
     Application.put_env(:grpc, :start_server, true, persistent: true)
 
@@ -139,7 +139,7 @@ defmodule MassaProxy.Server.GrpcServer do
       {GRPC.Server.Supervisor,
        {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port)}}
 
-    reflection_spec = MassaProxy.Reflection.Server.child_spec(args)
+    reflection_spec = MassaProxy.Reflection.Server.child_spec(descriptors)
 
     DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, server_spec)
     DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, reflection_spec)
