@@ -15,7 +15,6 @@ defmodule MassaProxy.Cluster.HordeConnector do
       MassaProxy.Supervisor,
       {MassaProxy.Protocol.Discovery.Worker, []}
     )
-
   end
 
   def connect() do

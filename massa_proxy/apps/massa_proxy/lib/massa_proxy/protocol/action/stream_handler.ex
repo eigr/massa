@@ -3,8 +3,10 @@ defmodule MassaProxy.Protocol.Action.Stream.Handler do
   This module is responsible for handling stream requests of the Action protocol
   """
   require Logger
+  alias GRPC.Server
+  alias Google.Protobuf.Any
 
-  defp handle_streamed(
+  def handle_streamed(
          %{
            stream: stream,
            input_type: input_type,
@@ -17,10 +19,10 @@ defmodule MassaProxy.Protocol.Action.Stream.Handler do
     end)
   end
 
-  defp handle_stream_in(payload) do
+  def handle_stream_in(payload) do
   end
 
-  defp handle_stream_out(payload) do
+  def handle_stream_out(payload) do
   end
 
   defp handle_streamed_message(stream, message) do
