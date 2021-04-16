@@ -6,8 +6,9 @@ defmodule Massa.Server.Grpc.ProxyEndpoint do
   intercept(GRPCPrometheus.ServerInterceptor)
 
   services = [
+    MassProxy.Reflection.Service,
 <%= Enum.map service_names, fn(service_name) -> %>
-      <%= service_name %>,
+    <%= service_name %>,
 <% end %>
   ]
 

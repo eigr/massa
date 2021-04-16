@@ -6,13 +6,23 @@ defmodule MassaProxy do
 
   @impl true
   def start(_type, _args) do
+    setup()
+    MassaProxy.Supervisor.start_link([])
+  end
+
+  defp setup() do
+    Logger.info(
+      "Available BEAM Schedulers: #{System.schedulers()}. Online BEAM Schedulers: #{
+        System.schedulers_online()
+      }"
+    )
+
     :ets.new(:servers, [:set, :public, :named_table])
     load_system_env()
     Node.set_cookie(get_cookie())
 
     ExRay.Store.create()
     Metrics.Setup.setup()
-    MassaProxy.Supervisor.start_link([])
   end
 
   defp load_system_env() do
