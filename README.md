@@ -8,47 +8,8 @@ Now seriously Massa is just [CloudState](https://github.com/cloudstateio/cloudst
 
 ## Overview
 
-Massa takes advantage of Elixir's simplicity and elegance, mainly because we know the power of Erlang's basic components, such as the features of Beam VM, the OTP structure and the libraries established by the Elixir community, such as Broadway, Libcluster, Horde and Ecto to build a highly efficient, resilient and low memory usage Cloudstate proxy.
-
-## Features
-
-- [ ] ARM Support
-- [x] Discovery Support
-- [ ] Cloudstate Entity Types:
-    - [ ] Actions (Stateless Support):
-        - [x] Unary Requests
-        - [ ] Streamed Requests
-        - [ ] StreamIn Requests
-        - [ ] StreamOut Requests
-        - [ ] Multi Node Forward and Side Effects
-    - [ ] Value Entities
-    - [ ] CRDT's
-    - [ ] EventSourced Support
-        - [ ] Multi Node Forward and Side Effects
-- [x] Transparent cluster formation
-- [ ] Eventing
-- [x] Interoperability with Cloudstate reference implementation
-- [ ] Metadata Support
-- [x] Observability:
-    - [x] Health Checks
-    - [x] Metrics
-    - [x] Open Tracing
-- [ ] State Store:
-    - [ ] In Memory
-    - [ ] Mnesia
-    - [ ] Cassandra
-    - [ ] MongoDB
-    - [ ] MSSQL
-    - [ ] MySql
-    - [ ] Postgres
-- [ ] TCK
-- [x] Transports and Protocols
-    - [x] GRPC
-        - [x] Client TCP
-        - [x] Client Unix Domain Sockets
-        - [ ] Reflection
-        - [x] Server TCP 
-    - [ ] HTTP
+Massa is Cloudstate Sidecar Proxy implemented on top of Erlang BEAM VM.
+We takes advantage of Elixir's simplicity and elegance, mainly because we know the power of Erlang's basic components, such as the features of Beam VM, the OTP structure and the libraries established by the Elixir community, such as Broadway, Libcluster, Horde and Ecto to build a highly efficient, resilient and low memory usage Cloudstate proxy.
 
 ## Main Concepts
 
@@ -57,6 +18,53 @@ TODO
 ## Inversion of State
 
 TODO
+
+## Project Status
+
+- [x] Compliance implementation of Cloudstate Protocol
+- [x] Automatic Cluster formation
+- [x] Transports and Protocols
+    - [x] GRPC:
+        - [x] TCP Server
+        - [x] Unix Domain Sockets (Proxy -> UserFunction)
+        - [x] [Reflection](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md) (grpcurl support)
+        - [ ] TLS Support
+    - [ ] [HTTP Transcoding](https://cloud.google.com/endpoints/docs/grpc/transcoding)
+- [x] Observability:
+    - [x] Health Checks
+    - [x] Metrics
+    - [x] Open Tracing
+- [ ] Entity State Active Caching
+- [x] Cloudstate Protocol Features:
+    - [x] Discovery Support
+    - [x] Actions (Stateless Support):
+        - [x] Unary Requests
+        - [ ] Streamed Requests
+        - [ ] StreamIn Requests
+        - [ ] StreamOut Requests
+        - [ ] Multi Node Forward and Side Effects
+    - [ ] Value Entities
+    - [ ] EventSourced Support:
+        - [ ] Multi Node Forward and Side Effects
+        - [ ] Projections
+    - [ ] CRDT's
+    - [ ] Eventing
+        - [ ] Amazon SQS
+        - [ ] Apache Kafka
+        - [ ] Google PubSub
+        - [ ] RabbitMQ
+    - [ ] Metadata Support
+- [ ] State Store:
+    - [ ] Mnesia (InMemory/File)
+    - [ ] [EventStore](https://www.eventstore.com)
+    - [ ] Postgres
+- [ ] TCK
+- [x] Platforms & Architectures:
+    - [x] x86 Support
+    - [ ] ARM Support
+    - [x] Kubernetes
+    - [ ] [Knative](https://knative.dev)
+    - [x] [Docker Swarm](https://docs.docker.com/engine/swarm/) (with [Podlike](https://github.com/rycus86/podlike))
 
 ## Benchmark
 
