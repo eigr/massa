@@ -21,7 +21,7 @@ defmodule MassaProxy.Infra.Cache do
   @impl true
   def init(state) do
     cache_name = get_cachename(state)
-    Logger.debug("State: #{inspect(state)}")
+    Logger.debug("Cache State: #{inspect(state)}")
     :ets.new(cache_name, [:set, :public, :named_table])
     {:ok, state}
   end

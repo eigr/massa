@@ -5,7 +5,7 @@ defmodule MassaProxy.Server.GrpcServer do
   alias MassaProxy.{Util, Infra.Cache}
 
   def start(descriptors, entities) do
-    case Cache.get(:servers, :grpc) do
+    case Cache.get(:cached_servers, :grpc) do
       nil -> start_grpc(descriptors, entities)
       _ -> Logger.debug("gRPC Server already started")
     end
@@ -143,7 +143,7 @@ defmodule MassaProxy.Server.GrpcServer do
 
     with {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, server_spec),
          {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, reflection_spec) do
-      Cache.put(:servers, :grpc, true)
+      Cache.put(:cached_servers, :grpc, true)
     end
   end
 
