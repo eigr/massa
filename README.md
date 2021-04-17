@@ -58,6 +58,7 @@ TODO
     - [ ] Multi Node Forward and Side Effects (proxy-to-proxy communication)
     - [ ] External Remote Forward and Side Effects (proxy-to-outside communication)
     - [ ] GraphQL Transcoding
+    - [ ] Keda Integration
 - [ ] State Stores:
     - [ ] Mnesia (InMemory/File)
     - [ ] [EventStore](https://www.eventstore.com)
@@ -66,9 +67,10 @@ TODO
 - [x] Platforms & Architectures:
     - [x] x86 Support
     - [ ] ARM Support
+    - [x] Docker
     - [x] Kubernetes
     - [ ] [Knative](https://knative.dev)
-    - [x] [Docker Swarm](https://docs.docker.com/engine/swarm/) (with [Podlike](https://github.com/rycus86/podlike))
+    - [x] [Swarm](https://docs.docker.com/engine/swarm/) (with [Podlike](https://github.com/rycus86/podlike))
 
 ## Benchmark
 
