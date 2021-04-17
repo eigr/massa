@@ -18,7 +18,6 @@ defmodule MassaProxy.Supervisor do
         {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
         {Horde.Registry, [name: MassaProxy.GlobalRegistry, keys: :unique]},
         {Horde.DynamicSupervisor, [name: MassaProxy.GlobalSupervisor, strategy: :one_for_one]},
-
         %{
           id: CachedServers,
           start: {MassaProxy.Infra.Cache, :start_link, [[cache_name: :cached_servers]]}
