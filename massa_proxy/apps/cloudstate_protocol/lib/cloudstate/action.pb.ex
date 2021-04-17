@@ -62,6 +62,7 @@ defmodule Cloudstate.Action.ActionResponse do
   end
 
   oneof(:response, 0)
+
   field(:failure, 1, type: Cloudstate.Failure, oneof: 0)
   field(:reply, 2, type: Cloudstate.Reply, oneof: 0)
   field(:forward, 3, type: Cloudstate.Forward, oneof: 0)

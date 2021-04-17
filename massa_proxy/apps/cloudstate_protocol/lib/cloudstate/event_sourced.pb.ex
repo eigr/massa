@@ -152,6 +152,7 @@ defmodule Cloudstate.Eventsourced.EventSourcedStreamIn do
   end
 
   oneof(:message, 0)
+
   field(:init, 1, type: Cloudstate.Eventsourced.EventSourcedInit, oneof: 0)
   field(:event, 2, type: Cloudstate.Eventsourced.EventSourcedEvent, oneof: 0)
   field(:command, 3, type: Cloudstate.Command, oneof: 0)
@@ -182,6 +183,7 @@ defmodule Cloudstate.Eventsourced.EventSourcedStreamOut do
   end
 
   oneof(:message, 0)
+
   field(:reply, 1, type: Cloudstate.Eventsourced.EventSourcedReply, oneof: 0)
   field(:failure, 2, type: Cloudstate.Failure, oneof: 0)
 end

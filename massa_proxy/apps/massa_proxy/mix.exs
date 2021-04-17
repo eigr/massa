@@ -20,7 +20,8 @@ defmodule MassaProxy.MixProject do
     [
       extra_applications: [
         :logger,
-        :observer
+        :observer,
+        :protobuf
       ],
       mod: {MassaProxy, []}
     ]
@@ -34,6 +35,7 @@ defmodule MassaProxy.MixProject do
       {:vapor, "~> 0.10.0"},
 
       # Grpc deps
+      {:protobuf, "~> 0.8.0-beta.1", override: true},
       {:grpc, github: "elixir-grpc/grpc", override: true},
       # {:gun, "~> 2.0", hex: :grpc_gun, override: true},
       # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0

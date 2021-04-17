@@ -64,6 +64,7 @@ defmodule Google.Api.HttpRule do
   end
 
   oneof(:pattern, 0)
+
   field(:selector, 1, type: :string)
   field(:get, 2, type: :string, oneof: 0)
   field(:put, 3, type: :string, oneof: 0)

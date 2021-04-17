@@ -2,14 +2,16 @@ defmodule MassaProxy.Reflection do
   @moduledoc false
   require Logger
 
-  def compile(file_descriptor) do
+  def prepare(file_descriptor) do
     ctx =
       %Protobuf.Protoc.Context{gen_descriptors?: true, plugins: ["grpc"]}
       |> find_types(file_descriptor)
 
     files =
       file_descriptor
-      |> Enum.map(fn desc -> MassaProxy.Generator.generate_content(ctx, desc) end)
+      |> Enum.map(fn desc ->
+        MassaProxy.Generator.generate_content(ctx, desc)
+      end)
   end
 
   @doc false

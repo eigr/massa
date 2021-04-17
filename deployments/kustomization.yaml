@@ -13,6 +13,6 @@ images:
     newTag: latest
   
 resources:
-- service.yaml
-- statefulset.yaml
+#- service.yaml
+#- statefulset.yaml
 #- deployment.yaml

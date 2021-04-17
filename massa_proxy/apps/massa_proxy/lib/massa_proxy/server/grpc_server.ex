@@ -2,11 +2,11 @@ defmodule MassaProxy.Server.GrpcServer do
   @moduledoc false
   require Logger
 
-  alias MassaProxy.Util
+  alias MassaProxy.{Util, Infra.Cache}
 
   def start(descriptors, entities) do
-    case :ets.lookup(:servers, :grpc) do
-      [] -> start_grpc(descriptors, entities)
+    case Cache.get(:cached_servers, :grpc) do
+      nil -> start_grpc(descriptors, entities)
       _ -> Logger.debug("gRPC Server already started")
     end
   end
@@ -17,7 +17,7 @@ defmodule MassaProxy.Server.GrpcServer do
         with {:ok, descriptors} <- descriptors |> compile(),
              {:ok, _} <- generate_services(entities),
              {:ok, _} <- generate_endpoints(entities) do
-          start_proxy([])
+          start_proxy(descriptors, entities)
         else
           _ -> Logger.error("Error during gRPC Server initialization")
         end
@@ -31,7 +31,7 @@ defmodule MassaProxy.Server.GrpcServer do
   defp compile(descriptors) do
     files =
       descriptors
-      |> MassaProxy.Reflection.compile()
+      |> MassaProxy.Reflection.prepare()
 
     for file <- files do
       result = Util.compile(file)
@@ -131,16 +131,20 @@ defmodule MassaProxy.Server.GrpcServer do
     {:ok, entities}
   end
 
-  defp start_proxy(args) do
+  defp start_proxy(descriptors, entities) do
     Logger.info("Starting gRPC Server...")
     Application.put_env(:grpc, :start_server, true, persistent: true)
 
-    spec =
+    server_spec =
       {GRPC.Server.Supervisor,
        {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port)}}
 
-    DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, spec)
-    :ets.insert(:servers, {:grpc, true})
+    reflection_spec = MassaProxy.Reflection.Server.child_spec(descriptors)
+
+    with {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, server_spec),
+         {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, reflection_spec) do
+      Cache.put(:cached_servers, :grpc, true)
+    end
   end
 
   defp get_method_names(services),

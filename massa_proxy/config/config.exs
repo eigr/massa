@@ -3,6 +3,7 @@ import Config
 # Our Logger general configuration
 config :logger,
   backends: [:console],
+  truncate: 65536,
   compile_time_purge_matching: [
     [level_lower_than: :debug]
   ]

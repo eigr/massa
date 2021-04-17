@@ -1,5 +1,37 @@
 defmodule MassaProxy.Util do
   @moduledoc false
+  require Logger
+
+  def contains_key?(field_descriptor) do
+    Logger.debug("FieldOptions: #{inspect(field_descriptor)}")
+
+    Google.Protobuf.FieldOptions.get_extension(
+      field_descriptor.options,
+      Cloudstate.PbExtension,
+      :entity_key
+    )
+  end
+
+  def get_http_rule(method_descriptor) do
+    Logger.debug("MehodOptions HTTP Rules: #{inspect(method_descriptor)}")
+
+    Google.Protobuf.MethodOptions.get_extension(
+      method_descriptor.options,
+      Google.Api.PbExtension,
+      :http
+    )
+  end
+
+  def get_eventing_rule(method_descriptor) do
+    Logger.debug("MehodOptions Eventing Rules: #{inspect(method_descriptor)}")
+
+    Google.Protobuf.MethodOptions.get_extension(
+      method_descriptor.options,
+      Cloudstate.PbExtension,
+      :eventing
+    )
+  end
+
   def get_type_url(type) do
     parts =
       type
@@ -16,7 +48,11 @@ defmodule MassaProxy.Util do
     "type.googleapis.com/#{package_name}.#{type_name}"
   end
 
-  def compile(file), do: Code.eval_string(file)
+  def compile(file) do
+    # if Code.ensure_compiled(file) do
+    Code.eval_string(file)
+    # end
+  end
 
   def normalize_service_name(name) do
     name
