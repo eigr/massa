@@ -141,10 +141,10 @@ defmodule MassaProxy.Server.GrpcServer do
 
     reflection_spec = MassaProxy.Reflection.Server.child_spec(descriptors)
 
-    DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, server_spec)
-    DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, reflection_spec)
-
-    Cache.put(:servers, :grpc, true)
+    with {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, server_spec),
+         {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, reflection_spec) do
+      Cache.put(:servers, :grpc, true)
+    end
   end
 
   defp get_method_names(services),
