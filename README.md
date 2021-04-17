@@ -54,7 +54,11 @@ TODO
         - [ ] Google PubSub
         - [ ] RabbitMQ
     - [ ] Metadata Support
-- [ ] State Store:
+- [ ] Massa Specific or Extensions Features:
+    - [ ] Multi Node Forward and Side Effects (proxy-to-proxy communication)
+    - [ ] External Remote Forward and Side Effects (proxy-to-outside communication)
+    - [ ] GraphQL Transcoding
+- [ ] State Stores:
     - [ ] Mnesia (InMemory/File)
     - [ ] [EventStore](https://www.eventstore.com)
     - [ ] Postgres
