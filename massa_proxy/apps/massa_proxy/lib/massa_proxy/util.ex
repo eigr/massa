@@ -49,9 +49,9 @@ defmodule MassaProxy.Util do
   end
 
   def compile(file) do
-    #if Code.ensure_compiled(file) do
-      Code.eval_string(file)
-    #end
+    # if Code.ensure_compiled(file) do
+    Code.eval_string(file)
+    # end
   end
 
   def normalize_service_name(name) do

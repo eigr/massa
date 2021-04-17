@@ -8,7 +8,8 @@ defmodule MassaProxy.Infra.Cache do
   require Logger
 
   # Public API
-  def start_link(state), do: GenServer.start_link(__MODULE__, state, name: via_tuple(get_cachename(state)))
+  def start_link(state),
+    do: GenServer.start_link(__MODULE__, state, name: via_tuple(get_cachename(state)))
 
   def eviction(cache_name, key), do: GenServer.cast(via_tuple(cache_name), {:eviction, key})
 
@@ -20,7 +21,7 @@ defmodule MassaProxy.Infra.Cache do
   @impl true
   def init(state) do
     cache_name = get_cachename(state)
-    Logger.debug("State: #{inspect state}")
+    Logger.debug("State: #{inspect(state)}")
     :ets.new(cache_name, [:set, :public, :named_table])
     {:ok, state}
   end
@@ -28,6 +29,7 @@ defmodule MassaProxy.Infra.Cache do
   @impl true
   def handle_call({:get, key}, _from, state) do
     cache_name = get_cachename(state)
+
     reply =
       case :ets.lookup(cache_name, key) do
         [] -> nil

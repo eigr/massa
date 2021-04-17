@@ -11,7 +11,7 @@ defmodule MassaProxy.Reflection do
       file_descriptor
       |> Enum.map(fn desc ->
         MassaProxy.Generator.generate_content(ctx, desc)
-    end)
+      end)
   end
 
   @doc false
