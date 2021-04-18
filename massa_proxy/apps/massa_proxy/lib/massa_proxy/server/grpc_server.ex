@@ -135,24 +135,26 @@ defmodule MassaProxy.Server.GrpcServer do
     Logger.info("Starting gRPC Server...")
     Application.put_env(:grpc, :start_server, true, persistent: true)
 
-    opts =
-      if Application.get_env(:massa_proxy, :tls) do
-        cert_path = Application.get_env(:massa_proxy, :tls_cert_path)
-        key_path = Application.get_env(:massa_proxy, :tls_key_path)
-        cred = GRPC.Credential.new(ssl: [certfile: cert_path, keyfile: key_path])
-
-        {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port),
-         cred: cred}
-      else
-        {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port)}
-      end
-
+    opts = get_grpc_options
     server_spec = {GRPC.Server.Supervisor, opts}
     reflection_spec = MassaProxy.Reflection.Server.child_spec(descriptors)
 
     with {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, server_spec),
          {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, reflection_spec) do
       Cache.put(:cached_servers, :grpc, true)
+    end
+  end
+
+  defp get_grpc_options() do
+    if Application.get_env(:massa_proxy, :tls) do
+      cert_path = Application.get_env(:massa_proxy, :tls_cert_path)
+      key_path = Application.get_env(:massa_proxy, :tls_key_path)
+      cred = GRPC.Credential.new(ssl: [certfile: cert_path, keyfile: key_path])
+
+      {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port),
+       cred: cred}
+    else
+      {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port)}
     end
   end
 
