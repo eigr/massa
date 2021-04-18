@@ -28,7 +28,7 @@ TODO
         - [x] TCP Server
         - [x] Unix Domain Sockets (Proxy -> UserFunction)
         - [x] [Reflection](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md) ([grpcurl](https://github.com/fullstorydev/grpcurl) support)
-        - [ ] TLS Support
+        - [x] TLS Support
     - [ ] [HTTP Transcoding](https://cloud.google.com/endpoints/docs/grpc/transcoding)
 - [x] Observability:
     - [x] Health Checks
