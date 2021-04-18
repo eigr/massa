@@ -11,3 +11,6 @@ PROXY_PORT=9000
 PROXY_UDS_MODE=false
 PROXY_UDS_ADDRESS=/var/run/cloudstate.sock
 PROXY_ROOT_TEMPLATE_PATH=/home/app
+PROXY_TLS=false
+PROXY_TLS_CERT_PATH=/home/app/tls/server1.pem
+PROXY_TLS_KEY_PATH=/home/app/tls/server1.key

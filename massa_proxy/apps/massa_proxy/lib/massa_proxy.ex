@@ -26,7 +26,9 @@ defmodule MassaProxy do
   end
 
   defp load_system_env() do
-    template_root_path = :code.priv_dir(:massa_proxy)
+    priv_root_path = :code.priv_dir(:massa_proxy)
+    cert_path = Path.expand("./tls/server1.pem", :code.priv_dir(:massa_proxy))
+    key_path = Path.expand("./tls/server1.key", :code.priv_dir(:massa_proxy))
 
     providers = [
       %Dotenv{},
@@ -34,7 +36,7 @@ defmodule MassaProxy do
         bindings: [
           {:proxy_cookie, "NODE_COOKIE", default: "massa_proxy", required: false},
           {:proxy_root_template_path, "PROXY_ROOT_TEMPLATE_PATH",
-           default: template_root_path, required: false},
+           default: priv_root_path, required: false},
           {:proxy_cluster_strategy, "PROXY_CLUSTER_STRATEGY", default: "gossip", required: false},
           {:proxy_headless_service, "PROXY_HEADLESS_SERVICE",
            default: "proxy-headless-svc", required: false},
@@ -51,7 +53,10 @@ defmodule MassaProxy do
           {:user_function_sock_addr, "PROXY_UDS_ADDRESS",
            default: "/var/run/cloudstate.sock", required: false},
           {:heartbeat_interval, "PROXY_HEARTBEAT_INTERVAL",
-           default: 60_000, map: &String.to_integer/1, required: false}
+           default: 60_000, map: &String.to_integer/1, required: false},
+          {:tls, "PROXY_TLS", default: false, required: false},
+          {:tls_cert_path, "PROXY_TLS_CERT_PATH", default: cert_path, required: false},
+          {:tls_key_path, "PROXY_TLS_KEY_PATH", default: key_path, required: false}
         ]
       }
     ]
@@ -81,6 +86,9 @@ defmodule MassaProxy do
     Application.put_env(:massa_proxy, :user_function_uds_enable, config.user_function_uds_enable)
     Application.put_env(:massa_proxy, :user_function_sock_addr, config.user_function_sock_addr)
     Application.put_env(:massa_proxy, :heartbeat_interval, config.heartbeat_interval)
+    Application.put_env(:massa_proxy, :tls, config.tls)
+    Application.put_env(:massa_proxy, :tls_cert_path, config.tls_cert_path)
+    Application.put_env(:massa_proxy, :tls_key_path, config.tls_key_path)
   end
 
   defp get_cookie(), do: String.to_atom(Application.get_env(:massa_proxy, :proxy_cookie))
