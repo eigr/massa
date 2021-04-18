@@ -2,7 +2,7 @@ defmodule MassaProxy.Server.GrpcServer do
   @moduledoc false
   require Logger
 
-  alias MassaProxy.{Util, Infra.Cache}
+  alias MassaProxy.{Util, Infra.Cache, Reflection, Server.HttpRouter}
 
   def start(descriptors, entities) do
     case Cache.get(:cached_servers, :grpc) do
@@ -135,11 +135,13 @@ defmodule MassaProxy.Server.GrpcServer do
     Logger.info("Starting gRPC Server...")
     Application.put_env(:grpc, :start_server, true, persistent: true)
 
-    opts = get_grpc_options
-    server_spec = {GRPC.Server.Supervisor, opts}
+    opts = get_grpc_options()
+    grpc_spec = {GRPC.Server.Supervisor, opts}
+    http_spec = HttpRouter.child_spec(entities)
     reflection_spec = MassaProxy.Reflection.Server.child_spec(descriptors)
 
-    with {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, server_spec),
+    with {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, grpc_spec),
+         {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, http_spec),
          {:ok, _} <- DynamicSupervisor.start_child(MassaProxy.LocalSupervisor, reflection_spec) do
       Cache.put(:cached_servers, :grpc, true)
     end

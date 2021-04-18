@@ -5,6 +5,7 @@ defmodule Http.Endpoint do
   """
 
   use Plug.Router
+  alias Infra.Http.TranscodingProxyRouter
 
   plug(Plug.Logger)
 
@@ -21,5 +22,5 @@ defmodule Http.Endpoint do
     send_resp(conn, 200, "up!")
   end
 
-  match(_, to: TranscoderRouter)
+  match(_, to: TranscodingProxyRouter)
 end
