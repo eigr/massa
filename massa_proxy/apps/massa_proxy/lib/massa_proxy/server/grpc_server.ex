@@ -146,15 +146,16 @@ defmodule MassaProxy.Server.GrpcServer do
   end
 
   defp get_grpc_options() do
+    port = Application.get_env(:massa_proxy, :proxy_port)
+
     if Application.get_env(:massa_proxy, :tls) do
       cert_path = Application.get_env(:massa_proxy, :tls_cert_path)
       key_path = Application.get_env(:massa_proxy, :tls_key_path)
       cred = GRPC.Credential.new(ssl: [certfile: cert_path, keyfile: key_path])
 
-      {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port),
-       cred: cred}
+      {Massa.Server.Grpc.ProxyEndpoint, port, cred: cred}
     else
-      {Massa.Server.Grpc.ProxyEndpoint, Application.get_env(:massa_proxy, :proxy_port)}
+      {Massa.Server.Grpc.ProxyEndpoint, port}
     end
   end
 
