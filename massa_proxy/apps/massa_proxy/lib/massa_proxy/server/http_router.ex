@@ -16,6 +16,7 @@ defmodule MassaProxy.Server.HttpRouter do
     {:ok, state}
   end
 
+  @impl true
   def handle_call({:routing, request}, _from, state) do
     response = request
     {:reply, response, state}
