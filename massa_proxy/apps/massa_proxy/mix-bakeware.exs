@@ -31,7 +31,7 @@ defmodule MassaProxy.MixProject do
   defp deps do
     [
       # Base deps
-      {:bakeware, "~> 0.1.5"},
+      {:bakeware, "~> 0.2.0"},
       {:cloudstate_protocol, in_umbrella: true},
       {:flow, "~> 1.0"},
       {:vapor, "~> 0.10.0"},
@@ -74,7 +74,7 @@ defmodule MassaProxy.MixProject do
           :assemble,
           &Bakeware.assemble/1
         ],
-        compression_level: 19
+         bakeware: [compression_level: 19]
       ]
     ]
   end
