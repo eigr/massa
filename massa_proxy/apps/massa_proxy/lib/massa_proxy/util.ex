@@ -13,6 +13,7 @@ defmodule MassaProxy.Util do
       )
 
     Logger.debug("Entity key extension: #{inspect(entity_key_ext)}")
+    entity_key_ext
   end
 
   def get_http_rule(method_descriptor) do
@@ -36,6 +37,7 @@ defmodule MassaProxy.Util do
       )
 
     Logger.debug("Eventing extension: #{inspect(evt_ext)}")
+    evt_ext
   end
 
   def get_type_url(type) do

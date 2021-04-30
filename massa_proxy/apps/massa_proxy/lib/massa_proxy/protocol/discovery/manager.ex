@@ -152,10 +152,9 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
   defp extract_field_attributes(field) do
     has_key =
       if field.options != nil do
-        MassaProxy.Util.contains_key?(field)
+        opts = MassaProxy.Util.contains_key?(field)
+        Logger.debug("Has key?: #{inspect(opts)}")
       end
-
-    Logger.debug("Has key?: #{inspect(has_key)}")
 
     type_options =
       if field.options != nil && field.options.ctype != nil do
