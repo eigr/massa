@@ -5,11 +5,13 @@ defmodule MassaProxy.Util do
   def contains_key?(field_descriptor) do
     Logger.debug("FieldOptions: #{inspect(field_descriptor)}")
 
-    entity_key_ext = Google.Protobuf.FieldOptions.get_extension(
-      field_descriptor.options,
-      Cloudstate.PbExtension,
-      :entity_key
-    )
+    entity_key_ext =
+      Google.Protobuf.FieldOptions.get_extension(
+        field_descriptor.options,
+        Cloudstate.PbExtension,
+        :entity_key
+      )
+
     Logger.debug("Entity key extension: #{inspect(entity_key_ext)}")
   end
 
@@ -26,11 +28,13 @@ defmodule MassaProxy.Util do
   def get_eventing_rule(method_descriptor) do
     Logger.debug("MehodOptions Eventing Rules: #{inspect(method_descriptor)}")
 
-    evt_ext = Google.Protobuf.MethodOptions.get_extension(
-      method_descriptor.options,
-      Cloudstate.PbExtension,
-      :eventing
-    )
+    evt_ext =
+      Google.Protobuf.MethodOptions.get_extension(
+        method_descriptor.options,
+        Cloudstate.PbExtension,
+        :eventing
+      )
+
     Logger.debug("Eventing extension: #{inspect(evt_ext)}")
   end
 

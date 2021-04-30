@@ -195,7 +195,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
         }
       end
 
-    %{
+    svc = %{
       name: method.name,
       unary: is_unary(method),
       streamed: is_streamed(method),
@@ -205,6 +205,9 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
       stream_out: method.server_streaming,
       options: [http_options, eventing_options]
     }
+
+    Logger.debug("Service mapped #{inspect(svc)}")
+    svc
   end
 
   defp is_unary(method) do

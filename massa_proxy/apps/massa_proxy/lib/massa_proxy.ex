@@ -4,10 +4,46 @@ defmodule MassaProxy do
   require Logger
   alias Vapor.Provider.{Env, Dotenv}
 
+  @before_init [
+    {Task.Supervisor, name: MassaProxy.TaskSupervisor},
+    {Registry, [name: MassaProxy.LocalRegistry, keys: :unique]},
+    {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]}
+  ]
+
+  @horde [
+    MassaProxy.GlobalRegistry,
+    MassaProxy.GlobalSupervisor
+  ]
+
+  @after_init [
+    {MassaProxy.Entity.EntityRegistry.Supervisor, [%{}]},
+    %{
+      id: CachedServers,
+      start: {MassaProxy.Infra.Cache, :start_link, [[cache_name: :cached_servers]]}
+    },
+    %{
+      id: ReflectionCache,
+      start: {MassaProxy.Infra.Cache, :start_link, [[cache_name: :reflection_cache]]}
+    }
+  ]
+
   @impl true
   def start(_type, _args) do
     setup()
-    MassaProxy.Supervisor.start_link([])
+
+    children =
+      ([
+         http_server(),
+         cluster_supervisor()
+       ] ++
+         @before_init ++
+         @horde ++
+         horde_connector() ++
+         @after_init)
+      |> Enum.reject(&is_nil/1)
+
+    opts = [strategy: :one_for_one, name: MassaProxy.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 
   defp setup() do
@@ -92,4 +128,82 @@ defmodule MassaProxy do
   end
 
   defp get_cookie(), do: String.to_atom(Application.get_env(:massa_proxy, :proxy_cookie))
+
+  defp horde_connector() do
+    [
+      %{
+        id: MassaProxy.Cluster.HordeConnector,
+        restart: :transient,
+        start: {
+          Task,
+          :start_link,
+          [
+            fn ->
+              Horde.DynamicSupervisor.start_child(
+                MassaProxy.Supervisor,
+                {MassaProxy.Protocol.Discovery.Worker, []}
+              )
+
+              Horde.DynamicSupervisor.start_child(
+                MassaProxy.Supervisor,
+                {MassaProxy.Cluster.StateHandoff, []}
+              )
+
+              Node.list()
+              |> Enum.each(fn node ->
+                :ok = MassaProxy.Cluster.StateHandoff.join(node)
+              end)
+            end
+          ]
+        }
+      }
+    ]
+  end
+
+  defp cluster_supervisor() do
+    cluster_strategy = Application.get_env(:massa_proxy, :proxy_cluster_strategy)
+
+    topologies =
+      case cluster_strategy do
+        "kubernetes-dns" -> get_dns_strategy()
+        _ -> Application.get_env(:libcluster, :topologies)
+      end
+
+    if topologies && Code.ensure_compiled(Cluster.Supervisor) do
+      Logger.info("Cluster Strategy #{cluster_strategy}")
+
+      Logger.debug("Cluster topology #{inspect(topologies)}")
+      {Cluster.Supervisor, [topologies, [name: MassaProxy.ClusterSupervisor]]}
+    end
+  end
+
+  defp http_server() do
+    port = get_http_port()
+
+    plug_spec = Plug.Cowboy.child_spec(
+      scheme: :http,
+      plug: Http.Endpoint,
+      options: [port: port]
+    )
+
+    Logger.info("HTTP Server started on port #{port}")
+    plug_spec
+  end
+
+  defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
+
+  defp get_dns_strategy() do
+    topologies = [
+      proxy: [
+        strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
+        config: [
+          service: Application.get_env(:massa_proxy, :proxy_headless_service),
+          application_name: Application.get_env(:massa_proxy, :proxy_app_name),
+          polling_interval: Application.get_env(:massa_proxy, :proxy_cluster_poling_interval)
+        ]
+      ]
+    ]
+
+    topologies
+  end
 end
