@@ -57,9 +57,14 @@ defmodule MassaProxy.Util do
   end
 
   def compile(file) do
-    # if Code.ensure_compiled(file) do
     Code.eval_string(file)
-    # end
+  rescue
+    error in UndefinedFunctionError ->
+      Logger.error("Error in Module definition. Make sure the service name is correct")
+      raise error
+
+    error ->
+      Logger.error("Error during Service compilation phase #{inspect(error)}")
   end
 
   def normalize_service_name(name) do

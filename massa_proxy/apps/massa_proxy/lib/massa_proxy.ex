@@ -180,11 +180,12 @@ defmodule MassaProxy do
   defp http_server() do
     port = get_http_port()
 
-    plug_spec = Plug.Cowboy.child_spec(
-      scheme: :http,
-      plug: Http.Endpoint,
-      options: [port: port]
-    )
+    plug_spec =
+      Plug.Cowboy.child_spec(
+        scheme: :http,
+        plug: Http.Endpoint,
+        options: [port: port]
+      )
 
     Logger.info("HTTP Server started on port #{port}")
     plug_spec

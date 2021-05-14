@@ -73,6 +73,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
       |> Enum.to_list()
 
     Logger.debug("Found #{Enum.count(user_entities)} Entities to processing.")
+    # Logger.debug("#{inspect(user_entities)}")
     {:ok, file_descriptors, user_entities}
   end
 
@@ -96,13 +97,19 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
       file_descriptors
       |> Flow.from_enumerable()
       |> Flow.map(&extract_messages/1)
-      |> Enum.to_list()
+      |> Enum.reduce([], fn elem, acc ->
+        acc ++ [elem]
+      end)
+      |> List.flatten()
 
     services =
       file_descriptors
       |> Flow.from_enumerable()
       |> Flow.map(&extract_services/1)
-      |> Enum.to_list()
+      |> Enum.reduce([], fn elem, acc ->
+        acc ++ [elem]
+      end)
+      |> List.flatten()
 
     %CloudstateEntity{
       node: Node.self(),
@@ -118,7 +125,10 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     file.message_type
     |> Flow.from_enumerable()
     |> Flow.map(&to_message_item/1)
-    |> Enum.to_list()
+    |> Enum.reduce([], fn elem, acc ->
+      acc ++ [elem]
+    end)
+    |> List.flatten()
   end
 
   defp extract_services(file) do
@@ -126,7 +136,10 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     |> Flow.from_enumerable()
     |> Flow.filter(&(String.trim(&1.name) != ""))
     |> Flow.map(&to_service_item/1)
-    |> Enum.to_list()
+    |> Enum.reduce([], fn elem, acc ->
+      acc ++ [elem]
+    end)
+    |> List.flatten()
   end
 
   defp to_message_item(message) do

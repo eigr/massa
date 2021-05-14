@@ -57,7 +57,8 @@ defmodule MassaProxy.Server.GrpcServer do
 
     for entity <- entities do
       name = Enum.join([Util.normalize_service_name(entity.service_name), "Service"], ".")
-      services = Enum.at(entity.services, 0) |> Enum.at(0)
+      # |> Enum.at(0)
+      services = Enum.at(entity.services, 0)
 
       methods =
         services.methods
@@ -88,9 +89,9 @@ defmodule MassaProxy.Server.GrpcServer do
           request_types: request_types
         )
 
-      Logger.debug("Service defined: #{mod}")
-      mod_compiled = Util.compile(mod)
-      Logger.debug("Service compiled: #{inspect(mod_compiled)}")
+      Logger.debug("Service Definition:\n#{mod}")
+      Util.compile(mod)
+      Logger.debug("Service compilation finish!")
     end
 
     {:ok, entities}
@@ -124,9 +125,9 @@ defmodule MassaProxy.Server.GrpcServer do
         service_names: services
       )
 
-    Logger.debug("Endpoint defined: #{mod}")
-    mod_compiled = Util.compile(mod)
-    Logger.debug("Endpoint compiled: #{inspect(mod_compiled)}")
+    Logger.debug("Endpoint Definition:\n#{mod}")
+    Util.compile(mod)
+    Logger.debug("Endpoint compilation finish!")
 
     {:ok, entities}
   end
