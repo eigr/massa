@@ -1,10 +1,8 @@
 # Massa
 
-Massa is a Massive Serverless Systems Architecture.
+<sub>(The name Massa is due to a river near the Eigr mountain in Switzerland)</sub>
 
-Relax this is just an internal joke. The name Massa is due to a river near the Eigr mountain in Switzerland.
-
-Now seriously Massa is just [CloudState](https://github.com/cloudstateio/cloudstate) proxy implementation build on top of BEAM/Elixir
+Massa is a [Cloudstate](https://github.com/cloudstateio/cloudstate) compatible proxy implementation build running on the BEAM.
 
 ## Overview
 
@@ -16,6 +14,7 @@ We takes advantage of Elixir's simplicity and elegance, mainly because we know t
 TODO
 
 ## Inversion of State
+## Programming Language Agnostic programming model
 
 TODO
 
