@@ -31,9 +31,10 @@ defmodule MassaProxy.GlobalSupervisor do
 
   defp members() do
     [Node.self() | Node.list()]
-    |> Enum.map(fn node ->
+    |> Stream.map(fn node ->
       Logger.debug("Supervisor Node #{inspect(Node.self())} joining with Node #{inspect(node)}")
       {__MODULE__, node}
     end)
+    |> Enum.to_list()
   end
 end

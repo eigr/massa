@@ -9,9 +9,10 @@ defmodule MassaProxy.Reflection do
 
     files =
       file_descriptor
-      |> Enum.map(fn desc ->
+      |> Stream.map(fn desc ->
         MassaProxy.Generator.generate_content(ctx, desc)
       end)
+      |> Enum.to_list()
   end
 
   @doc false

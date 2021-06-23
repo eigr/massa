@@ -49,7 +49,7 @@ defmodule MassaProxy.Util do
 
     package_name =
       with {_, list} <- parts |> List.pop_at(-1),
-           do: list |> Enum.map(&String.downcase(&1)) |> Enum.join(".")
+           do: list |> Stream.map(&String.downcase(&1)) |> Enum.join(".")
 
     type_name = parts |> List.last()
 
@@ -70,7 +70,7 @@ defmodule MassaProxy.Util do
   def normalize_service_name(name) do
     name
     |> String.split(".")
-    |> Enum.map(&Macro.camelize(&1))
+    |> Stream.map(&Macro.camelize(&1))
     |> Enum.join(".")
   end
 

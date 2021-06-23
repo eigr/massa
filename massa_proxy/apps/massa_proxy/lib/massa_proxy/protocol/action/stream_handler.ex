@@ -13,10 +13,11 @@ defmodule MassaProxy.Protocol.Action.Stream.Handler do
           output_type: output_type
         } = payload
       ) do
-    Enum.each(stream, fn msg ->
+    Stream.each(stream, fn msg ->
       Logger.info("Decode request from #{inspect(msg)}")
       handle_streamed_message(stream, msg)
     end)
+    |> Stream.run()
   end
 
   def handle_stream_in(payload) do

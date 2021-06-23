@@ -40,7 +40,8 @@ defmodule MassaProxy do
          @horde ++
          horde_connector() ++
          @after_init)
-      |> Enum.reject(&is_nil/1)
+      |> Stream.reject(&is_nil/1)
+      |> Enum.to_list()
 
     opts = [strategy: :one_for_one, name: MassaProxy.Supervisor]
     Supervisor.start_link(children, opts)
@@ -150,9 +151,10 @@ defmodule MassaProxy do
               )
 
               Node.list()
-              |> Enum.each(fn node ->
+              |> Stream.each(fn node ->
                 :ok = MassaProxy.Cluster.StateHandoff.join(node)
               end)
+              |> Stream.run()
             end
           ]
         }
