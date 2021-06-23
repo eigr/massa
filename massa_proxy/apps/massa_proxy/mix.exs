@@ -5,7 +5,7 @@ defmodule MassaProxy.MixProject do
     [
       app: :massa_proxy,
       version: "0.1.0",
-      elixir: "~> 1.10",
+      elixir: "~> 1.12",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",

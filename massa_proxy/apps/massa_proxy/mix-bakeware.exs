@@ -5,7 +5,7 @@ defmodule MassaProxy.MixProject do
     [
       app: :massa_proxy,
       version: "0.1.0",
-      elixir: "~> 1.10",
+      elixir: "~> 1.12",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -31,7 +31,7 @@ defmodule MassaProxy.MixProject do
   defp deps do
     [
       # Base deps
-      {:bakeware, "~> 0.1.5"},
+      {:bakeware, "~> 0.2.0"},
       {:cloudstate_protocol, in_umbrella: true},
       {:flow, "~> 1.0"},
       {:vapor, "~> 0.10.0"},
@@ -70,11 +70,8 @@ defmodule MassaProxy.MixProject do
       massa_proxy: [
         include_executables_for: [:unix],
         applications: [runtime_tools: :permanent],
-        steps: [
-          :assemble,
-          &Bakeware.assemble/1
-        ],
-        compression_level: 19
+        steps: [&Bakeware.assemble/1, :assemble],
+        bakeware: [compression_level: 19]
       ]
     ]
   end
