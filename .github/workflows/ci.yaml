@@ -45,8 +45,8 @@ jobs:
           mix deps.clean --all
           mix deps.get
 
-      - name: Check format
-        run: mix format --check-formatted
+      # - name: Check format
+      #   run: mix format --check-formatted
 
       - name: Run tests
         run: elixir --name test@127.0.0.1 -S mix test
