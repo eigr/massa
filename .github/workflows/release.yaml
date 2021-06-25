@@ -49,7 +49,7 @@ jobs:
         run: mix format --check-formatted
 
       - name: Run tests
-        run: mix test
+        run: elixir --name test -S mix test
 
   build-and-push-image:
     runs-on: ubuntu-latest
