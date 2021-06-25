@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           mix deps.clean --all
-          mix do deps.get, deps.compile
+          mix deps.get
 
       - name: Check format
         run: mix format --check-formatted
