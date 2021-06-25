@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         otp: [23, 24]
-        elixir: [1.10.x, 1.11, 1.12]
+        elixir: [1.11, 1.12]
     env:
       MIX_ENV: test
 
@@ -28,25 +28,22 @@ jobs:
           otp-version: ${{matrix.otp}} # Define the OTP version [required]
           experimental-otp: true
 
-      # - uses: actions/cache@v1
-      #   id: deps-cache
-      #   with:
-      #     path: deps
-      #     key: ${{ runner.os }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      - uses: actions/cache@v1
+        id: deps-cache
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
-      # - uses: actions/cache@v1
-      #   id: build-cache
-      #   with:
-      #     path: _build
-      #     key: ${{ runner.os }}-build-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      - uses: actions/cache@v1
+        id: build-cache
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
       - name: Install dependencies
         run: |
           mix deps.clean --all
           mix deps.get
-
-      # - name: Check format
-      #   run: mix format --check-formatted
 
       - name: Run tests
         run: elixir --name test@127.0.0.1 -S mix test
