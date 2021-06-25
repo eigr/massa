@@ -14,9 +14,12 @@ jobs:
       matrix:
         otp: [23, 24]
         elixir: [1.10, 1.11, 1.12]
+    env:
+      MIX_ENV: test
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Set up Elixir
         uses: actions/setup-elixir@v1
@@ -25,10 +28,23 @@ jobs:
           otp-version: ${{matrix.otp}} # Define the OTP version [required]
           experimental-otp: true
 
+      - uses: actions/cache@v1
+        id: deps-cache
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+
+      - uses: actions/cache@v1
+        id: build-cache
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+
       - name: Install dependencies
         run: |
           mix deps.clean --all
-          mix deps.get
+          mix deps.get, mix deps.compile
+
       - name: Check format
         run: mix format --check-formatted
 
