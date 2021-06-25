@@ -14,7 +14,7 @@ defmodule MassProxy.Reflection.Service do
   @spec server_reflection_info(ServerReflectionRequest.t(), GRPC.Server.Stream.t()) ::
           ServerReflectionResponse.t()
   def server_reflection_info(request, stream) do
-    Enum.each(request, fn message ->
+    Stream.each(request, fn message ->
       Logger.debug("Received reflection request: #{inspect(message)}")
 
       case message.message_request do
@@ -42,5 +42,6 @@ defmodule MassProxy.Reflection.Service do
           Server.send_reply(stream, response)
       end
     end)
+    |> Stream.run()
   end
 end
