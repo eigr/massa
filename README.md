@@ -1,8 +1,8 @@
 # Massa
 
-<sub>(The name Massa is due to a river near the Eigr mountain in Switzerland)</sub>
+<sub>(The name Massa is due to a river near the Eiger mountain in Switzerland)</sub>
 
-Massa is a [Cloudstate](https://github.com/cloudstateio/cloudstate) compatible proxy implementation build running on the BEAM.
+Massa is a [Cloudstate](https://github.com/cloudstateio/cloudstate) compatible proxy implementation running on the BEAM.
 
 ## Overview
 
