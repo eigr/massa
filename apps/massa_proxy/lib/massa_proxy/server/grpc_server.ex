@@ -34,8 +34,14 @@ defmodule MassaProxy.Server.GrpcServer do
       |> MassaProxy.Reflection.prepare()
 
     for file <- files do
-      result = Util.compile(file)
-      Logger.debug("Compiled module: #{inspect(result)}")
+      case Util.compile(file) do
+        {{:module, mod, bytecode, _}, _} ->
+          Logger.debug("Compiled module #{inspect(mod)}. Bytecode: #{inspect(bytecode)}")
+          file_key = :crypto.hash(:md5, file) |> Base.encode16()
+          Logger.debug("Generated key for file #{inspect(file)}: #{file_key}")
+
+        _ -> Logger.debug("Fail to compile service")
+      end
     end
 
     {:ok, descriptors}
