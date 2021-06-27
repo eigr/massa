@@ -3,6 +3,6 @@ defmodule MassaProxyTest do
   doctest MassaProxy
 
   test "greets the world" do
-    assert MassaProxy.hello() == :world
+    assert 1 + 1 == 2
   end
 end
