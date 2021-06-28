@@ -39,8 +39,8 @@ defmodule MassaProxy.Protocol.Action.Unary.Handler do
           channel
           |> ActionClient.handle_unary(message)
 
-        _ ->
-          {:error, "Failure to make unary request"}
+        error ->
+          {:error, "Failure to get connection with user-functions. #{inspect(error)}"}
       end
 
     Logger.debug("User function response: #{inspect(response)} ")
