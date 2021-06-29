@@ -2,7 +2,8 @@ defmodule MassaProxy.Server.GrpcServer do
   @moduledoc false
   require Logger
 
-  alias MassaProxy.{Util, Infra.Cache, Reflection, Server.HttpRouter}
+  alias MassaProxy.{Util, Infra.Cache, Server.HttpRouter}
+  alias MassaProxy.Infra.Cache.Distributed
 
   def start(descriptors, entities) do
     case Cache.get(:cached_servers, :grpc) do
@@ -33,12 +34,65 @@ defmodule MassaProxy.Server.GrpcServer do
       descriptors
       |> MassaProxy.Reflection.prepare()
 
-    for file <- files do
-      result = Util.compile(file)
-      Logger.debug("Compiled module: #{inspect(result)}")
+    for {name, file} <- files do
+      if has_compiled?(file) do
+        Logger.debug("Getting cached file: #{name}")
+
+        modules =
+          file
+          |> get_hash()
+          |> Distributed.get()
+
+        Enum.map(modules, fn mod ->
+          case :code.load_binary(mod.module, String.to_charlist(mod.file_name), mod.bytecode) do
+            {:module, module} ->
+              Logger.debug("Module #{module} loaded from cache")
+              {:module, module}
+
+            {:error, cause} ->
+              Logger.error("Failed to load module #{mod.module} from cache. #{inspect(cause)}")
+              {:error, cause}
+          end
+        end)
+      else
+        case Util.compile(file) do
+          modules when is_list(modules) ->
+            Logger.debug("Caching file: #{name}")
+
+            modules
+            |> do_cache(name, file)
+
+          _ ->
+            Logger.debug("Fail to compile service")
+        end
+      end
     end
 
     {:ok, descriptors}
+  end
+
+  defp has_compiled?(file) do
+    file
+    |> get_hash()
+    |> Distributed.has_key?()
+  end
+
+  defp get_hash(file),
+    do:
+      :md5
+      |> :crypto.hash(file)
+      |> Base.encode16()
+
+  defp do_cache(modules, name, file) do
+    list =
+      Stream.map(modules, fn {mod_name, bytecode} ->
+        %{module: mod_name, bytecode: bytecode, file_name: name}
+      end)
+      |> Enum.to_list()
+
+    file
+    |> get_hash()
+    |> Distributed.put(list)
   end
 
   defp generate_services(entities) do

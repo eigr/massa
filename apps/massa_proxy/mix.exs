@@ -47,6 +47,7 @@ defmodule MassaProxy.MixProject do
       {:libcluster, "~> 3.2.1"},
       {:horde, "~> 0.8.3"},
       {:phoenix_pubsub, "~> 2.0"},
+      {:nebulex, "~> 2.1"},
 
       # Observability deps
       {:ex_ray, "~> 0.1.4"},

@@ -38,3 +38,9 @@ config :massa_proxy,
   user_function_uds_enable: System.get_env("PROXY_UDS_MODE") || false,
   user_function_sock_addr: System.get_env("PROXY_UDS_ADDRESS") || "/var/run/cloudstate.sock",
   heartbeat_interval: System.get_env("PROXY_HEARTBEAT_INTERVAL") || 240_000
+
+config :massa_proxy, MassaProxy.Infra.Cache.Modules,
+  primary: [
+    gc_interval: 3_600_000,
+    backend: :shards
+  ]
