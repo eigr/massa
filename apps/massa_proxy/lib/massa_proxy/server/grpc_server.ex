@@ -36,7 +36,7 @@ defmodule MassaProxy.Server.GrpcServer do
 
     for {name, file} <- files do
       if has_compiled?(file) do
-        Logger.debug("Get cached file: #{name}")
+        Logger.debug("Getting cached file: #{name}")
 
         modules =
           file
@@ -45,8 +45,13 @@ defmodule MassaProxy.Server.GrpcServer do
 
         Enum.map(modules, fn mod ->
           case :code.load_binary(mod.module, String.to_charlist(mod.file_name), mod.bytecode) do
-            {:error, cause} -> Logger.error("#{inspect(cause)}")
-            _ -> :ok
+            {:module, module} ->
+              Logger.debug("Module #{module} loaded from cache")
+              {:module, module}
+
+            {:error, cause} ->
+              Logger.error("Failed to load module #{mod.module} from cache. #{inspect(cause)}")
+              {:error, cause}
           end
         end)
       else
