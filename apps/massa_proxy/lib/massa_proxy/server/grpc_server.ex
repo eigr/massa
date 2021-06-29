@@ -2,7 +2,8 @@ defmodule MassaProxy.Server.GrpcServer do
   @moduledoc false
   require Logger
 
-  alias MassaProxy.{Util, Infra.Cache, Reflection, Server.HttpRouter}
+  alias MassaProxy.{Util, Infra.Cache, Server.HttpRouter}
+  alias MassaProxy.Infra.Cache.Distributed
 
   def start(descriptors, entities) do
     case Cache.get(:cached_servers, :grpc) do
@@ -33,20 +34,28 @@ defmodule MassaProxy.Server.GrpcServer do
       descriptors
       |> MassaProxy.Reflection.prepare()
 
-    for file <- files do
+    for {name, file} <- files do
       if has_compiled?(file) do
-        key = get_hash(file)
-        %{name: mod, bytecode: bytecode} = Distributed.get(key)
+        Logger.debug("Get cached file: #{name}")
 
-        # Load bytecode
-        :code.load(mod, "filename", bytecode)
+        modules =
+          file
+          |> get_hash()
+          |> Distributed.get()
+
+        Enum.map(modules, fn mod ->
+          case :code.load_binary(mod.module, String.to_charlist(mod.file_name), mod.bytecode) do
+            {:error, cause} -> Logger.error("#{inspect(cause)}")
+            _ -> :ok
+          end
+        end)
       else
         case Util.compile(file) do
-          {modules, bindings} ->
-            compiled_modules =
-              modules
-              |> Tuple.to_list()
-              |> do_cache(file)
+          modules when is_list(modules) ->
+            Logger.debug("Caching file: #{name}")
+
+            modules
+            |> do_cache(name, file)
 
           _ ->
             Logger.debug("Fail to compile service")
@@ -58,21 +67,27 @@ defmodule MassaProxy.Server.GrpcServer do
   end
 
   defp has_compiled?(file) do
-    key = get_hash(file)
-    Distributed.has_key?(key)
+    file
+    |> get_hash()
+    |> Distributed.has_key?()
   end
 
-  defp get_hash(file), do: :crypto.hash(:md5, file) |> Base.encode16()
+  defp get_hash(file),
+    do:
+      :md5
+      |> :crypto.hash(file)
+      |> Base.encode16()
 
-  defp do_cache(file, [:module, name, bytecode, nil]) do
-    key = get_hash(file)
-    Distributed.put(key, %{name: name, bytecode: bytecode})
-  end
+  defp do_cache(modules, name, file) do
+    list =
+      Stream.map(modules, fn {mod_name, bytecode} ->
+        %{module: mod_name, bytecode: bytecode, file_name: name}
+      end)
+      |> Enum.to_list()
 
-  defp do_cache([:module, name, bytecode, nested], file) do
-    key = get_hash(file)
-    Tuple.to_list(nested) |> do_cache(file)
-    Distributed.put(key, %{name: name, bytecode: bytecode})
+    file
+    |> get_hash()
+    |> Distributed.put(list)
   end
 
   defp generate_services(entities) do

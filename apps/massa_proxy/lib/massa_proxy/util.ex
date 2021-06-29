@@ -57,7 +57,7 @@ defmodule MassaProxy.Util do
   end
 
   def compile(file) do
-    Code.eval_string(file)
+    Code.compile_string(file)
   rescue
     error in UndefinedFunctionError ->
       Logger.error("Error in Module definition. Make sure the service name is correct")

@@ -7,12 +7,11 @@ defmodule MassaProxy.Reflection do
       %Protobuf.Protoc.Context{gen_descriptors?: true, plugins: ["grpc"]}
       |> find_types(file_descriptor)
 
-    files =
-      file_descriptor
-      |> Stream.map(fn desc ->
-        MassaProxy.Generator.generate_content(ctx, desc)
-      end)
-      |> Enum.to_list()
+    file_descriptor
+    |> Stream.map(fn desc ->
+      {desc.name, MassaProxy.Generator.generate_content(ctx, desc)}
+    end)
+    |> Enum.to_list()
   end
 
   @doc false
