@@ -7,6 +7,7 @@ defmodule MassaProxy do
   @before_init [
     {Task.Supervisor, name: MassaProxy.TaskSupervisor},
     {Registry, [name: MassaProxy.LocalRegistry, keys: :unique]},
+    {MassaProxy.Infra.Cache.Distributed, []},
     {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]}
   ]
 
@@ -49,7 +50,9 @@ defmodule MassaProxy do
 
   defp setup() do
     Logger.info(
-      "Available BEAM Schedulers: #{System.schedulers()}. Online BEAM Schedulers: #{System.schedulers_online()}"
+      "Available BEAM Schedulers: #{System.schedulers()}. Online BEAM Schedulers: #{
+        System.schedulers_online()
+      }"
     )
 
     :ets.new(:servers, [:set, :public, :named_table])

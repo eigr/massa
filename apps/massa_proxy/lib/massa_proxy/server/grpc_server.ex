@@ -34,17 +34,45 @@ defmodule MassaProxy.Server.GrpcServer do
       |> MassaProxy.Reflection.prepare()
 
     for file <- files do
-      case Util.compile(file) do
-        {{:module, mod, bytecode, _}, _} ->
-          Logger.debug("Compiled module #{inspect(mod)}. Bytecode: #{inspect(bytecode)}")
-          file_key = :crypto.hash(:md5, file) |> Base.encode16()
-          Logger.debug("Generated key for file #{inspect(file)}: #{file_key}")
+      if has_compiled?(file) do
+        key = get_hash(file)
+        %{name: mod, bytecode: bytecode} = Distributed.get(key)
 
-        _ -> Logger.debug("Fail to compile service")
+        # Load bytecode
+        :code.load(mod, "filename", bytecode)
+      else
+        case Util.compile(file) do
+          {modules, bindings} ->
+            compiled_modules =
+              modules
+              |> Tuple.to_list()
+              |> do_cache(file)
+
+          _ ->
+            Logger.debug("Fail to compile service")
+        end
       end
     end
 
     {:ok, descriptors}
+  end
+
+  defp has_compiled?(file) do
+    key = get_hash(file)
+    Distributed.has_key?(key)
+  end
+
+  defp get_hash(file), do: :crypto.hash(:md5, file) |> Base.encode16()
+
+  defp do_cache(file, [:module, name, bytecode, nil]) do
+    key = get_hash(file)
+    Distributed.put(key, %{name: name, bytecode: bytecode})
+  end
+
+  defp do_cache([:module, name, bytecode, nested], file) do
+    key = get_hash(file)
+    Tuple.to_list(nested) |> do_cache(file)
+    Distributed.put(key, %{name: name, bytecode: bytecode})
   end
 
   defp generate_services(entities) do
