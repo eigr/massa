@@ -28,7 +28,7 @@ defmodule CloudstateProtocol.MixProject do
       {:google_protos, "~> 0.1.0"},
       {:protobuf, "~> 0.8.0-beta.1", override: true},
       {:grpc, github: "elixir-grpc/grpc", override: true},
-      {:cowlib, "~> 2.9.0", override: true}
+      {:cowlib, "~> 2.11.0", override: true}
     ]
   end
 end
