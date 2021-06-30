@@ -44,7 +44,7 @@ defmodule MassaProxy.MixProject do
       {:jason, "~> 1.2"},
 
       # Cluster deps
-      {:libcluster, "~> 3.2.1"},
+      {:libcluster, "~> 3.3.0"},
       {:horde, "~> 0.8.3"},
       {:phoenix_pubsub, "~> 2.0"},
       {:nebulex, "~> 2.1"},
