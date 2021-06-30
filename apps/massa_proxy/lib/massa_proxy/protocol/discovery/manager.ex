@@ -9,7 +9,6 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
   alias Google.Protobuf.FileDescriptorSet
 
   @protocol_minor_version 1
-  @protocol_major_version 0
   @proxy_name "massa-proxy"
   @supported_entity_types [
     "cloudstate.action.ActionProtocol",
@@ -45,7 +44,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
         with {:ok, file_descriptors, user_entities} <-
                channel
                |> Cloudstate.EntityDiscovery.Stub.discover(message)
-               |> handle_response,
+               |> handle_response(),
              do: GrpcServer.start(file_descriptors, user_entities)
 
       _ ->
@@ -55,15 +54,14 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
 
   defp handle_response(response) do
     extract_message(response)
-    |> validate
-    |> register_entities
+    |> validate()
+    |> register_entities()
   end
 
   defp register_entities({:ok, message}) do
     entities = message.entities
     descriptor = FileDescriptorSet.decode(message.proto)
     file_descriptors = descriptor.file
-    # Logger.debug("File descriptors #{inspect(file_descriptors)}")
 
     user_entities =
       entities
@@ -73,7 +71,6 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
       |> Enum.to_list()
 
     Logger.debug("Found #{Enum.count(user_entities)} Entities to processing.")
-    # Logger.debug("#{inspect(user_entities)}")
     {:ok, file_descriptors, user_entities}
   end
 
@@ -105,7 +102,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     services =
       file_descriptors
       |> Flow.from_enumerable()
-      |> Flow.map(&extract_services/1)
+      |> Flow.map(&extract_services(&1, entity.service_name))
       |> Enum.reduce([], fn elem, acc ->
         acc ++ [elem]
       end)
@@ -131,10 +128,17 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     |> List.flatten()
   end
 
-  defp extract_services(file) do
+  defp extract_services(file, service_name) do
+    name =
+      service_name
+      |> String.split(".")
+      |> List.last()
+
     file.service
     |> Flow.from_enumerable()
-    |> Flow.filter(&(String.trim(&1.name) != ""))
+    |> Flow.filter(fn service ->
+      String.trim(service.name) != "" && service.name == name
+    end)
     |> Flow.map(&to_service_item/1)
     |> Enum.reduce([], fn elem, acc ->
       acc ++ [elem]
@@ -190,10 +194,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
         http_rules = MassaProxy.Util.get_http_rule(method)
         Logger.debug("MehodOptions: #{inspect(http_rules)}")
 
-        %{
-          type: "http",
-          data: http_rules
-        }
+        %{type: "http", data: http_rules}
       end
 
     eventing_options =
@@ -201,10 +202,7 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
         evt_rules = MassaProxy.Util.get_eventing_rule(method)
         Logger.debug("MehodOptions: #{inspect(evt_rules)}")
 
-        %{
-          type: "eventing",
-          data: evt_rules
-        }
+        %{type: "eventing", data: evt_rules}
       end
 
     svc = %{
