@@ -39,7 +39,7 @@ defmodule MassaProxy.MixProject do
       {:grpc, github: "elixir-grpc/grpc", override: true},
       # {:gun, "~> 2.0", hex: :grpc_gun, override: true},
       # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0
-      {:cowlib, "~> 2.9.0", override: true},
+      {:cowlib, "~> 2.11.0", override: true},
       {:grpc_prometheus, "~> 0.1.0"},
       {:jason, "~> 1.2"},
 
