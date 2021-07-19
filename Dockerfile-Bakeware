@@ -9,17 +9,15 @@ RUN apk add --no-cache --update git build-base zstd
 
 COPY . /app/massa_proxy
 
-RUN rm -rf /app/massa_proxy/apps/massa_proxy/mix.exs \
-    && mv /app/massa_proxy/apps/massa_proxy/mix-bakeware.exs \
-          /app/massa_proxy/apps/massa_proxy/mix.exs
+RUN rm -rf /app/apps/massa_proxy/mix.exs \
+    && mv /app/apps/massa_proxy/mix-bakeware.exs \
+          /app/apps/massa_proxy/mix.exs
 
 RUN mix local.rebar --force \
     && mix local.hex --force \
     && mix deps.get 
-
-# rm -fr /app/massa_proxy/_build \
     
-RUN cd /app/massa_proxy/apps/massa_proxy \
+RUN cd /app/apps/massa_proxy \
     && mix deps.get \
     && mix release.init \
     && mix release
