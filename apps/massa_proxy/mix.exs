@@ -60,7 +60,8 @@ defmodule MassaProxy.MixProject do
       {:poison, "~> 4.0"},
 
       # Best practices
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:churn, "~> 0.1", only: :dev}
     ]
   end
 
