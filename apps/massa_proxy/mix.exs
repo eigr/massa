@@ -31,26 +31,29 @@ defmodule MassaProxy.MixProject do
     [
       # Base deps
       {:cloudstate_protocol, in_umbrella: true},
+      {:injectx, "~> 0.1"},
+      {:wasmex, "~> 0.5"},
+      {:toml, "~> 0.6", override: true},
       {:flow, "~> 1.0"},
-      {:vapor, "~> 0.10.0"},
+      {:vapor, "~> 0.10"},
 
       # Grpc deps
       {:protobuf, "~> 0.8.0-beta.1", override: true},
       {:grpc, github: "elixir-grpc/grpc", override: true},
       # {:gun, "~> 2.0", hex: :grpc_gun, override: true},
       # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0
-      {:cowlib, "~> 2.9.0", override: true},
-      {:grpc_prometheus, "~> 0.1.0"},
+      {:cowlib, "~> 2.9", override: true},
+      {:grpc_prometheus, "~> 0.1"},
       {:jason, "~> 1.2"},
 
       # Cluster deps
-      {:libcluster, "~> 3.2.1"},
-      {:horde, "~> 0.8.3"},
+      {:libcluster, "~> 3.2"},
+      {:horde, "~> 0.8"},
       {:phoenix_pubsub, "~> 2.0"},
       {:nebulex, "~> 2.1"},
 
       # Observability deps
-      {:ex_ray, "~> 0.1.4"},
+      {:ex_ray, "~> 0.1"},
       {:hackney, "~> 1.16"},
       {:prometheus, "~> 4.6"},
       {:prometheus_plugs, "~> 1.1"},
