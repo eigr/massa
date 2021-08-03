@@ -2,6 +2,7 @@ defmodule MassaProxy do
   @moduledoc false
   use Application
   require Logger
+  alias Injectx.Context
   alias Vapor.Provider.{Env, Dotenv}
 
   @before_init [
@@ -30,7 +31,7 @@ defmodule MassaProxy do
 
   @impl true
   def start(_type, _args) do
-    setup()
+    config = setup()
 
     children =
       ([
@@ -56,11 +57,42 @@ defmodule MassaProxy do
     )
 
     :ets.new(:servers, [:set, :public, :named_table])
-    load_system_env()
-    Node.set_cookie(get_cookie())
-
     ExRay.Store.create()
     Metrics.Setup.setup()
+
+    config = load_system_env()
+    Node.set_cookie(get_cookie())
+
+    runtime_bindings =
+      case config.proxy_runtime_type do
+        "GRPC" ->
+          %Context.Binding{
+            behavior: MassaProxy.Runtime,
+            definitions: [
+              %Context.BindingDefinition{module: MassaProxy.Runtime.Grpc, default: true},
+              %Context.BindingDefinition{module: MassaProxy.Runtime.Wasm, default: false}
+            ]
+          }
+
+        "WASM" ->
+          %Context.Binding{
+            behavior: MassaProxy.Runtime,
+            definitions: [
+              %Context.BindingDefinition{module: MassaProxy.Runtime.Grpc, default: false},
+              %Context.BindingDefinition{module: MassaProxy.Runtime.Wasm, default: true}
+            ]
+          }
+      end
+
+    context = %Context{
+      bindings: [
+        runtime_bindings
+      ]
+    }
+
+    Context.from(context)
+
+    config
   end
 
   defp load_system_env() do
@@ -72,6 +104,7 @@ defmodule MassaProxy do
       %Dotenv{},
       %Env{
         bindings: [
+          {:proxy_runtime_type, "PROXY_RUNTIME_TYPE", default: "GRPC", required: false},
           {:proxy_cookie, "NODE_COOKIE", default: "massa_proxy", required: false},
           {:proxy_root_template_path, "PROXY_ROOT_TEMPLATE_PATH",
            default: priv_root_path, required: false},
@@ -102,32 +135,12 @@ defmodule MassaProxy do
     config = Vapor.load!(providers)
 
     set_vars(config)
+    config
   end
 
-  defp set_vars(config) do
-    Application.put_env(:massa_proxy, :proxy_cookie, config.proxy_cookie)
-    Application.put_env(:massa_proxy, :proxy_cluster_strategy, config.proxy_cluster_strategy)
-    Application.put_env(:massa_proxy, :proxy_headless_service, config.proxy_headless_service)
-    Application.put_env(:massa_proxy, :proxy_app_name, config.proxy_app_name)
-    Application.put_env(:massa_proxy, :proxy_root_template_path, config.proxy_root_template_path)
-
-    Application.put_env(
-      :massa_proxy,
-      :proxy_cluster_poling_interval,
-      config.proxy_cluster_poling_interval
-    )
-
-    Application.put_env(:massa_proxy, :proxy_port, config.proxy_port)
-    Application.put_env(:massa_proxy, :proxy_http_port, config.proxy_http_port)
-    Application.put_env(:massa_proxy, :user_function_host, config.user_function_host)
-    Application.put_env(:massa_proxy, :user_function_port, config.user_function_port)
-    Application.put_env(:massa_proxy, :user_function_uds_enable, config.user_function_uds_enable)
-    Application.put_env(:massa_proxy, :user_function_sock_addr, config.user_function_sock_addr)
-    Application.put_env(:massa_proxy, :heartbeat_interval, config.heartbeat_interval)
-    Application.put_env(:massa_proxy, :tls, config.tls)
-    Application.put_env(:massa_proxy, :tls_cert_path, config.tls_cert_path)
-    Application.put_env(:massa_proxy, :tls_key_path, config.tls_key_path)
-  end
+  defp set_vars(config),
+    do:
+      Enum.each(config, fn k, v -> Application.put_env(:massa_proxy, k, v, persistent: true) end)
 
   defp get_cookie(), do: String.to_atom(Application.get_env(:massa_proxy, :proxy_cookie))
 

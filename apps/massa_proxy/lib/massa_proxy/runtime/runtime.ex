@@ -2,6 +2,7 @@ defmodule MassaProxy.Runtime do
   @moduledoc """
 
   """
+
   @callback init(any()) :: :ok | {:error, any(), String.t()}
 
   @callback discover(Cloudstate.ProxyInfo.t()) :: Cloudstate.EntitySpec.t()
