@@ -60,7 +60,7 @@ defmodule MassaProxy.MixProject do
 
       # Http facilities
       {:plug_cowboy, "~> 2.3"},
-      {:poison, "~> 4.0"},
+      {:poison, "~> 5.0"},
 
       # Best practices
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
