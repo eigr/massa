@@ -111,41 +111,42 @@ defmodule MassaProxy.Server.GrpcServer do
 
     for entity <- entities do
       name = Enum.join([Util.normalize_service_name(entity.service_name), "Service"], ".")
-      # |> Enum.at(0)
-      services = Enum.at(entity.services, 0)
 
-      methods =
-        services.methods
-        |> Flow.from_enumerable()
-        |> Flow.map(&Util.normalize_mehod_name(&1.name))
-        |> Enum.to_list()
+      Stream.map(entity.services, fn service ->
+        methods =
+          service.methods
+          |> Flow.from_enumerable()
+          |> Flow.map(&Util.normalize_mehod_name(&1.name))
+          |> Enum.to_list()
 
-      Logger.info("Generating Service #{name} with Methods: #{inspect(methods)}")
+        Logger.info("Generating Service #{name} with Methods: #{inspect(methods)}")
 
-      original_methods = get_method_names(services)
-      input_types = get_input_type(services)
-      output_types = get_output_type(services)
-      request_types = get_request_type(services)
+        original_methods = get_method_names(service)
+        input_types = get_input_type(service)
+        output_types = get_output_type(service)
+        request_types = get_request_type(service)
 
-      mod =
-        Util.get_module(
-          grpc_template_path,
-          mod_name: name,
-          name: name,
-          methods: methods,
-          original_methods: original_methods,
-          handler: "MassaProxy.Server.Dispatcher",
-          entity_type: entity.entity_type,
-          persistence_id: entity.persistence_id,
-          service_name: entity.service_name,
-          input_types: input_types,
-          output_types: output_types,
-          request_types: request_types
-        )
+        mod =
+          Util.get_module(
+            grpc_template_path,
+            mod_name: name,
+            name: name,
+            methods: methods,
+            original_methods: original_methods,
+            handler: "MassaProxy.Server.Dispatcher",
+            entity_type: entity.entity_type,
+            persistence_id: entity.persistence_id,
+            service_name: entity.service_name,
+            input_types: input_types,
+            output_types: output_types,
+            request_types: request_types
+          )
 
-      Logger.debug("Service Definition:\n#{mod}")
-      Util.compile(mod)
-      Logger.debug("Service compilation finish!")
+        Logger.debug("Service Definition:\n#{mod}")
+        Util.compile(mod)
+        Logger.debug("Service compilation finish!")
+      end)
+      |> Stream.run()
     end
 
     {:ok, entities}

@@ -93,7 +93,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
   end
 
   @impl true
-  def handle_info({:leave, message}, state) do
+  def handle_info({:leave, message}, _state) do
     Logger.debug("Rebalancing after Entity leaves the cluster")
     {:noreply, message}
   end
