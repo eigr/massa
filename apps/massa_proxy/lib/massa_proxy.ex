@@ -31,7 +31,7 @@ defmodule MassaProxy do
 
   @impl true
   def start(_type, _args) do
-    config = setup()
+    setup()
 
     children =
       ([
@@ -60,7 +60,7 @@ defmodule MassaProxy do
     ExRay.Store.create()
     Metrics.Setup.setup()
 
-    config = load_system_env()
+    load_system_env()
     Node.set_cookie(get_cookie())
 
     runtime_bindings =
@@ -91,8 +91,6 @@ defmodule MassaProxy do
     }
 
     Context.from(context)
-
-    config
   end
 
   defp load_system_env() do
@@ -132,15 +130,12 @@ defmodule MassaProxy do
       }
     ]
 
-    config = Vapor.load!(providers)
-
-    set_vars(config)
-    config
+    Vapor.load!(providers)
+    |> Enum.each(fn {key, value} ->
+      Logger.debug("Loading config #{key} with value #{value}")
+      Application.put_env(:dispatcher, key, value, persistent: true)
+    end)
   end
-
-  defp set_vars(config),
-    do:
-      Enum.each(config, fn {k, v} -> Application.put_env(:massa_proxy, k, v, persistent: true) end)
 
   defp get_cookie(), do: String.to_atom(Application.get_env(:massa_proxy, :proxy_cookie))
 
