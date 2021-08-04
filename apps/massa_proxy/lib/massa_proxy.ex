@@ -51,9 +51,7 @@ defmodule MassaProxy do
 
   defp setup() do
     Logger.info(
-      "Available BEAM Schedulers: #{System.schedulers()}. Online BEAM Schedulers: #{
-        System.schedulers_online()
-      }"
+      "Available BEAM Schedulers: #{System.schedulers()}. Online BEAM Schedulers: #{System.schedulers_online()}"
     )
 
     :ets.new(:servers, [:set, :public, :named_table])
