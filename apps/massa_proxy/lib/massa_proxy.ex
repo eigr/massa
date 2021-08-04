@@ -58,7 +58,7 @@ defmodule MassaProxy do
     ExRay.Store.create()
     Metrics.Setup.setup()
 
-    load_system_env()
+    config = load_system_env()
     Node.set_cookie(get_cookie())
 
     runtime_bindings =
@@ -128,11 +128,14 @@ defmodule MassaProxy do
       }
     ]
 
-    Vapor.load!(providers)
-    |> Enum.each(fn {key, value} ->
+    config = Vapor.load!(providers)
+
+    Enum.each(config, fn {key, value} ->
       Logger.debug("Loading config #{key} with value #{value}")
       Application.put_env(:dispatcher, key, value, persistent: true)
     end)
+
+    config
   end
 
   defp get_cookie(), do: String.to_atom(Application.get_env(:massa_proxy, :proxy_cookie))
@@ -149,7 +152,7 @@ defmodule MassaProxy do
             fn ->
               Horde.DynamicSupervisor.start_child(
                 MassaProxy.Supervisor,
-                {MassaProxy.Protocol.Discovery.Worker, []}
+                {MassaProxy.Orchestrator, []}
               )
 
               Horde.DynamicSupervisor.start_child(

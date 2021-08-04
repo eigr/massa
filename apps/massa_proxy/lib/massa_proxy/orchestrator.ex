@@ -1,4 +1,4 @@
-defmodule MassaProxy.Protocol.Discovery.Worker do
+defmodule MassaProxy.Orchestrator do
   @moduledoc false
   use GenServer
   use Injectx
@@ -28,6 +28,7 @@ defmodule MassaProxy.Protocol.Discovery.Worker do
   GenServer.init/1 callback
   """
   def init(state) do
+    Runtime.init(state)
     schedule_work(50)
     {:ok, state}
   end
@@ -49,4 +50,7 @@ defmodule MassaProxy.Protocol.Discovery.Worker do
   end
 
   defp schedule_work(time), do: Process.send_after(self(), :work, time)
+
+  defp get_heartbeat_interval(),
+    do: Application.get_env(:massa_proxy, :heartbeat_interval, 60_000)
 end
