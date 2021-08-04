@@ -51,7 +51,9 @@ defmodule MassaProxy do
 
   defp setup() do
     Logger.info(
-      "Available BEAM Schedulers: #{System.schedulers()}. Online BEAM Schedulers: #{System.schedulers_online()}"
+      "Available BEAM Schedulers: #{System.schedulers()}. Online BEAM Schedulers: #{
+        System.schedulers_online()
+      }"
     )
 
     :ets.new(:servers, [:set, :public, :named_table])
@@ -88,7 +90,7 @@ defmodule MassaProxy do
     }
 
     Context.from(context)
-    Node.set_cookie(config.proxy_cookie)
+    Node.set_cookie(String.to_existing_atom(config.proxy_cookie))
   end
 
   defp load_system_env() do
@@ -137,8 +139,6 @@ defmodule MassaProxy do
 
     config
   end
-
-  defp get_cookie(), do: String.to_atom(Application.get_env(:massa_proxy, :proxy_cookie))
 
   defp horde_connector() do
     [
