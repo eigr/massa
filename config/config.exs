@@ -23,6 +23,19 @@ config :libcluster,
     ]
   ]
 
+config :injectx, Injectx,
+  context: %Injectx.Context{
+    bindings: [
+      %Injectx.Context.Binding{
+        behavior: MassaProxy.Runtime,
+        definitions: [
+          %Injectx.Context.BindingDefinition{module: MassaProxy.Runtime.Grpc, default: true},
+          %Injectx.Context.BindingDefinition{module: MassaProxy.Runtime.Wasm, default: false}
+        ]
+      }
+    ]
+  }
+
 # OpenTracing configs
 config :otter,
   zipkin_collector_uri: 'http://127.0.0.1:9411/api/v1/spans',
