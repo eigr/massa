@@ -90,7 +90,7 @@ defmodule MassaProxy do
     }
 
     Context.from(context)
-    Node.set_cookie(String.to_existing_atom(config.proxy_cookie))
+    Node.set_cookie(String.to_atom(config.proxy_cookie))
   end
 
   defp load_system_env() do

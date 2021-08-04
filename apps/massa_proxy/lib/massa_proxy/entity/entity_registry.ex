@@ -93,19 +93,19 @@ defmodule MassaProxy.Entity.EntityRegistry do
   end
 
   @impl true
-  def handle_info({:leave, message}, _state) do
+  def handle_info({:leave, %{node: node} = message}, state) do
     Logger.debug("Rebalancing after Entity leaves the cluster")
-    {:noreply, message}
+    {:noreply, state}
   end
 
   @impl true
-  def terminate(_reason, state) do
+  def terminate(_reason, _state) do
     node = Node.self()
 
     PubSub.broadcast(
       :entity_channel,
       @topic,
-      {:leave, %{node => state}}
+      {:leave, %{node => node}}
     )
 
     :ok
