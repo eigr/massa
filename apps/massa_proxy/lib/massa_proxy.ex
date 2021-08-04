@@ -61,7 +61,6 @@ defmodule MassaProxy do
     Metrics.Setup.setup()
 
     config = load_system_env()
-    Node.set_cookie(get_cookie())
 
     runtime_bindings =
       case config.proxy_runtime_type do
@@ -91,6 +90,7 @@ defmodule MassaProxy do
     }
 
     Context.from(context)
+    Node.set_cookie(config.proxy_cookie)
   end
 
   defp load_system_env() do
