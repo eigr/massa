@@ -1,9 +1,17 @@
 defmodule MassaProxy.Protocol.Discovery.Worker do
   @moduledoc false
   use GenServer
+  use Injectx
   require Logger
 
-  alias MassaProxy.Protocol.Discovery.Manager
+  inject(MassaProxy.Runtime)
+
+  @protocol_minor_version 1
+  @proxy_name "massa-proxy"
+  @supported_entity_types [
+    "cloudstate.action.ActionProtocol",
+    "cloudstate.eventsourced.EventSourced"
+  ]
 
   def child_spec(opts \\ []) do
     %{
@@ -13,7 +21,6 @@ defmodule MassaProxy.Protocol.Discovery.Worker do
   end
 
   def start_link(state \\ []) do
-    Logger.info("#{startup_message(is_uds_enable?())}")
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
@@ -25,72 +32,21 @@ defmodule MassaProxy.Protocol.Discovery.Worker do
     {:ok, state}
   end
 
-  def handle_call(:connect, _from, _) do
-    {result, state} = get_connection()
+  def handle_info(:work, state) do
+    message =
+      Cloudstate.ProxyInfo.new(
+        protocol_major_version: @protocol_minor_version,
+        protocol_minor_version: @protocol_minor_version,
+        proxy_name: @proxy_name,
+        proxy_version: Application.spec(:massa_proxy, :vsn),
+        supported_entity_types: @supported_entity_types
+      )
 
-    case result do
-      :ok -> {:reply, result, state}
-      :error -> {:reply, :error, []}
-    end
+    Runtime.discover(message)
+    schedule_work(get_heartbeat_interval())
+
+    {:noreply, state}
   end
-
-  def handle_call(:discover, _from, state) do
-    Manager.discover(state)
-    {:reply, :ok, state}
-  end
-
-  def handle_info(msg, state) do
-    case msg do
-      :work ->
-        {result, state} = get_connection()
-
-        Manager.discover(state)
-        schedule_work(get_heartbeat_interval())
-
-        case result do
-          :ok -> {:noreply, state}
-          :error -> {:reply, :error, []}
-        end
-
-      _ ->
-        {:noreply, state}
-    end
-  end
-
-  def connect, do: GenServer.call(__MODULE__, :connect)
-  def discover, do: GenServer.call(__MODULE__, :discover)
 
   defp schedule_work(time), do: Process.send_after(self(), :work, time)
-
-  defp get_address("false"), do: get_address(false)
-  defp get_address(false), do: "#{get_function_host()}:#{get_function_port()}"
-  defp get_address("true"), do: get_address(true)
-  defp get_address(true), do: "#{get_uds_address()}"
-
-  defp startup_message(uds_enable) do
-    case uds_enable do
-      true ->
-        "Starting #{__MODULE__} on target function address unix://#{get_address(uds_enable)}"
-
-      _ ->
-        "Starting #{__MODULE__} on target function address tcp://#{get_address(uds_enable)}"
-    end
-  end
-
-  defp get_connection(),
-    do: GRPC.Stub.connect(get_address(is_uds_enable?()), interceptors: [GRPC.Logger.Client])
-
-  defp get_function_port(), do: Application.get_env(:massa_proxy, :user_function_port, 8080)
-
-  defp get_function_host(),
-    do: Application.get_env(:massa_proxy, :user_function_host, "127.0.0.1")
-
-  defp get_heartbeat_interval(),
-    do: Application.get_env(:massa_proxy, :heartbeat_interval, 60_000)
-
-  defp is_uds_enable?(),
-    do: Application.get_env(:massa_proxy, :user_function_uds_enable, false)
-
-  defp get_uds_address(),
-    do: Application.get_env(:massa_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")
 end

@@ -6,13 +6,16 @@ defmodule <%= mod_name %>.ProxyService do
   """
   @moduledoc since: "0.1.0"
 
+  use Injectx
   use GRPC.Server, service: <%= name %>
+
+  inject MassaProxy.Runtime
 
 <%= Enum.map methods, fn(method) -> %>
   @spec <%= method %>(<%= Map.get(input_types, method) %>.t(), GRPC.Server.Stream.t()) :: <%= Map.get(output_types, method) %>.t()
   def <%= method %>(message, stream), 
     do: 
-      <%= handler %>.dispatch(%{
+      Runtime.forward(%{
         service_name: "<%= service_name %>",
         entity_type: "<%= entity_type %>", 
         persistence_id: "<%= persistence_id %>",

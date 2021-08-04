@@ -19,33 +19,32 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
   @req_id "#{inspect(:os.system_time(:milli_seconds) |> Integer.to_string())}"
 
   @trace kind: :critical
-  def report_error(channel, error) do
-    {_, response} =
-      channel
-      |> Cloudstate.EntityDiscovery.Stub.report_error(error)
+  def report_error(error) do
+    with {:ok, channel} <- get_connection() do
+      {_, response} =
+        channel
+        |> Cloudstate.EntityDiscovery.Stub.report_error(error)
 
-    Logger.info("User function report error reply #{inspect(response)}")
-    response
+      GRPC.Stub.disconnect(channel)
+      Logger.info("User function report error reply #{inspect(response)}")
+      response
+    end
   end
 
   @trace kind: :normal
-  def discover(channel) do
-    message =
-      Cloudstate.ProxyInfo.new(
-        protocol_major_version: @protocol_minor_version,
-        protocol_minor_version: @protocol_minor_version,
-        proxy_name: @proxy_name,
-        proxy_version: Application.spec(:massa_proxy, :vsn),
-        supported_entity_types: @supported_entity_types
-      )
+  def discover(message) do
+    Logger.info("#{startup_message(is_uds_enable?())}")
 
     case :ets.lookup(:servers, :grpc) do
       [] ->
-        with {:ok, file_descriptors, user_entities} <-
+        with {:ok, channel} <- get_connection(),
+             {:ok, file_descriptors, user_entities} <-
                channel
                |> Cloudstate.EntityDiscovery.Stub.discover(message)
-               |> handle_response(),
-             do: GrpcServer.start(file_descriptors, user_entities)
+               |> handle_response() do
+          GrpcServer.start(file_descriptors, user_entities)
+          GRPC.Stub.disconnect(channel)
+        end
 
       _ ->
         Logger.debug("The user's function has already been registered. Nothing to do!")
@@ -288,4 +287,36 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     |> :otter.log("<<< #{ctx.target} returned #{res |> inspect}")
     |> Span.close(@req_id)
   end
+
+  defp get_address("false"), do: get_address(false)
+  defp get_address(false), do: "#{get_function_host()}:#{get_function_port()}"
+  defp get_address("true"), do: get_address(true)
+  defp get_address(true), do: "#{get_uds_address()}"
+
+  defp startup_message(uds_enable) do
+    case uds_enable do
+      true ->
+        "Starting #{__MODULE__} on target function address unix://#{get_address(uds_enable)}"
+
+      _ ->
+        "Starting #{__MODULE__} on target function address tcp://#{get_address(uds_enable)}"
+    end
+  end
+
+  defp get_heartbeat_interval(),
+    do: Application.get_env(:massa_proxy, :heartbeat_interval, 60_000)
+
+  defp is_uds_enable?(),
+    do: Application.get_env(:massa_proxy, :user_function_uds_enable, false)
+
+  defp get_connection(),
+    do: GRPC.Stub.connect(get_address(is_uds_enable?()), interceptors: [GRPC.Logger.Client])
+
+  defp get_function_port(), do: Application.get_env(:massa_proxy, :user_function_port, 8080)
+
+  defp get_function_host(),
+    do: Application.get_env(:massa_proxy, :user_function_host, "127.0.0.1")
+
+  defp get_uds_address(),
+    do: Application.get_env(:massa_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")
 end
