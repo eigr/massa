@@ -140,7 +140,7 @@ defmodule MassaProxy do
 
   defp set_vars(config),
     do:
-      Enum.each(config, fn k, v -> Application.put_env(:massa_proxy, k, v, persistent: true) end)
+      Enum.each(config, fn {k, v} -> Application.put_env(:massa_proxy, k, v, persistent: true) end)
 
   defp get_cookie(), do: String.to_atom(Application.get_env(:massa_proxy, :proxy_cookie))
 
