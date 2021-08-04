@@ -24,13 +24,13 @@ config :libcluster,
   ]
 
 config :injectx, Injectx,
-  context: %Injectx.Context{
+  context: %{
     bindings: [
-      %Injectx.Context.Binding{
+      %{
         behavior: MassaProxy.Runtime,
         definitions: [
-          %Injectx.Context.BindingDefinition{module: MassaProxy.Runtime.Grpc, default: true},
-          %Injectx.Context.BindingDefinition{module: MassaProxy.Runtime.Wasm, default: false}
+          %{module: MassaProxy.Runtime.Grpc, default: true, name: nil},
+          %{module: MassaProxy.Runtime.Wasm, default: false, name: nil}
         ]
       }
     ]

@@ -303,9 +303,6 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     end
   end
 
-  defp get_heartbeat_interval(),
-    do: Application.get_env(:massa_proxy, :heartbeat_interval, 60_000)
-
   defp is_uds_enable?(),
     do: Application.get_env(:massa_proxy, :user_function_uds_enable, false)
 
