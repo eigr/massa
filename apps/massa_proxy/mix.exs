@@ -5,7 +5,7 @@ defmodule MassaProxy.MixProject do
     [
       app: :massa_proxy,
       version: "0.1.0",
-      elixir: "~> 1.12",
+      elixir: "~> 1.11",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -51,6 +51,7 @@ defmodule MassaProxy.MixProject do
       {:horde, "~> 0.8"},
       {:phoenix_pubsub, "~> 2.0"},
       {:nebulex, "~> 2.1"},
+      # {:ockam, github: "ockam-network/ockam", sparse: "implementations/elixir/ockam/ockam"},
 
       # Observability deps
       {:ex_ray, "~> 0.1"},
