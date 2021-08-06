@@ -64,6 +64,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: docker.pkg.github.com/eigr/astreu/astreu
+          repository: https://ghcr.io/eigr/massa
           tag_with_sha: true
           tag_with_ref: true
