@@ -51,7 +51,7 @@ defmodule MassaProxy.MixProject do
       {:horde, "~> 0.8"},
       {:phoenix_pubsub, "~> 2.0"},
       {:nebulex, "~> 2.1"},
-      # {:ockam, github: "ockam-network/ockam", sparse: "implementations/elixir/ockam/ockam"},
+      {:ockam, github: "ockam-network/ockam", sparse: "implementations/elixir/ockam/ockam"},
 
       # Observability deps
       {:ex_ray, "~> 0.1"},
