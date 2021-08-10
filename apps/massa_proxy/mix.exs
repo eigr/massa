@@ -16,23 +16,24 @@ defmodule MassaProxy.MixProject do
     ]
   end
 
+  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [
         :logger,
-        :observer,
-        :protobuf
+        :observer
       ],
       mod: {MassaProxy, []}
     ]
   end
 
+  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       # Base deps
+      {:bakeware, "~> 0.2"},
       {:cloudstate_protocol, in_umbrella: true},
       {:injectx, "~> 0.1"},
-      {:wasmex, "~> 0.5"},
       {:toml, "~> 0.6", override: true},
       {:flow, "~> 1.0"},
       {:vapor, "~> 0.10"},
@@ -51,6 +52,7 @@ defmodule MassaProxy.MixProject do
       {:horde, "~> 0.8"},
       {:phoenix_pubsub, "~> 2.0"},
       {:nebulex, "~> 2.1"},
+      {:ranch, "~> 1.8"},
 
       # Observability deps
       {:ex_ray, "~> 0.1"},
@@ -72,7 +74,12 @@ defmodule MassaProxy.MixProject do
     [
       massa_proxy: [
         include_executables_for: [:unix],
-        applications: [runtime_tools: :permanent]
+        applications: [runtime_tools: :permanent],
+        steps: [
+          :assemble,
+          &Bakeware.assemble/1
+        ],
+        bakeware: [compression_level: 19]
       ]
     ]
   end
