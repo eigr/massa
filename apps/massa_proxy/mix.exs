@@ -34,7 +34,6 @@ defmodule MassaProxy.MixProject do
       {:bakeware, "~> 0.2"},
       {:cloudstate_protocol, in_umbrella: true},
       {:injectx, "~> 0.1"},
-      # {:wasmex, "~> 0.5"},
       {:toml, "~> 0.6", override: true},
       {:flow, "~> 1.0"},
       {:vapor, "~> 0.10"},
@@ -54,10 +53,6 @@ defmodule MassaProxy.MixProject do
       {:phoenix_pubsub, "~> 2.0"},
       {:nebulex, "~> 2.1"},
       {:ranch, "~> 1.8"},
-      # {:ockam,
-      # git: "https://github.com/ockam-network/ockam.git",
-      # branch: "develop",
-      # sparse: "implementations/elixir/ockam/ockam"},
 
       # Observability deps
       {:ex_ray, "~> 0.1"},
