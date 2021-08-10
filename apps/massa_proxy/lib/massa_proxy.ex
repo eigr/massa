@@ -3,7 +3,6 @@ defmodule MassaProxy do
   use Application
   require Logger
   alias Injectx.Context
-  alias Vapor.Provider.{Env, Dotenv}
 
   @before_init [
     {Task.Supervisor, name: MassaProxy.TaskSupervisor},
@@ -31,12 +30,12 @@ defmodule MassaProxy do
 
   @impl true
   def start(_type, _args) do
-    setup()
+    config = setup()
 
     children =
       ([
-         http_server(),
-         cluster_supervisor()
+         http_server(config),
+         cluster_supervisor(config)
        ] ++
          @before_init ++
          @horde ++
@@ -60,7 +59,14 @@ defmodule MassaProxy do
     ExRay.Store.create()
     Metrics.Setup.setup()
 
-    config = load_system_env()
+    config = MassaProxy.Infra.Config.Vapor.load()
+
+    config_bindings = %Context.Binding{
+      behavior: MassaProxy.Infra.Config,
+      definitions: [
+        %Context.BindingDefinition{module: MassaProxy.Infra.Config.Vapor, default: true}
+      ]
+    }
 
     runtime_bindings =
       case config.proxy_runtime_type do
@@ -85,57 +91,13 @@ defmodule MassaProxy do
 
     context = %Context{
       bindings: [
+        config_bindings,
         runtime_bindings
       ]
     }
 
     Context.from(context)
     Node.set_cookie(String.to_atom(config.proxy_cookie))
-  end
-
-  defp load_system_env() do
-    priv_root_path = :code.priv_dir(:massa_proxy)
-    cert_path = Path.expand("./tls/server1.pem", :code.priv_dir(:massa_proxy))
-    key_path = Path.expand("./tls/server1.key", :code.priv_dir(:massa_proxy))
-
-    providers = [
-      %Dotenv{},
-      %Env{
-        bindings: [
-          {:proxy_runtime_type, "PROXY_RUNTIME_TYPE", default: "GRPC", required: false},
-          {:proxy_cookie, "NODE_COOKIE", default: "massa_proxy", required: false},
-          {:proxy_root_template_path, "PROXY_ROOT_TEMPLATE_PATH",
-           default: priv_root_path, required: false},
-          {:proxy_cluster_strategy, "PROXY_CLUSTER_STRATEGY", default: "gossip", required: false},
-          {:proxy_headless_service, "PROXY_HEADLESS_SERVICE",
-           default: "proxy-headless-svc", required: false},
-          {:proxy_app_name, "PROXY_APP_NAME", default: "massa-proxy", required: false},
-          {:proxy_cluster_poling_interval, "PROXY_CLUSTER_POLLING",
-           default: 3_000, map: &String.to_integer/1, required: false},
-          {:proxy_port, "PROXY_PORT", default: 9000, map: &String.to_integer/1, required: false},
-          {:proxy_http_port, "PROXY_HTTP_PORT",
-           default: 9001, map: &String.to_integer/1, required: false},
-          {:user_function_host, "USER_FUNCTION_HOST", default: "0.0.0.0", required: false},
-          {:user_function_port, "USER_FUNCTION_PORT",
-           default: 8080, map: &String.to_integer/1, required: false},
-          {:user_function_uds_enable, "PROXY_UDS_MODE", default: false, required: false},
-          {:user_function_sock_addr, "PROXY_UDS_ADDRESS",
-           default: "/var/run/cloudstate.sock", required: false},
-          {:heartbeat_interval, "PROXY_HEARTBEAT_INTERVAL",
-           default: 60_000, map: &String.to_integer/1, required: false},
-          {:tls, "PROXY_TLS", default: false, required: false},
-          {:tls_cert_path, "PROXY_TLS_CERT_PATH", default: cert_path, required: false},
-          {:tls_key_path, "PROXY_TLS_KEY_PATH", default: key_path, required: false}
-        ]
-      }
-    ]
-
-    config = Vapor.load!(providers)
-
-    Enum.each(config, fn {key, value} ->
-      Logger.debug("Loading config #{key} with value #{value}")
-      Application.put_env(:dispatcher, key, value, persistent: true)
-    end)
 
     config
   end
@@ -172,13 +134,19 @@ defmodule MassaProxy do
     ]
   end
 
-  defp cluster_supervisor() do
-    cluster_strategy = Application.get_env(:massa_proxy, :proxy_cluster_strategy)
+  defp cluster_supervisor(config) do
+    cluster_strategy = config.proxy_cluster_strategy
 
     topologies =
       case cluster_strategy do
-        "kubernetes-dns" -> get_dns_strategy()
-        _ -> Application.get_env(:libcluster, :topologies)
+        "gossip" ->
+          get_gossip_strategy()
+
+        "kubernetes-dns" ->
+          get_dns_strategy(config)
+
+        _ ->
+          Logger.warn("Invalid Topology")
       end
 
     if topologies && Code.ensure_compiled(Cluster.Supervisor) do
@@ -189,8 +157,8 @@ defmodule MassaProxy do
     end
   end
 
-  defp http_server() do
-    port = get_http_port()
+  defp http_server(config) do
+    port = get_http_port(config)
 
     plug_spec =
       Plug.Cowboy.child_spec(
@@ -203,20 +171,24 @@ defmodule MassaProxy do
     plug_spec
   end
 
-  defp get_http_port(), do: Application.get_env(:massa_proxy, :proxy_http_port, 9001)
+  defp get_http_port(config), do: config.proxy_http_port
 
-  defp get_dns_strategy() do
-    topologies = [
+  defp get_gossip_strategy(),
+    do: [
       proxy: [
-        strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
-        config: [
-          service: Application.get_env(:massa_proxy, :proxy_headless_service),
-          application_name: Application.get_env(:massa_proxy, :proxy_app_name),
-          polling_interval: Application.get_env(:massa_proxy, :proxy_cluster_poling_interval)
-        ]
+        strategy: Cluster.Strategy.Gossip
       ]
     ]
 
-    topologies
-  end
+  defp get_dns_strategy(config),
+    do: [
+      proxy: [
+        strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
+        config: [
+          service: config.proxy_headless_service,
+          application_name: config.proxy_app_name,
+          polling_interval: config.proxy_cluster_poling_interval
+        ]
+      ]
+    ]
 end

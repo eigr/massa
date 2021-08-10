@@ -11,7 +11,7 @@ build:
 
 run: 
 
-	docker run --rm --name=massa-proxy --net=host -e PROXY_POD_IP=10.0.0.149 -e PROXY_HTTP_PORT=9001 -e PROXY_PORT=9002 -e PROXY_UDS_ADDRESS=false -e PROXY_UDS_MODE=/var/run/cloudstate.sock -e USER_FUNCTION_HOST=127.0.0.1 -e USER_FUNCTION_PORT=${port} ${image}
+	docker run --rm --name=massa-proxy --net=host -e PROXY_POD_IP=10.0.0.149 -e PROXY_HTTP_PORT=9001 -e PROXY_PORT=9002 -e PROXY_UDS_ADDRESS=/var/run/cloudstate.sock -e PROXY_UDS_MODE=false -e USER_FUNCTION_HOST=127.0.0.1 -e USER_FUNCTION_PORT=${port} -e PROXY_CLUSTER_STRATEGY=gossip ${image}
 
 install:
 

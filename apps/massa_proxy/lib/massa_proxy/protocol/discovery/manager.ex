@@ -1,12 +1,15 @@
 defmodule MassaProxy.Protocol.Discovery.Manager do
   @moduledoc false
   require Logger
+  use Injectx
   use ExRay, pre: :before_fun, post: :after_fun
 
   alias ExRay.Span
   alias MassaProxy.CloudstateEntity
   alias MassaProxy.Server.GrpcServer
   alias Google.Protobuf.FileDescriptorSet
+
+  inject(MassaProxy.Infra.Config)
 
   @protocol_minor_version 1
   @proxy_name "massa-proxy"
@@ -303,17 +306,18 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     end
   end
 
+  defp get_connection() do
+    uds_mode = is_uds_enable?()
+    Logger.debug("UDS Mode -> #{uds_mode}")
+    GRPC.Stub.connect(get_address(uds_mode), interceptors: [GRPC.Logger.Client])
+  end
+
   defp is_uds_enable?(),
-    do: Application.get_env(:massa_proxy, :user_function_uds_enable, false)
+    do: Config.get(:user_function_uds_enable)
 
-  defp get_connection(),
-    do: GRPC.Stub.connect(get_address(is_uds_enable?()), interceptors: [GRPC.Logger.Client])
+  defp get_function_port(), do: Config.get(:user_function_port)
 
-  defp get_function_port(), do: Application.get_env(:massa_proxy, :user_function_port, 8080)
+  defp get_function_host(), do: Config.get(:user_function_host)
 
-  defp get_function_host(),
-    do: Application.get_env(:massa_proxy, :user_function_host, "127.0.0.1")
-
-  defp get_uds_address(),
-    do: Application.get_env(:massa_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")
+  defp get_uds_address(), do: Config.get(:user_function_sock_addr)
 end

@@ -51,7 +51,7 @@ RUN cd /app/massa_proxy/apps/massa_proxy \
 
 # ---- Application Stage ----
 FROM alpine:3
-RUN apk add --no-cache --update openssl zstd
+RUN apk add --no-cache --update libgcc ncurses-libs libstdc++ openssl zstd
 
 WORKDIR /home/app
 COPY --from=builder /app/massa_proxy/_build/prod/rel/bakeware/ .

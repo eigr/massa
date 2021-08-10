@@ -15,17 +15,13 @@ config :logger, :console,
   format: "$date $time [$node]:[$metadata]:[$level]:$levelpad$message\n",
   metadata: [:pid]
 
-# Cluster configurations
-config :libcluster,
-  topologies: [
-    proxy: [
-      strategy: Cluster.Strategy.Gossip
-    ]
-  ]
-
 config :injectx, Injectx,
   context: %{
     bindings: [
+      %{
+        behavior: MassaProxy.Infra.Config,
+        definitions: [%{module: MassaProxy.Infra.Config.Vapor, default: true, name: nil}]
+      },
       %{
         behavior: MassaProxy.Runtime,
         definitions: [
