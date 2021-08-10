@@ -5,7 +5,7 @@ defmodule MassaProxy.MixProject do
     [
       app: :massa_proxy,
       version: "0.1.0",
-      elixir: "~> 1.11",
+      elixir: "~> 1.12",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -16,20 +16,22 @@ defmodule MassaProxy.MixProject do
     ]
   end
 
+  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [
         :logger,
-        :observer,
-        :protobuf
+        :observer
       ],
       mod: {MassaProxy, []}
     ]
   end
 
+  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       # Base deps
+      {:bakeware, "~> 0.2.0"},
       {:cloudstate_protocol, in_umbrella: true},
       {:injectx, "~> 0.1"},
       {:wasmex, "~> 0.5"},
@@ -51,7 +53,11 @@ defmodule MassaProxy.MixProject do
       {:horde, "~> 0.8"},
       {:phoenix_pubsub, "~> 2.0"},
       {:nebulex, "~> 2.1"},
-      {:ockam, github: "ockam-network/ockam", sparse: "implementations/elixir/ockam/ockam"},
+      {:ranch, "~> 1.8"},
+      {:ockam,
+       git: "https://github.com/ockam-network/ockam.git",
+       branch: "develop",
+       sparse: "implementations/elixir/ockam/ockam"},
 
       # Observability deps
       {:ex_ray, "~> 0.1"},
@@ -73,7 +79,12 @@ defmodule MassaProxy.MixProject do
     [
       massa_proxy: [
         include_executables_for: [:unix],
-        applications: [runtime_tools: :permanent]
+        applications: [runtime_tools: :permanent],
+        steps: [
+          :assemble,
+          &Bakeware.assemble/1
+        ],
+         bakeware: [compression_level: 19]
       ]
     ]
   end

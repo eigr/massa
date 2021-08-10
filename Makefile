@@ -7,7 +7,7 @@ all: build install
 
 build:
 
-	docker build -f Dockerfile-Bakeware -t ${image} .
+	docker build -f Dockerfile -t ${image} .
 
 run: 
 
