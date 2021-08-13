@@ -1,4 +1,4 @@
-defmodule MassaProxy.Protocol.Discovery.Manager do
+defmodule MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager do
   @moduledoc false
   require Logger
   use Injectx

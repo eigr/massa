@@ -9,16 +9,16 @@ defmodule MassaProxy.Runtime.Grpc do
 
   @impl true
   defdelegate discover(message),
-    to: MassaProxy.Protocol.Discovery.Manager,
+    to: MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager,
     as: :discover
 
   @impl true
   defdelegate report_error(error),
-    to: MassaProxy.Protocol.Discovery.Manager,
+    to: MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager,
     as: :report_error
 
   @impl true
   defdelegate forward(payload),
-    to: MassaProxy.Server.Dispatcher,
+    to: MassaProxy.Runtime.Grpc.Server.Dispatcher,
     as: :dispatch
 end

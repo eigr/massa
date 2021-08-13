@@ -1,10 +1,10 @@
-defmodule MassaProxy.Server.Dispatcher do
+defmodule MassaProxy.Runtime.Grpc.Server.Dispatcher do
   @moduledoc """
   This module is the entrypoint of all gRPC requests for all protocols
   """
   require Logger
-  alias MassaProxy.Protocol.EventSourced.Handler, as: EventSourcedHandler
-  alias MassaProxy.Protocol.Action.Handler, as: ActionHandler
+  alias MassaProxy.Runtime.Grpc.Protocol.Action.Handler, as: ActionHandler
+  alias MassaProxy.Runtime.Grpc.Protocol.EventSourced.Handler, as: EventSourcedHandler
 
   def dispatch(
         %{

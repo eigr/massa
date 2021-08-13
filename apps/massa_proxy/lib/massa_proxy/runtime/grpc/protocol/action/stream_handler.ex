@@ -1,4 +1,4 @@
-defmodule MassaProxy.Protocol.Action.Stream.Handler do
+defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   @moduledoc """
   This module is responsible for handling stream requests of the Action protocol
   """

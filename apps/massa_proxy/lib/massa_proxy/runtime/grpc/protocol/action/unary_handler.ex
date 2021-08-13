@@ -1,4 +1,4 @@
-defmodule MassaProxy.Protocol.Action.Unary.Handler do
+defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Unary.Handler do
   @moduledoc """
   This module is responsible for handling unary requests of the Action protocol
   """

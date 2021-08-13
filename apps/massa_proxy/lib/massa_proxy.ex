@@ -7,13 +7,8 @@ defmodule MassaProxy do
   @before_init [
     {Task.Supervisor, name: MassaProxy.TaskSupervisor},
     {Registry, [name: MassaProxy.LocalRegistry, keys: :unique]},
-    {MassaProxy.Infra.Cache.Distributed, []},
-    {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]}
-  ]
-
-  @horde [
-    MassaProxy.GlobalRegistry,
-    MassaProxy.GlobalSupervisor
+    {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
+    {MassaProxy.Infra.Cache.Distributed, []}
   ]
 
   @after_init [
@@ -38,8 +33,7 @@ defmodule MassaProxy do
          cluster_supervisor(config)
        ] ++
          @before_init ++
-         @horde ++
-         horde_connector() ++
+         local_node() ++
          @after_init)
       |> Stream.reject(&is_nil/1)
       |> Enum.to_list()
@@ -102,31 +96,20 @@ defmodule MassaProxy do
     config
   end
 
-  defp horde_connector() do
+  defp local_node() do
     [
       %{
-        id: MassaProxy.Cluster.HordeConnector,
+        id: MassaProxy.Local.Orchestrator,
         restart: :transient,
         start: {
           Task,
           :start_link,
           [
             fn ->
-              Horde.DynamicSupervisor.start_child(
-                MassaProxy.Supervisor,
+              DynamicSupervisor.start_child(
+                MassaProxy.LocalSupervisor,
                 {MassaProxy.Orchestrator, []}
               )
-
-              Horde.DynamicSupervisor.start_child(
-                MassaProxy.Supervisor,
-                {MassaProxy.Cluster.StateHandoff, []}
-              )
-
-              Node.list()
-              |> Stream.each(fn node ->
-                :ok = MassaProxy.Cluster.StateHandoff.join(node)
-              end)
-              |> Stream.run()
             end
           ]
         }

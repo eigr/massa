@@ -1,4 +1,4 @@
-defmodule MassaProxy.Protocol.Action.Handler do
+defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Handler do
   @moduledoc """
   This handler is responsible for handling the Action protocol's gRPC requests.
   The Action protocol reflects the gRPC protocol in a 1:1 manner,
@@ -10,8 +10,8 @@ defmodule MassaProxy.Protocol.Action.Handler do
   alias Google.Protobuf.Any
   alias Cloudstate.{Action.ActionCommand, Metadata}
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
-  alias MassaProxy.Protocol.Action.Unary.Handler, as: UnaryHandler
-  alias MassaProxy.Protocol.Action.Stream.Handler, as: StreamHandler
+  alias MassaProxy.Runtime.Grpc.Protocol.Action.Unary.Handler, as: UnaryHandler
+  alias MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler, as: StreamHandler
 
   @behaviour MassaProxy.Protocol.Handler
 

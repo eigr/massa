@@ -133,7 +133,7 @@ defmodule MassaProxy.Server.GrpcServer do
             name: name,
             methods: methods,
             original_methods: original_methods,
-            handler: "MassaProxy.Server.Dispatcher",
+            handler: "MassaProxy.Runtime.Grpc.Server.Dispatcher",
             entity_type: entity.entity_type,
             persistence_id: entity.persistence_id,
             service_name: entity.service_name,
