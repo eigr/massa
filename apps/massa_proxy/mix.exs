@@ -34,7 +34,7 @@ defmodule MassaProxy.MixProject do
       {:bakeware, "~> 0.2"},
       {:cloudstate_protocol, in_umbrella: true},
       {:injectx, "~> 0.1"},
-      # {:wasmex, "~> 0.5"},
+      {:wasmex, "~> 0.5"},
       {:toml, "~> 0.6", override: true},
       {:flow, "~> 1.0"},
       {:vapor, "~> 0.10"},

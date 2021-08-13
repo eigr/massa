@@ -306,11 +306,8 @@ defmodule MassaProxy.Protocol.Discovery.Manager do
     end
   end
 
-  defp get_connection() do
-    uds_mode = is_uds_enable?()
-    Logger.debug("UDS Mode -> #{uds_mode}")
-    GRPC.Stub.connect(get_address(uds_mode), interceptors: [GRPC.Logger.Client])
-  end
+  defp get_connection(),
+    do: GRPC.Stub.connect(get_address(is_uds_enable?()), interceptors: [GRPC.Logger.Client])
 
   defp is_uds_enable?(),
     do: Config.get(:user_function_uds_enable)

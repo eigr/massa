@@ -10,7 +10,8 @@ RUN apk add --no-cache --update git build-base ca-certificates zstd
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION=1.54.0
+    RUST_VERSION=1.54.0 \
+    RUSTFLAGS="-C target-feature=-crt-static"
 
 RUN set -eux; \
     apkArch="$(apk --print-arch)"; \
@@ -28,7 +29,7 @@ RUN set -eux; \
     chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
     rustup --version; \
     cargo --version; \
-    rustc --version;
+    rustc --version; 
 
 RUN rustup toolchain install nightly && rustup update && rustup target add wasm32-unknown-unknown --toolchain nightly
 

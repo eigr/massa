@@ -46,7 +46,7 @@ defmodule MassaProxy.Orchestrator do
     Runtime.discover(message)
     schedule_work(get_heartbeat_interval())
 
-    {:noreply, state}
+    {:noreply, state, :hibernate}
   end
 
   defp schedule_work(time), do: Process.send_after(self(), :work, time)
