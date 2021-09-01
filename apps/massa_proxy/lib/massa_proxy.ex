@@ -4,41 +4,19 @@ defmodule MassaProxy do
   require Logger
   alias Injectx.Context
 
-  @before_init [
-    {Task.Supervisor, name: MassaProxy.TaskSupervisor},
-    {Registry, [name: MassaProxy.LocalRegistry, keys: :unique]},
-    {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
-    {MassaProxy.Infra.Cache.Distributed, []}
-  ]
-
-  @after_init [
-    {MassaProxy.Entity.EntityRegistry.Supervisor, [%{}]},
-    %{
-      id: CachedServers,
-      start: {MassaProxy.Infra.Cache, :start_link, [[cache_name: :cached_servers]]}
-    },
-    %{
-      id: ReflectionCache,
-      start: {MassaProxy.Infra.Cache, :start_link, [[cache_name: :reflection_cache]]}
-    }
-  ]
-
   @impl true
   def start(_type, _args) do
     config = setup()
 
     children =
-      ([
-         http_server(config),
-         cluster_supervisor(config)
-       ] ++
-         @before_init ++
-         local_node() ++
-         @after_init)
+      [
+        cluster_supervisor(config),
+        {MassaProxy.Children, config}
+      ]
       |> Stream.reject(&is_nil/1)
       |> Enum.to_list()
 
-    opts = [strategy: :one_for_one, name: MassaProxy.Supervisor]
+    opts = [strategy: :one_for_one, name: MassaProxy.RootSupervisor]
     Supervisor.start_link(children, opts)
   end
 
@@ -96,27 +74,6 @@ defmodule MassaProxy do
     config
   end
 
-  defp local_node() do
-    [
-      %{
-        id: MassaProxy.Local.Orchestrator,
-        restart: :transient,
-        start: {
-          Task,
-          :start_link,
-          [
-            fn ->
-              DynamicSupervisor.start_child(
-                MassaProxy.LocalSupervisor,
-                {MassaProxy.Orchestrator, []}
-              )
-            end
-          ]
-        }
-      }
-    ]
-  end
-
   defp cluster_supervisor(config) do
     cluster_strategy = config.proxy_cluster_strategy
 
@@ -139,22 +96,6 @@ defmodule MassaProxy do
       {Cluster.Supervisor, [topologies, [name: MassaProxy.ClusterSupervisor]]}
     end
   end
-
-  defp http_server(config) do
-    port = get_http_port(config)
-
-    plug_spec =
-      Plug.Cowboy.child_spec(
-        scheme: :http,
-        plug: Http.Endpoint,
-        options: [port: port]
-      )
-
-    Logger.info("HTTP Server started on port #{port}")
-    plug_spec
-  end
-
-  defp get_http_port(config), do: config.proxy_http_port
 
   defp get_gossip_strategy(),
     do: [
