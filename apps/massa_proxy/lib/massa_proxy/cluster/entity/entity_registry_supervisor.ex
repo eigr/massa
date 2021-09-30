@@ -7,7 +7,7 @@ defmodule MassaProxy.Entity.EntityRegistry.Supervisor do
   end
 
   @impl true
-  def init(args) do
+  def init(_args) do
     children = [
       {Phoenix.PubSub, name: :entity_channel},
       MassaProxy.Entity.EntityRegistry.child_spec(%{})
