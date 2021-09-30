@@ -18,24 +18,20 @@ defmodule MassaProxy.Entity.EntityRegistry do
 
   @impl true
   def init(state) do
-    Process.flag(:trap_exit, true)
+    :ok = PubSub.subscribe(:entity_channel, @topic)
+    :ok = :net_kernel.monitor_nodes(true, node_type: :visible)
+
     Logger.debug("Initializing Entity Registry with state #{inspect(state)}")
-    PubSub.subscribe(:entity_channel, @topic)
+
     {:ok, state}
   end
 
   @impl true
   def handle_cast({:register, new_entities}, state) do
     # convert initial state to map if empty list
-    actual_state =
-      case state do
-        [] -> %{}
-        _ -> state
-      end
-
     # Accumulate new entities for the node key
     new_state =
-      Enum.reduce(new_entities, actual_state, fn entity, acc ->
+      Enum.reduce(new_entities, state, fn entity, acc ->
         acc_entity = Map.get(acc, entity.node)
 
         entities =
@@ -71,6 +67,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
         end
       end)
       |> List.flatten()
+      |> Enum.uniq()
 
     if Enum.all?(nodes, &is_nil/1) do
       {:reply, [], state}
@@ -92,10 +89,27 @@ defmodule MassaProxy.Entity.EntityRegistry do
     end
   end
 
-  @impl true
-  def handle_info({:leave, %{node: node} = message}, state) do
-    Logger.debug("Rebalancing after Entity leaves the cluster")
+  def handle_info({:nodeup, _node, _node_type}, state) do
+    # Ignore the nodeup as the `:join` message will be broadcasted through PubSub
     {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:nodedown, node, _node_type}, state) do
+    Logger.debug(fn -> "Received :nodedown from #{node} rebalancing registred entities" end)
+
+    new_state = if Map.has_key?(state, node), do: %{state | node => []}, else: state
+
+    {:noreply, new_state}
+  end
+
+  @impl true
+  def handle_info({:leave, %{node: node}}, state) do
+    Logger.debug(fn -> "Received :leave from #{node} rebalancing registred entities" end)
+
+    new_state = if Map.has_key?(state, node), do: %{state | node => []}, else: state
+
+    {:noreply, new_state}
   end
 
   @impl true
@@ -105,15 +119,13 @@ defmodule MassaProxy.Entity.EntityRegistry do
     PubSub.broadcast(
       :entity_channel,
       @topic,
-      {:leave, %{node => node}}
+      {:leave, %{node: node}}
     )
-
-    :ok
   end
 
-  def start_link(_args) do
+  def start_link(args) do
     # note the change here in providing a name: instead of [] as the 3rd param
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   # register entities to the service
