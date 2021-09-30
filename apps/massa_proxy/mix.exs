@@ -58,6 +58,7 @@ defmodule MassaProxy.MixProject do
       {:hackney, "~> 1.16"},
       {:prometheus, "~> 4.6"},
       {:prometheus_plugs, "~> 1.1"},
+      {:telemetry, "~> 0.4.3"},
 
       # Http facilities
       {:plug_cowboy, "~> 2.3"},
