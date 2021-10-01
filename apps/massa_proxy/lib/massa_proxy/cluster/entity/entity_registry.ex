@@ -60,7 +60,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
     PubSub.broadcast(
       :entity_channel,
       @topic,
-      {:new_entities, %{node => new_entities}}
+      {:incoming_entities, %{node => new_entities}}
     )
 
     {:noreply, new_state}
@@ -88,7 +88,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
   end
 
   @impl true
-  def handle_info({:new_entities, message}, state) do
+  def handle_info({:incoming_entities, message}, state) do
     self = Node.self()
 
     if Map.has_key?(message, self) do
@@ -100,11 +100,16 @@ defmodule MassaProxy.Entity.EntityRegistry do
     end
   end
 
-
   def handle_info({:join, %{node: node}}, state) do
     Logger.debug(fn -> "Got Node join from #{inspect(node)} sending current state" end)
 
-    :ok = PubSub.direct_broadcast(node, :entity_channel, @topic, {:new_entities, Map.take(state, [node()])})
+    :ok =
+      PubSub.direct_broadcast(
+        node,
+        :entity_channel,
+        @topic,
+        {:incoming_entities, Map.take(state, [node()])}
+      )
 
     {:noreply, state}
   end
