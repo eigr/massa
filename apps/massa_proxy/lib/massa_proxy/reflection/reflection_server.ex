@@ -51,13 +51,13 @@ defmodule MassaProxy.Reflection.Server do
                 {:list_services_response, ListServiceResponse.new(service: service_response)}
             )
 
-          Cache.put(:reflection_cache, "services", response)
           response
 
         value ->
           value
       end
 
+    Cache.put(:reflection_cache, "services", response)
     {:reply, response, state}
   end
 
@@ -84,13 +84,13 @@ defmodule MassaProxy.Reflection.Server do
                  FileDescriptorResponse.new(file_descriptor_proto: files)}
             )
 
-          Cache.put(:reflection_cache, "file_by_filename_#{filename}", response)
           response
 
         value ->
           value
       end
 
+    Cache.put(:reflection_cache, "file_by_filename_#{filename}", response)
     {:reply, response, state}
   end
 
@@ -99,35 +99,34 @@ defmodule MassaProxy.Reflection.Server do
     response =
       case Cache.get(:reflection_cache, "file_containing_symbol_#{symbol}") do
         nil ->
-          resp =
-            with {:fail, :empty} <- contains_service(state, symbol),
-                 {:fail, :empty} <- contains_message_type(state, symbol) do
+          with {:fail, :empty} <- contains_service(state, symbol),
+               {:fail, :empty} <- contains_message_type(state, symbol) do
+            response =
+              ServerReflectionResponse.new(
+                message_response:
+                  {:error_response,
+                   ErrorResponse.new(error_code: 5, error_message: "Symbol Not Found")}
+              )
+
+            response
+          else
+            {:ok, description} ->
               response =
                 ServerReflectionResponse.new(
                   message_response:
-                    {:error_response,
-                     ErrorResponse.new(error_code: 5, error_message: "Symbol Not Found")}
+                    {:file_descriptor_response,
+                     FileDescriptorResponse.new(file_descriptor_proto: description)}
                 )
 
-              {:reply, response, state}
-            else
-              {:ok, description} ->
-                response =
-                  ServerReflectionResponse.new(
-                    message_response:
-                      {:file_descriptor_response,
-                       FileDescriptorResponse.new(file_descriptor_proto: description)}
-                  )
-
-                {:reply, response, state}
-            end
-
-          Cache.put(:reflection_cache, "file_containing_symbol_#{symbol}", resp)
-          resp
+              response
+          end
 
         value ->
           value
       end
+
+    Cache.put(:reflection_cache, "file_containing_symbol_#{symbol}", response)
+    {:reply, response, state}
   end
 
   # Client API
