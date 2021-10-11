@@ -23,7 +23,18 @@ defmodule MassaProxy.Entity.EntityRegistry do
 
     Logger.debug("Initializing Entity Registry with state #{inspect(state)}")
 
-    {:ok, state}
+    {:ok, state, {:continue, :join_cluster}}
+  end
+
+  @impl true
+  def handle_continue(:join_cluster, state) do
+    PubSub.broadcast(
+      :entity_channel,
+      @topic,
+      {:join, %{node: node()}}
+    )
+
+    {:noreply, state}
   end
 
   @impl true
@@ -49,7 +60,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
     PubSub.broadcast(
       :entity_channel,
       @topic,
-      {:join, %{node => new_entities}}
+      {:incoming_entities, %{node => new_entities}}
     )
 
     {:noreply, new_state}
@@ -77,7 +88,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
   end
 
   @impl true
-  def handle_info({:join, message}, state) do
+  def handle_info({:incoming_entities, message}, state) do
     self = Node.self()
 
     if Map.has_key?(message, self) do
@@ -89,8 +100,23 @@ defmodule MassaProxy.Entity.EntityRegistry do
     end
   end
 
+  def handle_info({:join, %{node: node}}, state) do
+    Logger.debug(fn -> "Got Node join from #{inspect(node)} sending current state" end)
+
+    :ok =
+      PubSub.direct_broadcast(
+        node,
+        :entity_channel,
+        @topic,
+        {:incoming_entities, Map.take(state, [node()])}
+      )
+
+    {:noreply, state}
+  end
+
   def handle_info({:nodeup, _node, _node_type}, state) do
-    # Ignore the nodeup as the `:join` message will be broadcasted through PubSub
+    # Ignore :nodeup as we are expecting a :join message before sending a reply
+    # with the current state
     {:noreply, state}
   end
 
