@@ -38,9 +38,9 @@ TODO
     - [x] Discovery Support
     - [x] Actions (Stateless Support):
         - [x] Unary Requests
-        - [ ] Streamed Requests
-        - [ ] StreamIn Requests
-        - [ ] StreamOut Requests
+        - [x] Streamed Requests
+        - [x] StreamIn Requests
+        - [x] StreamOut Requests
         - [ ] Multi Node Forward and Side Effects
     - [ ] Value Entities
     - [ ] EventSourced Support:
