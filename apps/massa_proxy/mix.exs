@@ -40,7 +40,7 @@ defmodule MassaProxy.MixProject do
       {:vapor, "~> 0.10"},
 
       # Grpc deps
-      {:protobuf, "~> 0.8.0-beta.1", override: true},
+      {:protobuf, "~> 0.9.0", override: true},
       {:grpc, github: "elixir-grpc/grpc", override: true},
       {:cowlib, "~> 2.11", override: true},
       {:grpc_prometheus, "~> 0.1"},
