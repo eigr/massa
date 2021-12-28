@@ -17,6 +17,8 @@ defmodule MassaProxy.Generator do
     }
 
     ctx = Map.put(ctx, :module_prefix, ctx.package || "")
+    inspect(ctx)
+    inspect(desc.options)
     ctx = Protobuf.Protoc.Context.cal_file_options(ctx, desc.options)
 
     {enums, msgs} = MessageGenerator.generate_list(ctx, desc.message_type)

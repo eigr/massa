@@ -6,10 +6,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Handler do
   that is arriving to decide how to forward messages via the protocol to the user's function
   """
   require Logger
-  alias GRPC.Server
-  alias Google.Protobuf.Any
-  alias Cloudstate.{Action.ActionCommand, Metadata}
-  alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
+
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Unary.Handler, as: UnaryHandler
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler, as: StreamHandler
 

@@ -5,6 +5,6 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.EventSourced.Handler do
   @behaviour MassaProxy.Protocol.Handler
 
   @impl true
-  def handle(payload) do
+  def handle(_payload) do
   end
 end

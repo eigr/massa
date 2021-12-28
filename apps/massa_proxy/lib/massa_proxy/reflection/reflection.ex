@@ -70,16 +70,26 @@ defmodule MassaProxy.Reflection do
   defp update_types(types, %{namespace: ns, package: pkg, module_prefix: prefix}, name) do
     type_name =
       join_names(prefix || pkg, ns, name)
-      |> Protobuf.Protoc.Generator.Util.normalize_type_name()
+      |> normalize_type_name()
 
     Map.put(types, "." <> join_names(pkg, ns, name), %{type_name: type_name})
   end
 
   defp join_names(pkg, ns, name) do
-    ns_str = Protobuf.Protoc.Generator.Util.join_name(ns)
+    ns_str = Enum.join(ns, ".")
 
     [pkg, ns_str, name]
     |> Enum.filter(&(&1 && &1 != ""))
     |> Enum.join(".")
+  end
+
+  defp normalize_type_name(name) do
+    name
+    |> String.split(".")
+    |> Enum.map_join(".", &trans_name/1)
+  end
+
+  defp trans_name(name) do
+    Macro.camelize(name)
   end
 end

@@ -10,6 +10,6 @@ defmodule MassaProxy.Runtime.Wasm.Protocol.Action.Handler do
   @behaviour MassaProxy.Protocol.Handler
 
   @impl true
-  def handle(%{request_type: request_type} = payload) do
+  def handle(%{request_type: _request_type} = _payload) do
   end
 end
