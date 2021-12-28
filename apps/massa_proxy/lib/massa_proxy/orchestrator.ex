@@ -7,6 +7,7 @@ defmodule MassaProxy.Orchestrator do
   inject(MassaProxy.Runtime)
 
   @protocol_minor_version 1
+  @protocol_major_version 1
   @proxy_name "massa-proxy"
   @supported_entity_types [
     "cloudstate.action.ActionProtocol",
@@ -36,10 +37,10 @@ defmodule MassaProxy.Orchestrator do
   def handle_info(:work, state) do
     message =
       Cloudstate.ProxyInfo.new(
-        protocol_major_version: @protocol_minor_version,
+        protocol_major_version: @protocol_major_version,
         protocol_minor_version: @protocol_minor_version,
         proxy_name: @proxy_name,
-        proxy_version: Application.spec(:massa_proxy, :vsn),
+        proxy_version: "#{Application.spec(:massa_proxy, :vsn)}",
         supported_entity_types: @supported_entity_types
       )
 
