@@ -17,9 +17,11 @@ defmodule MassaProxy.Generator do
     }
 
     ctx = Map.put(ctx, :module_prefix, ctx.package || "")
-    inspect(ctx)
-    inspect(desc.options)
-    ctx = Protobuf.Protoc.Context.cal_file_options(ctx, desc.options)
+    Logger.debug("Ctx: #{inspect(ctx)} Options: #{inspect(desc.options)}")
+
+    # ctx = Protobuf.Protoc.Context.cal_file_options(ctx, desc.options)
+    # ctx = Protobuf.Protoc.Context.custom_file_options_from_file_desc(ctx, desc.options)
+    ctx = cal_file_options(ctx, desc.options)
 
     {enums, msgs} = MessageGenerator.generate_list(ctx, desc.message_type)
 
@@ -37,6 +39,24 @@ defmodule MassaProxy.Generator do
     |> List.flatten()
     |> Enum.join("\n")
     |> format_code()
+  end
+
+  defp cal_file_options(ctx, nil) do
+    %{ctx | custom_file_options: %{}}
+  end
+
+  defp cal_file_options(ctx, options) do
+    opts =
+      case Google.Protobuf.FileOptions.get_extension(options, Elixirpb.PbExtension, :file) do
+        nil ->
+          %{}
+
+        opts ->
+          opts
+      end
+
+    module_prefix = Map.get(opts, :module_prefix)
+    %{ctx | custom_file_options: opts, module_prefix: module_prefix}
   end
 
   @doc false
