@@ -17,8 +17,6 @@ defmodule MassaProxy.Generator do
         dep_type_mapping: get_dep_type_mapping(ctx, desc.dependency, desc.name)
     }
     ctx = Map.put(ctx, :module_prefix, ctx.package || "")
-
-    # Logger.debug("Ctx: #{inspect(ctx, pretty: true, width: 0)} Options: #{inspect(desc.options, pretty: true, width: 0)}")
     ctx = Protobuf.Protoc.Context.custom_file_options_from_file_desc(ctx, desc)
     {enums, msgs} = MessageGenerator.generate_list(ctx, desc.message_type)
 
@@ -29,16 +27,14 @@ defmodule MassaProxy.Generator do
         if Enum.member?(ctx.plugins, "grpc") do
           Enum.map(desc.service, fn d -> ServiceGenerator.generate(ctx, d) end)
         end
-
     nested_extensions =
       ExtensionGenerator.get_nested_extensions(ctx, desc.message_type)
       |> Enum.reverse()
-    Logger.debug("huh>>>1")
     list = list ++ [ExtensionGenerator.generate(ctx, desc, nested_extensions)]
-    Logger.debug("list: #{inspect(list, pretty: true, width: 0)}")
-
     list
     |> List.flatten()
+    |> Enum.filter(&!is_nil(&1))
+    |> Enum.map(fn {_,v} -> v end)
     |> Enum.join("\n")
     |> format_code()
   end
