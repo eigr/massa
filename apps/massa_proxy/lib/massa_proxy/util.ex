@@ -94,7 +94,7 @@ defmodule MassaProxy.Util do
   end
 
   def get_http_rule(method_descriptor) do
-    Logger.debug("MehodOptions HTTP Rules: #{inspect(method_descriptor)}")
+    Logger.debug("MethodOptions HTTP Rules: #{inspect(method_descriptor)}")
 
     Google.Protobuf.MethodOptions.get_extension(
       method_descriptor.options,
@@ -104,7 +104,7 @@ defmodule MassaProxy.Util do
   end
 
   def get_eventing_rule(method_descriptor) do
-    Logger.debug("MehodOptions Eventing Rules: #{inspect(method_descriptor)}")
+    Logger.debug("MethodOptions Eventing Rules: #{inspect(method_descriptor)}")
 
     evt_ext =
       Google.Protobuf.MethodOptions.get_extension(
@@ -129,7 +129,6 @@ defmodule MassaProxy.Util do
            do: list |> Stream.map(&String.downcase(&1)) |> Enum.join(".")
 
     type_name = parts |> List.last()
-
     "type.googleapis.com/#{package_name}.#{type_name}"
   end
 
@@ -151,7 +150,7 @@ defmodule MassaProxy.Util do
     |> Enum.join(".")
   end
 
-  def normalize_mehod_name(name), do: Macro.underscore(name)
+  def normalize_method_name(name), do: Macro.underscore(name)
 
   def get_module(filename, bindings \\ []), do: EEx.eval_file(filename, bindings)
 

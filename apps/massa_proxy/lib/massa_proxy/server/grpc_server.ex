@@ -116,7 +116,7 @@ defmodule MassaProxy.Server.GrpcServer do
         methods =
           service.methods
           |> Flow.from_enumerable()
-          |> Flow.map(&Util.normalize_mehod_name(&1.name))
+          |> Flow.map(&Util.normalize_method_name(&1.name))
           |> Enum.to_list()
 
         Logger.info("Generating Service #{name} with Methods: #{inspect(methods)}")
@@ -222,7 +222,7 @@ defmodule MassaProxy.Server.GrpcServer do
       Enum.reduce(services.methods, %{}, fn method, acc ->
         Map.put(
           acc,
-          Util.normalize_mehod_name(method.name),
+          Util.normalize_method_name(method.name),
           method.name
         )
       end)
@@ -232,7 +232,7 @@ defmodule MassaProxy.Server.GrpcServer do
       Enum.reduce(services.methods, %{}, fn method, acc ->
         Map.put(
           acc,
-          Util.normalize_mehod_name(method.name),
+          Util.normalize_method_name(method.name),
           String.replace_leading(Util.normalize_service_name(method.input_type), ".", "")
         )
       end)
@@ -242,7 +242,7 @@ defmodule MassaProxy.Server.GrpcServer do
       Enum.reduce(services.methods, %{}, fn method, acc ->
         Map.put(
           acc,
-          Util.normalize_mehod_name(method.name),
+          Util.normalize_method_name(method.name),
           String.replace_leading(Util.normalize_service_name(method.output_type), ".", "")
         )
       end)
@@ -250,7 +250,7 @@ defmodule MassaProxy.Server.GrpcServer do
   defp get_request_type(services),
     do:
       Enum.reduce(services.methods, %{}, fn method, acc ->
-        Map.put(acc, Util.normalize_mehod_name(method.name), get_type(method))
+        Map.put(acc, Util.normalize_method_name(method.name), get_type(method))
       end)
 
   defp get_type(method) do
