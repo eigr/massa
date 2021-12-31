@@ -20,8 +20,8 @@ defmodule MassaProxy.Generator do
     Logger.debug("Ctx: #{inspect(ctx)} Options: #{inspect(desc.options)}")
 
     # ctx = Protobuf.Protoc.Context.cal_file_options(ctx, desc.options)
-    # ctx = Protobuf.Protoc.Context.custom_file_options_from_file_desc(ctx, desc.options)
-    ctx = cal_file_options(ctx, desc.options)
+    ctx = Protobuf.Protoc.Context.custom_file_options_from_file_desc(ctx, desc.options)
+    # ctx = cal_file_options(ctx, desc.options)
 
     {enums, msgs} = MessageGenerator.generate_list(ctx, desc.message_type)
 
