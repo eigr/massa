@@ -8,6 +8,7 @@ defmodule MassaProxy.Generator do
 
   @locals_without_parens [field: 2, field: 3, oneof: 2, rpc: 3, extend: 4, extensions: 1]
 
+  @spec generate_content(Context.t(), Google.Protobuf.FileDescriptorProto.t()) :: String.t()
   def generate_content(ctx, desc) do
     ctx = %{
       ctx
@@ -17,17 +18,16 @@ defmodule MassaProxy.Generator do
     }
 
     ctx = Map.put(ctx, :module_prefix, ctx.package || "")
-    Logger.debug("Ctx: #{inspect(ctx)} Options: #{inspect(desc.options)}")
-
-    # ctx = Protobuf.Protoc.Context.cal_file_options(ctx, desc.options)
-    ctx = Protobuf.Protoc.Context.custom_file_options_from_file_desc(ctx, desc.options)
-    # ctx = cal_file_options(ctx, desc.options)
-
+    ctx = Protobuf.Protoc.Context.custom_file_options_from_file_desc(ctx, desc)
     {enums, msgs} = MessageGenerator.generate_list(ctx, desc.message_type)
 
     list =
-      EnumGenerator.generate_list(ctx, desc.enum_type) ++
-        enums ++ msgs ++ ServiceGenerator.generate_list(ctx, desc.service)
+      enums ++
+        Enum.map(desc.enum_type, fn d -> EnumGenerator.generate(ctx, d) end) ++
+        msgs ++
+        if Enum.member?(ctx.plugins, "grpc") do
+          Enum.map(desc.service, fn d -> ServiceGenerator.generate(ctx, d) end)
+        end
 
     nested_extensions =
       ExtensionGenerator.get_nested_extensions(ctx, desc.message_type)
@@ -37,26 +37,10 @@ defmodule MassaProxy.Generator do
 
     list
     |> List.flatten()
+    |> Enum.filter(&(!is_nil(&1)))
+    |> Enum.map(fn {_, v} -> v end)
     |> Enum.join("\n")
     |> format_code()
-  end
-
-  defp cal_file_options(ctx, nil) do
-    %{ctx | custom_file_options: %{}}
-  end
-
-  defp cal_file_options(ctx, options) do
-    opts =
-      case Google.Protobuf.FileOptions.get_extension(options, Elixirpb.PbExtension, :file) do
-        nil ->
-          %{}
-
-        opts ->
-          opts
-      end
-
-    module_prefix = Map.get(opts, :module_prefix)
-    %{ctx | custom_file_options: opts, module_prefix: module_prefix}
   end
 
   @doc false
@@ -79,7 +63,7 @@ defmodule MassaProxy.Generator do
   defp syntax(_), do: :proto2
 
   def format_code(code) do
-    formated =
+    formatted =
       if Code.ensure_loaded?(Code) && function_exported?(Code, :format_string!, 2) do
         code
         |> Code.format_string!(locals_without_parens: @locals_without_parens)
@@ -88,10 +72,10 @@ defmodule MassaProxy.Generator do
         code
       end
 
-    if formated == "" do
-      formated
+    if formatted == "" do
+      formatted
     else
-      formated <> "\n"
+      formatted <> "\n"
     end
   end
 end

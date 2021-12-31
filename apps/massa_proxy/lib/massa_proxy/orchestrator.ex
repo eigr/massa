@@ -7,7 +7,7 @@ defmodule MassaProxy.Orchestrator do
   inject(MassaProxy.Runtime)
 
   @protocol_minor_version 1
-  @protocol_major_version 1
+  @protocol_major_version 0
   @proxy_name "massa-proxy"
   @supported_entity_types [
     "cloudstate.action.ActionProtocol",
@@ -46,12 +46,12 @@ defmodule MassaProxy.Orchestrator do
 
     Runtime.discover(message)
     schedule_work(get_heartbeat_interval())
-
+    #    a = Application.get_env(:massa_proxy, :heartbeat_interval)
+    #    Logger.info("got: #{inspect(a)}")
     {:noreply, state, :hibernate}
   end
 
   defp schedule_work(time), do: Process.send_after(self(), :work, time)
 
-  defp get_heartbeat_interval(),
-    do: Application.get_env(:massa_proxy, :heartbeat_interval, 60_000)
+  defp get_heartbeat_interval(), do: Application.get_env(:massa_proxy, :heartbeat_interval)
 end
