@@ -15,6 +15,9 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
          client_stream = ActionClient.handle_streamed(conn),
          :ok <- client_stream |> run_stream(messages) |> Stream.run(),
          {:ok, consumer_stream} <- GRPC.Stub.recv(client_stream) do
+      # inside of a middleware do anything else before send reply
+      #  consumer_stream = Stream.map(consumer_stream, fn elem -> map(elem) end)
+
       consumer_stream
       |> Stream.each(fn {:ok, r} ->
         GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
