@@ -23,9 +23,9 @@ defmodule MassaProxy.Runtime.Middleware do
       ) do
     result =
       with {:ok, channel} <- get_connection(),
-           {:ok, result} <- ActionClient.handle_unary(channel, message),
-           {:ok, %ActionResponse{response: _response, side_effects: effects} = result} <-
-             process_command(command_processor, result) do
+           {:ok, %ActionResponse{side_effects: effects} = commands} <-
+             ActionClient.handle_unary(channel, message),
+           {:ok, result} <- process_command(command_processor, commands) do
         handle_effects(effects)
         {:ok, result}
       else
@@ -55,10 +55,31 @@ defmodule MassaProxy.Runtime.Middleware do
     GenServer.call(server, {:handle_streamed, messages})
   end
 
-  defp handle_effects(_effects) do
+  defp process_command(
+         _command_processor,
+         %ActionResponse{response: {:reply, %Cloudstate.Reply{} = _reply}} = message
+       ) do
+    {:ok, message}
   end
 
-  defp process_command(_command_processor, action_response) do
-    {:ok, action_response}
+  defp process_command(
+         _command_processor,
+         %ActionResponse{response: {:failure, %Cloudstate.Failure{} = _failure}} = message
+       ) do
+    {:ok, message}
   end
+
+  defp process_command(
+         _command_processor,
+         %ActionResponse{response: {:forward, %Cloudstate.Forward{} = _forward}} = message
+       ) do
+    {:ok, message}
+  end
+
+  defp handle_effects([]), do: {:ok, []}
+
+  defp handle_effects(effects) when is_list(effects) and length(effects) > 0 do
+  end
+
+  defp handle_effects(_), do: {:ok, []}
 end
