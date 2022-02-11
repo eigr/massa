@@ -47,12 +47,12 @@ defmodule MassaProxy.Runtime.Middleware do
     {:noreply, state}
   end
 
-  def unary_req(server, message) do
-    GenServer.call(server, {:handle_unary, message})
+  def unary_req(entity_type, message) do
+    GenServer.call(get_name(entity_type), {:handle_unary, message})
   end
 
-  def stream_req(server, messages) do
-    GenServer.call(server, {:handle_streamed, messages})
+  def stream_req(entity_type, messages) do
+    GenServer.call(get_name(entity_type), {:handle_streamed, messages})
   end
 
   defp process_command(
@@ -82,4 +82,7 @@ defmodule MassaProxy.Runtime.Middleware do
   end
 
   defp handle_effects(_), do: {:ok, []}
+
+  defp get_name(entity_type),
+    do: entity_type |> String.split(".") |> Enum.at(-1)
 end

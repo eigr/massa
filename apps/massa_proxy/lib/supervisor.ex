@@ -15,6 +15,8 @@ defmodule MassaProxy.Children do
       {Task.Supervisor, name: MassaProxy.TaskSupervisor},
       {Registry, [name: MassaProxy.LocalRegistry, keys: :unique]},
       {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
+      {DynamicSupervisor,
+       [name: MassaProxy.Runtime.MiddlewareSupervisor, strategy: :one_for_one]},
       {MassaProxy.Infra.Cache.Distributed, []},
       local_node(),
       {MassaProxy.Entity.EntityRegistry.Supervisor, [%{}]},
