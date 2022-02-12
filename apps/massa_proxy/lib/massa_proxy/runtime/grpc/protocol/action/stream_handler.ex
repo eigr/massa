@@ -5,19 +5,13 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
 
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
+  alias MassaProxy.Runtime.Middleware
 
   import MassaProxy.Util, only: [get_connection: 0]
 
-  def handle_streamed(%{stream: stream} = ctx) do
-    messages = ActionProtocol.build_stream(ctx)
-
-    with {:ok, conn} <- get_connection(),
-         client_stream = ActionClient.handle_streamed(conn),
-         :ok <- client_stream |> run_stream(messages) |> Stream.run(),
-         {:ok, consumer_stream} <- GRPC.Stub.recv(client_stream) do
-      # inside of a middleware do anything else before send reply
-      #  consumer_stream = Stream.map(consumer_stream, fn elem -> map(elem) end)
-
+  def handle_streamed(%{entity_type: entity_type, stream: stream} = ctx) do
+    with messages <- ActionProtocol.build_stream(ctx),
+         {:ok, consumer_stream} <- Middleware.streamed_req(entity_type, messages) do
       consumer_stream
       |> Stream.each(fn {:ok, r} ->
         GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))

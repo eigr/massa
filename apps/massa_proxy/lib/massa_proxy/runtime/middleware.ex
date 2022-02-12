@@ -44,9 +44,31 @@ defmodule MassaProxy.Runtime.Middleware do
   end
 
   @impl true
-  def handle_call({:handle_streamed, _messages}, from, state) do
+  def handle_call({:handle_streamed, messages}, from, state) do
     spawn(fn ->
-      stream_result = nil
+      stream_result =
+        with {:ok, conn} <- get_connection(),
+             client_stream = ActionClient.handle_streamed(conn),
+             :ok <- client_stream |> run_stream(messages) |> Stream.run(),
+             {:ok, %ActionResponse{side_effects: effects} = commands} <-
+               GRPC.Stub.recv(client_stream) do
+          consumer_stream =
+            Stream.map(commands, fn it ->
+              case process_command(nil, it) do
+                {:ok, result} ->
+                  {:ok, result}
+
+                {:error, reason} ->
+                  {:error, "Failure on process client stream #{inspect(reason)}"}
+              end
+            end)
+
+          handle_effects(effects)
+          {:ok, consumer_stream}
+        else
+          {:error, reason} -> {:error, reason}
+        end
+
       GenServer.reply(from, stream_result)
     end)
 
@@ -107,5 +129,17 @@ defmodule MassaProxy.Runtime.Middleware do
       |> Enum.at(-1)
 
     Module.concat(__MODULE__, mod)
+  end
+
+  defp run_stream(client_stream, messages) do
+    Stream.map(messages, &send_stream_msg(client_stream, &1))
+  end
+
+  defp send_stream_msg(client_stream, :halt) do
+    GRPC.Stub.end_stream(client_stream)
+  end
+
+  defp send_stream_msg(client_stream, msg) do
+    GRPC.Stub.send_request(client_stream, msg, [])
   end
 end
