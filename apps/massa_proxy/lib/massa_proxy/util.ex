@@ -155,7 +155,11 @@ defmodule MassaProxy.Util do
   def get_module(filename, bindings \\ []), do: EEx.eval_file(filename, bindings)
 
   def get_connection(),
-    do: GRPC.Stub.connect(get_address(is_uds_enable?()), interceptors: [GRPC.Logger.Client])
+    do:
+      GRPC.Stub.connect(get_address(is_uds_enable?()),
+        interceptors: [GRPC.Logger.Client],
+        adapter_opts: %{http2_opts: %{keepalive: 10000}}
+      )
 
   def get_uds_address(),
     do: Application.get_env(:massa_proxy, :user_function_sock_addr, "/var/run/cloudstate.sock")

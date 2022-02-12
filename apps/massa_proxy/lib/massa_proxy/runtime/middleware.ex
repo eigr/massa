@@ -11,21 +11,27 @@ defmodule MassaProxy.Runtime.Middleware do
 
   import MassaProxy.Util, only: [get_connection: 0]
 
+  @impl true
   def init(state) do
     {:ok, state}
+  end
+
+  def start_link(%{name: name} = state) do
+    GenServer.start_link(__MODULE__, state, name: name)
   end
 
   @impl true
   def handle_call(
         {:handle_unary, message},
         _from,
-        %{command_processor: command_processor} = state
+        # %{command_processor: command_processor} = state
+        state
       ) do
     result =
       with {:ok, channel} <- get_connection(),
            {:ok, %ActionResponse{side_effects: effects} = commands} <-
              ActionClient.handle_unary(channel, message),
-           {:ok, result} <- process_command(command_processor, commands) do
+           {:ok, result} <- process_command(nil, commands) do
         handle_effects(effects)
         {:ok, result}
       else
@@ -47,11 +53,18 @@ defmodule MassaProxy.Runtime.Middleware do
     {:noreply, state}
   end
 
+  @impl true
+  def handle_info(msg, state) do
+    Logger.notice("Received unexpected message: #{inspect(msg)}")
+
+    {:noreply, state}
+  end
+
   def unary_req(entity_type, message) do
     GenServer.call(get_name(entity_type), {:handle_unary, message})
   end
 
-  def stream_req(entity_type, messages) do
+  def streamed_req(entity_type, messages) do
     GenServer.call(get_name(entity_type), {:handle_streamed, messages})
   end
 
@@ -76,6 +89,10 @@ defmodule MassaProxy.Runtime.Middleware do
     {:ok, message}
   end
 
+  defp process_command(nil, message) do
+    {:ok, message}
+  end
+
   defp handle_effects([]), do: {:ok, []}
 
   defp handle_effects(effects) when is_list(effects) and length(effects) > 0 do
@@ -83,6 +100,12 @@ defmodule MassaProxy.Runtime.Middleware do
 
   defp handle_effects(_), do: {:ok, []}
 
-  defp get_name(entity_type),
-    do: entity_type |> String.split(".") |> Enum.at(-1)
+  defp get_name(entity_type) do
+    mod =
+      entity_type
+      |> String.split(".")
+      |> Enum.at(-1)
+
+    Module.concat(__MODULE__, mod)
+  end
 end
