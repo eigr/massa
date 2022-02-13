@@ -28,8 +28,13 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Protocol do
     )
   end
 
-  def build_msg(ctx, :payload) do
-    ActionCommand.new(payload: build_payload(ctx))
+  def build_msg(%{service_name: service_name, original_method: original_method} = ctx, :payload) do
+    ActionCommand.new(
+      service_name: service_name,
+      name: original_method,
+      metadata: Metadata.new(),
+      payload: build_payload(ctx)
+    )
   end
 
   @spec build_stream(t()) :: Enumerable.t()

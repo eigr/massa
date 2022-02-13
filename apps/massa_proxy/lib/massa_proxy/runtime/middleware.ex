@@ -50,20 +50,6 @@ defmodule MassaProxy.Runtime.Middleware do
         state
       ) do
     spawn(fn ->
-      # messages = ActionProtocol.build_stream(ctx)
-      # with {:ok, conn} <- get_connection(),
-      #    client_stream = ActionClient.handle_streamed(conn),
-      #    :ok <- client_stream |> run_stream(messages) |> Stream.run(),
-      #    {:ok, consumer_stream} <- GRPC.Stub.recv(client_stream) do
-      #  consumer_stream
-      #  |> Stream.each(fn {:ok, r} ->
-      #    GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
-      #  end)
-      #  |> Stream.run()
-      # else
-      #  {:error, _reason} = err -> err
-      # end
-
       stream_result =
         with {:ok, conn} <- get_connection(),
              client_stream = ActionClient.handle_streamed(conn),
@@ -79,19 +65,22 @@ defmodule MassaProxy.Runtime.Middleware do
               {:ok, %ActionResponse{side_effects: effects} = command} ->
                 Logger.debug("Consumer Stream result: #{inspect(command)}")
 
-                case process_command(nil, context, command) do
-                  {:ok, result} ->
-                    {:ok, result}
+                result =
+                  case process_command(nil, context, command) do
+                    {:ok, result} ->
+                      {:ok, result}
 
-                  {:error, reason} ->
-                    {:error, "Failure on process client stream #{inspect(reason)}"}
-                end
+                    {:error, reason} ->
+                      {:error, "Failure on process command #{inspect(reason)}"}
+                  end
 
                 handle_effects(effects)
+                result
 
               {:error, reason} ->
                 {:error, "Failure on process client stream #{inspect(reason)}"}
             end)
+            |> Enum.to_list()
 
           {:ok, consumer_stream}
         else

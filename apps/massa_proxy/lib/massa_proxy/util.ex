@@ -157,8 +157,8 @@ defmodule MassaProxy.Util do
   def get_connection(),
     do:
       GRPC.Stub.connect(get_address(is_uds_enable?()),
-        interceptors: [GRPC.Logger.Client],
-        adapter_opts: %{http2_opts: %{keepalive: 10000}}
+        interceptors: [GRPC.Logger.Client]
+        # adapter_opts: %{http2_opts: %{keepalive: 10000}}
       )
 
   def get_uds_address(),

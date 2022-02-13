@@ -16,6 +16,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
       consumer_stream
       |> Stream.each(fn
         {:ok, r} ->
+          Logger.info("Decode -----> #{inspect(r)}")
           GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
 
         {:error, _reason} = err ->
