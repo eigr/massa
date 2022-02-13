@@ -2,6 +2,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   @moduledoc """
   This module is responsible for handling stream requests of the Action protocol
   """
+  require Logger
 
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
@@ -52,6 +53,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   end
 
   defp run_stream(client_stream, messages) do
+    Logger.debug("Running client stream #{inspect(messages)}")
     Stream.map(messages, &send_stream_msg(client_stream, &1))
   end
 
@@ -63,10 +65,12 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   end
 
   defp send_stream_msg(client_stream, :halt) do
+    Logger.debug("send_stream_msg :halt")
     GRPC.Stub.end_stream(client_stream)
   end
 
   defp send_stream_msg(client_stream, msg) do
+    Logger.debug("send_stream_msg #{inspect(msg)}")
     GRPC.Stub.send_request(client_stream, msg, [])
   end
 end
