@@ -14,8 +14,13 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
     with messages <- ActionProtocol.build_stream(ctx),
          {:ok, consumer_stream} <- Middleware.streamed_req(ctx, messages) do
       consumer_stream
-      |> Stream.each(fn {:ok, r} ->
-        GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
+      |> Stream.each(fn
+        {:ok, r} ->
+          GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
+
+        {:error, _reason} = err ->
+          Logger.error("Error while handling stream request: #{inspect(err)}")
+          err
       end)
       |> Stream.run()
     else

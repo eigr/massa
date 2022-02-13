@@ -50,29 +50,49 @@ defmodule MassaProxy.Runtime.Middleware do
         state
       ) do
     spawn(fn ->
+      # messages = ActionProtocol.build_stream(ctx)
+      # with {:ok, conn} <- get_connection(),
+      #    client_stream = ActionClient.handle_streamed(conn),
+      #    :ok <- client_stream |> run_stream(messages) |> Stream.run(),
+      #    {:ok, consumer_stream} <- GRPC.Stub.recv(client_stream) do
+      #  consumer_stream
+      #  |> Stream.each(fn {:ok, r} ->
+      #    GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
+      #  end)
+      #  |> Stream.run()
+      # else
+      #  {:error, _reason} = err -> err
+      # end
+
       stream_result =
         with {:ok, conn} <- get_connection(),
              client_stream = ActionClient.handle_streamed(conn),
-             :ok <- client_stream |> run_stream(messages) |> Stream.run(),
-             {:ok, commands} <-
-               GRPC.Stub.recv(client_stream) do
-          Logger.debug("Commands: #{inspect(commands)} Client Stream: #{inspect(client_stream)}")
-          {:ok, commands}
+             :ok <- run_stream(client_stream, messages) |> Stream.run(),
+             {:ok, consumer_stream} <- GRPC.Stub.recv(client_stream) do
+          Logger.debug(
+            "Commands: #{inspect(consumer_stream)} Client Stream: #{inspect(client_stream)}"
+          )
 
           consumer_stream =
-            Stream.map(commands, fn {:ok, it} ->
-              Logger.debug("Yeah: #{inspect(it)}")
+            consumer_stream
+            |> Stream.map(fn
+              {:ok, %ActionResponse{side_effects: effects} = command} ->
+                Logger.debug("Consumer Stream result: #{inspect(command)}")
 
-              case process_command(nil, context, it) do
-                {:ok, result} ->
-                  {:ok, result}
+                case process_command(nil, context, command) do
+                  {:ok, result} ->
+                    {:ok, result}
 
-                {:error, reason} ->
-                  {:error, "Failure on process client stream #{inspect(reason)}"}
-              end
+                  {:error, reason} ->
+                    {:error, "Failure on process client stream #{inspect(reason)}"}
+                end
+
+                handle_effects(effects)
+
+              {:error, reason} ->
+                {:error, "Failure on process client stream #{inspect(reason)}"}
             end)
 
-          # handle_effects(effects)
           {:ok, consumer_stream}
         else
           {:ok, []} ->
@@ -149,8 +169,14 @@ defmodule MassaProxy.Runtime.Middleware do
 
   defp run_stream(client_stream, messages) do
     Logger.debug("Running client stream #{inspect(messages)}")
-    Stream.map(messages, &send_stream_msg(client_stream, &1))
+
+    Stream.filter(messages, &is_command_valid?(&1))
+    |> Stream.map(&send_stream_msg(client_stream, &1))
   end
+
+  defp is_command_valid?(:halt), do: true
+  defp is_command_valid?(%Cloudstate.Action.ActionCommand{payload: nil}), do: false
+  defp is_command_valid?(%Cloudstate.Action.ActionCommand{payload: _payload}), do: true
 
   defp send_stream_msg(client_stream, :halt) do
     Logger.debug("send_stream_msg :halt")
