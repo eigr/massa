@@ -6,10 +6,10 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Unary.Handler do
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
   alias MassaProxy.Runtime.Middleware
 
-  def handle_unary(%{entity_type: entity_type} = ctx) do
+  def handle_unary(ctx) do
     response =
       with message <- ActionProtocol.build_msg(ctx),
-           {:ok, response} <- Middleware.unary_req(entity_type, message) do
+           {:ok, response} <- Middleware.unary_req(ctx, message) do
         ActionProtocol.decode(ctx, response)
       else
         {:error, reason} -> {:error, "Failure to make unary request #{inspect(reason)}"}

@@ -2,6 +2,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   @moduledoc """
   This module is responsible for handling stream requests of the Action protocol
   """
+  require Logger
 
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
@@ -9,16 +10,18 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
 
   import MassaProxy.Util, only: [get_connection: 0]
 
-  def handle_streamed(%{entity_type: entity_type, stream: stream} = ctx) do
+  def handle_streamed(%{stream: stream} = ctx) do
     with messages <- ActionProtocol.build_stream(ctx),
-         {:ok, consumer_stream} <- Middleware.streamed_req(entity_type, messages) do
+         {:ok, consumer_stream} <- Middleware.streamed_req(ctx, messages) do
       consumer_stream
       |> Stream.each(fn {:ok, r} ->
         GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
       end)
       |> Stream.run()
     else
-      {:error, _reason} = err -> err
+      {:error, _reason} = err ->
+        Logger.error("Error while handling stream request: #{inspect(err)}")
+        err
     end
   end
 
