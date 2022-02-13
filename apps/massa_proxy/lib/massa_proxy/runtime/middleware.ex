@@ -60,9 +60,8 @@ defmodule MassaProxy.Runtime.Middleware do
           {:ok, commands}
 
           consumer_stream =
-            Stream.map(commands, fn it ->
+            Stream.map(commands, fn {:ok, it} ->
               Logger.debug("Yeah: #{inspect(it)}")
-              {:ok, it}
 
               case process_command(nil, context, it) do
                 {:ok, result} ->
