@@ -38,10 +38,24 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Protocol do
   end
 
   @spec build_stream(t()) :: Enumerable.t()
-  def build_stream(%{message: msgs} = state) do
+  def build_stream(
+        %{service_name: service_name, original_method: original_method, message: msgs} = state
+      ) do
+    # The first message in will contain the request metadata, including the
+    # service name and command name. It will not have an associated payload set.
+    # This will be followed by zero to many messages in with a payload
+    init_command = [
+      ActionCommand.new(
+        service_name: service_name,
+        name: original_method,
+        metadata: Metadata.new()
+      )
+    ]
+
+    init_command
+    |> Stream.concat(msgs)
     # Need to signal end_of_stream so attach a token to
     # end of the stream so that we can call `GRPC.Stub.end_stream`
-    msgs
     |> Stream.concat([:halt])
     |> Stream.transform({:pre_send, state}, &transform/2)
   end

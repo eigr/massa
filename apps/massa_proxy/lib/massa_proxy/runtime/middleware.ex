@@ -159,13 +159,9 @@ defmodule MassaProxy.Runtime.Middleware do
   defp run_stream(client_stream, messages) do
     Logger.debug("Running client stream #{inspect(messages)}")
 
-    Stream.filter(messages, &is_command_valid?(&1))
+    messages
     |> Stream.map(&send_stream_msg(client_stream, &1))
   end
-
-  defp is_command_valid?(:halt), do: true
-  defp is_command_valid?(%Cloudstate.Action.ActionCommand{payload: nil}), do: false
-  defp is_command_valid?(%Cloudstate.Action.ActionCommand{payload: _payload}), do: true
 
   defp send_stream_msg(client_stream, :halt) do
     Logger.debug("send_stream_msg :halt")
