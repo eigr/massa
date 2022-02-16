@@ -1,4 +1,4 @@
-image=eigr/massa-proxy:0.1.36
+image=eigr/massa-proxy:1.0.0-PREVIEW
 port=8080
 
 .PHONY: all clean
