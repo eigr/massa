@@ -7,6 +7,7 @@ defmodule MassaProxy.Protocol.Router do
 
   alias MassaProxy.Entity.EntityRegistry
   alias MassaProxy.TaskSupervisor
+  alias MassaProxy.Util
 
   @timeout 10000
 
@@ -18,11 +19,9 @@ defmodule MassaProxy.Protocol.Router do
         async \\ false,
         mod,
         fun,
-        payload
+        %{message: payload} = message
       ) do
     with node_entities <- EntityRegistry.lookup(entity_type, service_name, command_name) do
-      Logger.debug("Routing request to #{inspect(node_entities)}")
-
       targets =
         Enum.map(node_entities, fn %{node: member, entity: entity} = _node_entity ->
           if member == node() do
@@ -35,44 +34,42 @@ defmodule MassaProxy.Protocol.Router do
 
       result =
         case Enum.find(targets, fn target -> match?({:local, _, _}, target) end) do
-          {:local, _member, entity} ->
-            Logger.debug("Local: #{entity}")
+          {:local, _member, entities} ->
+            entity = List.first(entities)
 
-            payload = %{
-              payload
+            message = %{
+              message
               | entity_type: entity_type,
-                service_name: service_name,
-                request_type: "unary",
-                original_method: command_name,
+                service_name: entity.full_service_name,
+                request_type: Util.get_type(entity.method),
+                original_method: entity.method_name,
                 input_type: input_type,
-                output_type: "",
-                persistence_id: nil,
+                output_type: to_module(entity.method.output_type),
+                persistence_id: entity.persistence_id,
                 message: payload,
                 stream: nil
             }
 
-            apply(mod, fun, [payload])
+            apply(mod, fun, [message])
 
           nil ->
-            Logger.debug("Remote: #{targets}")
-            {:remote, member, entity} = List.first(targets)
+            {:remote, member, entities} = List.first(targets)
+            entity = List.first(entities)
 
-            Logger.debug("Remote: #{entity}")
-
-            payload = %{
-              payload
+            message = %{
+              message
               | entity_type: entity_type,
-                service_name: service_name,
-                request_type: "unary",
-                original_method: command_name,
+                service_name: entity.full_service_name,
+                request_type: Util.get_type(entity.method),
+                original_method: entity.method_name,
                 input_type: input_type,
-                output_type: "",
-                persistence_id: nil,
+                output_type: to_module(entity.method.output_type),
+                persistence_id: entity.persistence_id,
                 message: payload,
                 stream: nil
             }
 
-            call(member, async, mod, fun, [payload])
+            call(member, async, mod, fun, message)
         end
 
       result
@@ -82,22 +79,40 @@ defmodule MassaProxy.Protocol.Router do
   end
 
   defp call(node, true, mod, fun, args) do
-    Logger.debug("Invoking remote call on node #{inspect(node)}")
+    Logger.info("Invoking async remote call on node #{inspect(node)}")
 
     pid =
       Node.spawn(node, fn ->
-        Kernel.apply(__MODULE__, :route, [mod, fun, args])
+        Kernel.apply(mod, fun, [args])
       end)
 
     {:routed, :fire_and_forget, pid}
   end
 
   defp call(node, false, mod, fun, args) do
+    Logger.info("Invoking sync remote call on node #{inspect(node)}")
+
     remote_result =
       {TaskSupervisor, node}
-      |> Task.Supervisor.async(__MODULE__, :route, [mod, fun, args])
+      |> Task.Supervisor.async(mod, fun, [args])
       |> Task.await(@timeout)
 
     {:routed, remote_result}
+  end
+
+  defp to_module(name) do
+    pre_mod =
+      name
+      |> String.split(".")
+      |> Enum.reject(fn elem -> if elem == "", do: true end)
+      |> Enum.map(&String.capitalize(&1))
+
+    mod =
+      ["Elixir"]
+      |> Enum.concat(pre_mod)
+      |> Enum.join(".")
+      |> String.to_atom()
+
+    mod
   end
 end

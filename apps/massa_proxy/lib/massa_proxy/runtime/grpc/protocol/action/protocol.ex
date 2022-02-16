@@ -1,4 +1,6 @@
 defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Protocol do
+  require Logger
+
   alias Cloudstate.{Action.ActionCommand, Action.ActionResponse, Metadata}
   alias Google.Protobuf.Any
   alias MassaProxy.Util
@@ -84,5 +86,16 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Protocol do
         value: input_type.encode(msg)
       )
 
-  defp decode_payload(output_mod, %{payload: %Any{value: bin}}), do: output_mod.decode(bin)
+  # defp decode_payload(output_mod, %{payload: %Any{value: bin}}) when is_binary(output_mod) do
+  #   mod =
+  #     Any.new(
+  #       type_url: Util.get_type_url("type.googleapis.com/cloudstate.tck.model.action.Response"),
+  #       value: bin
+  #     )
+
+  #   mod.decode(bin)
+  # end
+
+  defp decode_payload(output_mod, %{payload: %Any{value: bin}}) when is_atom(output_mod),
+    do: output_mod.decode(bin)
 end

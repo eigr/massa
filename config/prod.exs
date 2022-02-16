@@ -4,7 +4,7 @@ import Config
 config :logger,
   backends: [:console],
   compile_time_purge_matching: [
-    [level_lower_than: :info]
+    [level_lower_than: :debug]
   ]
 
 config :protobuf, extensions: :enabled

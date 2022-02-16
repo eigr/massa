@@ -15,7 +15,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Unary.Handler do
         {:error, reason} -> {:error, "Failure to make unary request #{inspect(reason)}"}
       end
 
-    Logger.debug(fn -> "User function response #{inspect(response)}" end)
+    Logger.debug(fn -> "Unary.Handler User function response #{inspect(response)}" end)
 
     response
   end

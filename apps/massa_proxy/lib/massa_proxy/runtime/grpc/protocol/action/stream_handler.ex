@@ -5,6 +5,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   require Logger
 
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
+  alias Google.Protobuf.Empty
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
   alias MassaProxy.Runtime.Middleware
 
@@ -15,7 +16,10 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
          {:ok, consumer_stream} <- Middleware.streamed(ctx, messages) do
       consumer_stream
       |> Stream.each(fn
-        {:ok, r} ->
+        {:ok, %Cloudstate.Action.ActionResponse{response: nil}} ->
+          GRPC.Server.send_reply(stream, Empty.new())
+
+        {:ok, %Cloudstate.Action.ActionResponse{response: _response} = r} ->
           GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
 
         {:error, _reason} = err ->

@@ -117,6 +117,18 @@ defmodule MassaProxy.Util do
     evt_ext
   end
 
+  def get_type(method) do
+    type =
+      cond do
+        method.unary == true -> "unary"
+        method.streamed == true -> "streamed"
+        method.stream_in == true -> "stream_in"
+        method.stream_out == true -> "stream_out"
+      end
+
+    type
+  end
+
   def get_type_url(type) when is_binary(type) do
     if String.contains?(type, "type.googleapis.com/") do
       type

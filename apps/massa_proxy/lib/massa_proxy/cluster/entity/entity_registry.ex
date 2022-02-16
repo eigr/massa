@@ -74,64 +74,43 @@ defmodule MassaProxy.Entity.EntityRegistry do
       state
       |> Enum.reduce([], fn {key, value}, acc ->
         for entity <- value do
-          Logger.debug("Acumulator #{inspect(acc)}")
-
           if entity.entity_type == entity_type and entity.service_name == service_name do
             service_data =
               Enum.map(entity.services, fn service ->
-                Logger.debug("Found service #{inspect(service)}")
-
                 if service.name == get_simple_name(service_name) do
-                  Logger.debug("Inside if service")
-
                   method_metadata =
                     Enum.map(service.methods, fn method ->
-                      Logger.debug("Found method #{inspect(method)}")
-
                       if method.name == method_name do
-                        Logger.debug("Inside if method")
-
                         %{
                           entity_type: entity_type,
                           service_name: get_simple_name(service_name),
                           full_service_name: service_name,
                           persistence_id: entity.persistence_id,
                           method_name: method.name,
-                          input_type: method.input_type,
-                          output_type: method.output_type,
-                          stream_in: method.stream_in,
-                          stream_out: method.stream_out,
-                          streamed: method.streamed,
-                          unary: method.unary
+                          method: method
                         }
-
-                        # else
-                        #  %{}
+                      else
+                        %{}
                       end
                     end)
                     |> List.flatten()
                     |> Enum.uniq()
+                    |> List.first()
 
-                  # |> List.first()
-
-                  Logger.debug("Found method metadata #{inspect(method_metadata)}")
                   method_metadata
-                  # else
-                  #  %{}
+                else
+                  %{}
                 end
               end)
               |> List.flatten()
               |> Enum.uniq()
 
-            Logger.debug("Found service data #{inspect(service_data)}")
-            acumulator = [%{node: key, entity: service_data}] ++ acc
-            Logger.debug("Found Acumulator data #{inspect(acumulator)}")
-            acumulator
+            [%{node: key, entity: service_data}] ++ acc
           end
         end
       end)
-      |> Enum.filter(&is_nil/1)
       |> List.flatten()
+      |> Enum.reject(&is_nil/1)
       |> Enum.uniq()
 
     if Enum.all?(nodes, &is_nil/1) do
