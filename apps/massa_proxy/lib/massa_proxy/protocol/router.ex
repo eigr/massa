@@ -3,35 +3,101 @@ defmodule MassaProxy.Protocol.Router do
   Dispatch the given `mod`, `fun`, `args` request
   to the appropriate node based on the `bucket`.
   """
-  def route(bucket, mod, fun, args) do
-    # Get the first byte of the binary
-    first = :binary.first(bucket)
+  require Logger
 
-    # Try to find an entry in the table() or raise
-    entry =
-      Enum.find(table(), fn {enum, _node} ->
-        first in enum
-      end) || no_entry_error(bucket)
+  alias MassaProxy.Entity.EntityRegistry
+  alias MassaProxy.TaskSupervisor
 
-    # If the entry node is the current node
-    if elem(entry, 1) == node() do
-      apply(mod, fun, args)
+  @timeout 10000
+
+  def route(
+        entity_type,
+        service_name,
+        command_name,
+        input_type,
+        async \\ false,
+        mod,
+        fun,
+        payload
+      ) do
+    with node_entities <- EntityRegistry.lookup(entity_type, service_name, command_name) do
+      Logger.debug("Routing request to #{inspect(node_entities)}")
+
+      targets =
+        Enum.map(node_entities, fn %{node: member, entity: entity} = _node_entity ->
+          if member == node() do
+            {:local, node(), entity}
+          else
+            {:remote, member, entity}
+          end
+        end)
+        |> List.flatten()
+
+      result =
+        case Enum.find(targets, fn target -> match?({:local, _, _}, target) end) do
+          {:local, _member, entity} ->
+            Logger.debug("Local: #{entity}")
+
+            payload = %{
+              payload
+              | entity_type: entity_type,
+                service_name: service_name,
+                request_type: "unary",
+                original_method: command_name,
+                input_type: input_type,
+                output_type: "",
+                persistence_id: nil,
+                message: payload,
+                stream: nil
+            }
+
+            apply(mod, fun, [payload])
+
+          nil ->
+            Logger.debug("Remote: #{targets}")
+            {:remote, member, entity} = List.first(targets)
+
+            Logger.debug("Remote: #{entity}")
+
+            payload = %{
+              payload
+              | entity_type: entity_type,
+                service_name: service_name,
+                request_type: "unary",
+                original_method: command_name,
+                input_type: input_type,
+                output_type: "",
+                persistence_id: nil,
+                message: payload,
+                stream: nil
+            }
+
+            call(member, async, mod, fun, [payload])
+        end
+
+      result
     else
-      {KV.RouterTasks, elem(entry, 1)}
-      |> Task.Supervisor.async(KV.Router, :route, [bucket, mod, fun, args])
-      |> Task.await()
+      [] -> {:unrouted, :not_found}
     end
   end
 
-  defp no_entry_error(bucket) do
-    raise "could not find entry for #{inspect(bucket)} in table #{inspect(table())}"
+  defp call(node, true, mod, fun, args) do
+    Logger.debug("Invoking remote call on node #{inspect(node)}")
+
+    pid =
+      Node.spawn(node, fn ->
+        Kernel.apply(__MODULE__, :route, [mod, fun, args])
+      end)
+
+    {:routed, :fire_and_forget, pid}
   end
 
-  @doc """
-  The routing table.
-  """
-  def table do
-    # Replace computer-name with your local machine name
-    [{?a..?m, :"foo@computer-name"}, {?n..?z, :"bar@computer-name"}]
+  defp call(node, false, mod, fun, args) do
+    remote_result =
+      {TaskSupervisor, node}
+      |> Task.Supervisor.async(__MODULE__, :route, [mod, fun, args])
+      |> Task.await(@timeout)
+
+    {:routed, remote_result}
   end
 end

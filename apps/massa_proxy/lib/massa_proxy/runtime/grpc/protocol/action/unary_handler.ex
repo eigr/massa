@@ -9,7 +9,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Unary.Handler do
   def handle_unary(ctx) do
     response =
       with message <- ActionProtocol.build_msg(ctx),
-           {:ok, response} <- Middleware.unary_req(ctx, message) do
+           {:ok, response} <- Middleware.unary(ctx, message) do
         ActionProtocol.decode(ctx, response)
       else
         {:error, reason} -> {:error, "Failure to make unary request #{inspect(reason)}"}

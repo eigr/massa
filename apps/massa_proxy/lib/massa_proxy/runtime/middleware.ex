@@ -6,8 +6,10 @@ defmodule MassaProxy.Runtime.Middleware do
   use GenServer
   require Logger
 
-  alias Cloudstate.Action.ActionResponse
+  alias Cloudstate.{Action.ActionResponse, SideEffect}
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
+  alias MassaProxy.Protocol.Router
+  alias MassaProxy.Runtime.Grpc.Server.Dispatcher
 
   import MassaProxy.Util, only: [get_connection: 0]
 
@@ -32,7 +34,7 @@ defmodule MassaProxy.Runtime.Middleware do
            {:ok, %ActionResponse{side_effects: effects} = commands} <-
              ActionClient.handle_unary(channel, message),
            {:ok, result} <- process_command(nil, context, commands) do
-        handle_effects(effects)
+        handle_effects(context, effects)
         {:ok, result}
       else
         {:error, reason} -> {:error, "Failure to make unary request #{inspect(reason)}"}
@@ -74,7 +76,7 @@ defmodule MassaProxy.Runtime.Middleware do
                       {:error, "Failure on process command #{inspect(reason)}"}
                   end
 
-                handle_effects(effects)
+                handle_effects(context, effects)
                 result
 
               {:error, reason} ->
@@ -104,11 +106,11 @@ defmodule MassaProxy.Runtime.Middleware do
     {:noreply, state}
   end
 
-  def unary_req(%{entity_type: entity_type} = ctx, message) do
+  def unary(%{entity_type: entity_type} = ctx, message) do
     GenServer.call(get_name(entity_type), {:handle_unary, %{context: ctx, payload: message}})
   end
 
-  def streamed_req(%{entity_type: entity_type} = ctx, messages) do
+  def streamed(%{entity_type: entity_type} = ctx, messages) do
     GenServer.call(get_name(entity_type), {:handle_streamed, %{context: ctx, payload: messages}})
   end
 
@@ -140,12 +142,41 @@ defmodule MassaProxy.Runtime.Middleware do
     {:ok, message}
   end
 
-  defp handle_effects([]), do: {:ok, []}
+  defp handle_effects(_ctx, []), do: {:ok, []}
 
-  defp handle_effects(effects) when is_list(effects) and length(effects) > 0 do
+  defp handle_effects(
+         %{entity_type: entity_type} = _ctx,
+         effects
+       )
+       when is_list(effects) and length(effects) > 0 do
+    Enum.each(effects, fn %SideEffect{
+                            service_name: service_name,
+                            command_name: command_name,
+                            synchronous: synchronous,
+                            payload: %Google.Protobuf.Any{type_url: input_type} = payload
+                          } = effect ->
+      Logger.debug(
+        "Handling side effect #{inspect(effect)}} with command name: #{command_name} and input type: #{input_type}"
+      )
+
+      payload = %{
+        message: payload
+      }
+
+      Router.route(
+        entity_type,
+        service_name,
+        command_name,
+        input_type,
+        !synchronous,
+        Dispatcher,
+        :dispatch,
+        payload
+      )
+    end)
   end
 
-  defp handle_effects(_), do: {:ok, []}
+  defp handle_effects(_ctx, _), do: {:ok, []}
 
   defp get_name(entity_type) do
     mod =

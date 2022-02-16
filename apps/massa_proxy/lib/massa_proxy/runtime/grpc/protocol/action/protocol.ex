@@ -75,7 +75,9 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Protocol do
     {[command], acc}
   end
 
-  defp build_payload(%{input_type: input_type, message: msg}),
+  defp build_payload(%{input_type: input_type, message: msg}) when is_binary(input_type), do: msg
+
+  defp build_payload(%{input_type: input_type, message: msg}) when is_atom(input_type),
     do:
       Any.new(
         type_url: Util.get_type_url(input_type),

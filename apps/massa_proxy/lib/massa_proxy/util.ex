@@ -117,7 +117,15 @@ defmodule MassaProxy.Util do
     evt_ext
   end
 
-  def get_type_url(type) do
+  def get_type_url(type) when is_binary(type) do
+    if String.contains?(type, "type.googleapis.com/") do
+      type
+    else
+      raise "Invalid type: #{type}"
+    end
+  end
+
+  def get_type_url(type) when is_atom(type) do
     parts =
       type
       |> to_string
@@ -157,8 +165,8 @@ defmodule MassaProxy.Util do
   def get_connection(),
     do:
       GRPC.Stub.connect(get_address(is_uds_enable?()),
-        interceptors: [GRPC.Logger.Client]
-        # adapter_opts: %{http2_opts: %{keepalive: 10000}}
+        interceptors: [GRPC.Logger.Client],
+        adapter_opts: %{http2_opts: %{keepalive: 10000}}
       )
 
   def get_uds_address(),

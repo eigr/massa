@@ -12,11 +12,10 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
 
   def handle_streamed(%{stream: stream} = ctx) do
     with messages <- ActionProtocol.build_stream(ctx),
-         {:ok, consumer_stream} <- Middleware.streamed_req(ctx, messages) do
+         {:ok, consumer_stream} <- Middleware.streamed(ctx, messages) do
       consumer_stream
       |> Stream.each(fn
         {:ok, r} ->
-          Logger.info("Decode -----> #{inspect(r)}")
           GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
 
         {:error, _reason} = err ->

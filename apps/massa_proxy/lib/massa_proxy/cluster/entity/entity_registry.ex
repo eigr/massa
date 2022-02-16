@@ -66,17 +66,71 @@ defmodule MassaProxy.Entity.EntityRegistry do
     {:noreply, new_state}
   end
 
+  defp get_simple_name(service_name), do: String.split(service_name, ".") |> List.last()
+
   @impl true
-  def handle_call({:get, entity_type}, _from, state) do
+  def handle_call({:get, entity_type, service_name, method_name}, _from, state) do
     nodes =
       state
       |> Enum.reduce([], fn {key, value}, acc ->
         for entity <- value do
-          if entity.entity_type == entity_type do
-            [key] ++ acc
+          Logger.debug("Acumulator #{inspect(acc)}")
+
+          if entity.entity_type == entity_type and entity.service_name == service_name do
+            service_data =
+              Enum.map(entity.services, fn service ->
+                Logger.debug("Found service #{inspect(service)}")
+
+                if service.name == get_simple_name(service_name) do
+                  Logger.debug("Inside if service")
+
+                  method_metadata =
+                    Enum.map(service.methods, fn method ->
+                      Logger.debug("Found method #{inspect(method)}")
+
+                      if method.name == method_name do
+                        Logger.debug("Inside if method")
+
+                        %{
+                          entity_type: entity_type,
+                          service_name: get_simple_name(service_name),
+                          full_service_name: service_name,
+                          persistence_id: entity.persistence_id,
+                          method_name: method.name,
+                          input_type: method.input_type,
+                          output_type: method.output_type,
+                          stream_in: method.stream_in,
+                          stream_out: method.stream_out,
+                          streamed: method.streamed,
+                          unary: method.unary
+                        }
+
+                        # else
+                        #  %{}
+                      end
+                    end)
+                    |> List.flatten()
+                    |> Enum.uniq()
+
+                  # |> List.first()
+
+                  Logger.debug("Found method metadata #{inspect(method_metadata)}")
+                  method_metadata
+                  # else
+                  #  %{}
+                end
+              end)
+              |> List.flatten()
+              |> Enum.uniq()
+
+            Logger.debug("Found service data #{inspect(service_data)}")
+            acumulator = [%{node: key, entity: service_data}] ++ acc
+            Logger.debug("Found Acumulator data #{inspect(acumulator)}")
+            acumulator
           end
         end
       end)
+      |> Enum.filter(&is_nil/1)
       |> List.flatten()
       |> Enum.uniq()
 
@@ -160,8 +214,8 @@ defmodule MassaProxy.Entity.EntityRegistry do
   end
 
   # fetch current entities of the service
-  def lookup(entity_type) do
-    GenServer.call(__MODULE__, {:get, entity_type})
+  def lookup(entity_type, service_name, method_name) do
+    GenServer.call(__MODULE__, {:get, entity_type, service_name, method_name})
   end
 
   defp include_entities(state, message), do: Map.merge(state, message)

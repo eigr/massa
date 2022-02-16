@@ -77,6 +77,8 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager do
   end
 
   defp register_entity(entity) do
+    Logger.debug("Registering entity #{inspect(entity)}")
+
     case entity.entity_type do
       "cloudstate.eventsourced.EventSourced" ->
         MassaProxy.Entity.EntityRegistry.register("EventSourced", [entity])
