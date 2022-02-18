@@ -23,7 +23,9 @@ defmodule MassaProxy.Runtime.Grpc.Server.Dispatcher do
       "Handle stream: #{inspect(stream)}. With persistence id: #{inspect(persistence_id)}"
     )
 
-    with {:ok, _pid} <- MiddlewareSupervisor.start_middleware(payload) do
+    with {:ok, pid} <- MiddlewareSupervisor.start_middleware(payload) do
+      Logger.debug("Started middleware with pid: #{inspect(pid)}")
+
       case entity_type do
         "cloudstate.action.ActionProtocol" -> ActionHandler.handle(payload)
         "cloudstate.eventsourced.EventSourced" -> EventSourcedHandler.handle(payload)

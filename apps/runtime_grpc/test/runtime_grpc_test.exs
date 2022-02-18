@@ -1,8 +1,4 @@
-defmodule RuntimeGrpcTest do
+defmodule Runtime.GRPCTest do
   use ExUnit.Case
-  doctest RuntimeGrpc
-
-  test "greets the world" do
-    assert RuntimeGrpc.hello() == :world
-  end
+  doctest Runtime.GRPC
 end

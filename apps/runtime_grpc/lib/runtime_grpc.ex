@@ -1,18 +1,5 @@
-defmodule RuntimeGrpc do
+defmodule Runtime.GRPC do
   @moduledoc """
-  Documentation for `RuntimeGrpc`.
+  Documentation for `Runtime.Grpc`.
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> RuntimeGrpc.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end

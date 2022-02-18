@@ -1,13 +1,12 @@
-defmodule MassaProxy.Protocol.Router do
+defmodule Runtime.Protocol.Router do
   @doc """
   Dispatch the given `mod`, `fun`, `args` request
   to the appropriate node based on the `bucket`.
   """
   require Logger
 
-  alias MassaProxy.Entity.EntityRegistry
-  alias MassaProxy.TaskSupervisor
-  alias MassaProxy.Util
+  alias ProxyRuntime.TaskSupervisor
+  alias Runtime.{Entity.EntityRegistry, Util}
 
   @timeout 10000
 
@@ -21,6 +20,8 @@ defmodule MassaProxy.Protocol.Router do
         fun,
         %{message: payload} = message
       ) do
+    Logger.debug("Routing #{mod}:#{fun}")
+
     with node_entities <- EntityRegistry.lookup(entity_type, service_name, command_name) do
       targets =
         Enum.map(node_entities, fn %{node: member, entity: entity} = _node_entity ->

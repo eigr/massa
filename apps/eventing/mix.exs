@@ -1,9 +1,9 @@
-defmodule RuntimeGrpc.MixProject do
+defmodule Eventing.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :runtime_grpc,
+      app: :eventing,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -25,9 +25,9 @@ defmodule RuntimeGrpc.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:cloudstate_protocol, in_umbrella: true},
-      {:eigr_protocol, in_umbrella: true},
-      {:runtime, in_umbrella: true}
+      # {:dep_from_hexpm, "~> 0.3.0"},
+      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      # {:sibling_app_in_umbrella, in_umbrella: true}
     ]
   end
 end

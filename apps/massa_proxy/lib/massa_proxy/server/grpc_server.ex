@@ -4,6 +4,7 @@ defmodule MassaProxy.Server.GrpcServer do
 
   alias MassaProxy.{Util, Infra.Cache, Server.HttpRouter}
   alias MassaProxy.Infra.Cache.Distributed
+  alias Runtime.Util
 
   def start(descriptors, entities) do
     case Cache.get(:cached_servers, :grpc) do
@@ -170,7 +171,10 @@ defmodule MassaProxy.Server.GrpcServer do
       entities
       |> Flow.from_enumerable()
       |> Flow.map(
-        &Enum.join([Util.normalize_service_name(&1.service_name), "Service.ProxyService"], ".")
+        &Enum.join(
+          [Util.normalize_service_name(&1.service_name), "Service.ProxyService"],
+          "."
+        )
       )
       |> Enum.to_list()
 

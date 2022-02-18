@@ -8,6 +8,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager do
   alias MassaProxy.CloudstateEntity
   alias MassaProxy.Server.GrpcServer
   alias Google.Protobuf.FileDescriptorSet
+  alias Runtime.{Entity.EntityRegistry, Util}
 
   inject(MassaProxy.Infra.Config)
 
@@ -81,10 +82,10 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager do
 
     case entity.entity_type do
       "cloudstate.eventsourced.EventSourced" ->
-        MassaProxy.Entity.EntityRegistry.register("EventSourced", [entity])
+        EntityRegistry.register("EventSourced", [entity])
 
       "cloudstate.action.ActionProtocol" ->
-        MassaProxy.Entity.EntityRegistry.register("Action", [entity])
+        EntityRegistry.register("Action", [entity])
 
       _ ->
         Logger.warn("Unknown Entity #{entity.entity_type}")
@@ -173,7 +174,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager do
   defp extract_field_attributes(field) do
     has_key =
       if field.options != nil do
-        opts = MassaProxy.Util.contains_key?(field)
+        opts = Util.contains_key?(field)
         Logger.debug("Has key?: #{inspect(opts)}")
       end
 
@@ -195,7 +196,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager do
   defp extract_service_method(method) do
     http_options =
       if method.options != nil do
-        http_rules = MassaProxy.Util.get_http_rule(method)
+        http_rules = Util.get_http_rule(method)
         Logger.debug("MehodOptions: #{inspect(http_rules)}")
 
         %{type: "http", data: http_rules}
@@ -203,7 +204,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Discovery.Manager do
 
     eventing_options =
       if method.options != nil do
-        evt_rules = MassaProxy.Util.get_eventing_rule(method)
+        evt_rules = Util.get_eventing_rule(method)
         Logger.debug("MehodOptions: #{inspect(evt_rules)}")
 
         %{type: "eventing", data: evt_rules}

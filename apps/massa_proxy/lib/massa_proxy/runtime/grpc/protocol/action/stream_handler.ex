@@ -9,7 +9,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
   alias MassaProxy.Runtime.Middleware
 
-  import MassaProxy.Util, only: [get_connection: 0]
+  alias Runtime.Util
 
   def handle_streamed(%{stream: stream} = ctx) do
     with messages <- ActionProtocol.build_stream(ctx),
@@ -37,7 +37,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   def handle_stream_in(ctx) do
     messages = ActionProtocol.build_stream(ctx)
 
-    with {:ok, conn} <- get_connection(),
+    with {:ok, conn} <- Util.get_connection(),
          client_stream = ActionClient.handle_streamed_in(conn),
          task_result <- run_stream(client_stream, messages),
          :ok <- accumlate_stream_result(task_result),
@@ -51,7 +51,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   def handle_stream_out(%{stream: stream} = ctx) do
     message = ActionProtocol.build_msg(ctx, :full)
 
-    with {:ok, conn} <- get_connection(),
+    with {:ok, conn} <- Util.get_connection(),
          {:ok, client_stream} <- ActionClient.handle_streamed_out(conn, message, []) do
       Stream.each(client_stream, fn {:ok, response} ->
         GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, response))

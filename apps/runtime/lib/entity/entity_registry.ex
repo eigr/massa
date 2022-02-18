@@ -1,4 +1,4 @@
-defmodule MassaProxy.Entity.EntityRegistry do
+defmodule Runtime.Entity.EntityRegistry do
   @moduledoc false
   use GenServer
   require Logger
@@ -65,8 +65,6 @@ defmodule MassaProxy.Entity.EntityRegistry do
 
     {:noreply, new_state}
   end
-
-  defp get_simple_name(service_name), do: String.split(service_name, ".") |> List.last()
 
   @impl true
   def handle_call({:get, entity_type, service_name, method_name}, _from, state) do
@@ -198,4 +196,6 @@ defmodule MassaProxy.Entity.EntityRegistry do
   end
 
   defp include_entities(state, message), do: Map.merge(state, message)
+
+  defp get_simple_name(service_name), do: String.split(service_name, ".") |> List.last()
 end

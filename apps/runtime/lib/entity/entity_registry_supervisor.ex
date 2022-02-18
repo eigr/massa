@@ -1,4 +1,4 @@
-defmodule MassaProxy.Entity.EntityRegistry.Supervisor do
+defmodule Runtime.Entity.EntityRegistry.Supervisor do
   @moduledoc false
   use Supervisor
 
@@ -10,7 +10,7 @@ defmodule MassaProxy.Entity.EntityRegistry.Supervisor do
   def init(_args) do
     children = [
       {Phoenix.PubSub, name: :entity_channel},
-      MassaProxy.Entity.EntityRegistry.child_spec(%{})
+      Runtime.Entity.EntityRegistry.child_spec(%{})
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

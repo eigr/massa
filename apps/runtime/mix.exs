@@ -18,6 +18,7 @@ defmodule Runtime.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {Runtime, []},
       extra_applications: [:logger]
     ]
   end
@@ -25,6 +26,8 @@ defmodule Runtime.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:cloudstate_protocol, in_umbrella: true},
+      {:eigr_protocol, in_umbrella: true},
       {:injectx, "~> 0.1"},
       {:flow, "~> 1.0"},
       {:protobuf, "~> 0.9.0", override: true},
@@ -35,7 +38,8 @@ defmodule Runtime.MixProject do
       {:toml, "~> 0.6", override: true},
       {:prometheus, "~> 4.6"},
       {:prometheus_plugs, "~> 1.1"},
-      {:telemetry, "~> 0.4.3"}
+      {:telemetry, "~> 0.4.3"},
+      {:phoenix_pubsub, "~> 2.0"}
     ]
   end
 end

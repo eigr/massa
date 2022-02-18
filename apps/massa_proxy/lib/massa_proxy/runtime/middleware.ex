@@ -8,10 +8,10 @@ defmodule MassaProxy.Runtime.Middleware do
 
   alias Cloudstate.{Action.ActionResponse, SideEffect}
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
-  alias MassaProxy.Protocol.Router
+  alias Runtime.Protocol.Router
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
 
-  import MassaProxy.Util, only: [get_connection: 0]
+  alias Runtime.Util
 
   @impl true
   def init(state) do
@@ -30,10 +30,10 @@ defmodule MassaProxy.Runtime.Middleware do
         state
       ) do
     result =
-      with {:ok, channel} <- get_connection(),
-           {:ok, %ActionResponse{side_effects: effects} = commands} <-
+      with {:ok, channel} <- Util.get_connection(),
+           {:ok, %ActionResponse{side_effects: effects} = command} <-
              ActionClient.handle_unary(channel, message),
-           {:ok, result} <- process_command(nil, context, commands) do
+           {:ok, result} <- process_command(nil, context, command) do
         call_effects(context, effects)
         {:ok, result}
       else
@@ -53,7 +53,7 @@ defmodule MassaProxy.Runtime.Middleware do
       ) do
     spawn(fn ->
       stream_result =
-        with {:ok, conn} <- get_connection(),
+        with {:ok, conn} <- Util.get_connection(),
              client_stream = ActionClient.handle_streamed(conn),
              :ok <- run_stream(client_stream, messages) |> Stream.run(),
              {:ok, consumer_stream} <- GRPC.Stub.recv(client_stream) do
@@ -98,7 +98,7 @@ defmodule MassaProxy.Runtime.Middleware do
   @impl true
   def handle_cast({:handle_effect, ctx}, state) do
     with message <- ActionProtocol.build_msg(ctx),
-         {:ok, channel} <- get_connection(),
+         {:ok, channel} <- Util.get_connection(),
          {:ok, %ActionResponse{} = commands} <-
            ActionClient.handle_unary(channel, message),
          {:ok, result} <- process_command(nil, ctx, commands) do

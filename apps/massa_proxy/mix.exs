@@ -21,7 +21,8 @@ defmodule MassaProxy.MixProject do
     [
       extra_applications: [
         :logger,
-        :observer
+        :observer,
+        :runtime
       ],
       mod: {MassaProxy, []}
     ]
@@ -44,7 +45,6 @@ defmodule MassaProxy.MixProject do
       # Cluster deps
       {:libcluster, "~> 3.3"},
       {:horde, "~> 0.8"},
-      {:phoenix_pubsub, "~> 2.0"},
       {:nebulex, "~> 2.1"},
       {:ranch, "~> 1.8"},
 

@@ -1,18 +1,20 @@
 defmodule Runtime do
   @moduledoc """
-  Documentation for `Runtime`.
+  `Runtime`.
   """
+  use Application
 
-  @doc """
-  Hello world.
+  @impl true
+  def start(_type, _args) do
+    children =
+      [
+        {Task.Supervisor, name: ProxyRuntime.TaskSupervisor},
+        {Runtime.Entity.EntityRegistry.Supervisor, [%{}]}
+      ]
+      |> Stream.reject(&is_nil/1)
+      |> Enum.to_list()
 
-  ## Examples
-
-      iex> Runtime.hello()
-      :world
-
-  """
-  def hello do
-    :world
+    opts = [strategy: :one_for_one, name: ProxyRuntime.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 end
