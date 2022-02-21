@@ -1,4 +1,4 @@
-defmodule MongooseProxyProject.MixProject do
+defmodule Massa.MixProject do
   use Mix.Project
 
   def project do
@@ -6,7 +6,10 @@ defmodule MongooseProxyProject.MixProject do
       apps_path: "apps",
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: [
+        test: "test --no-start"
+      ]
     ]
   end
 
