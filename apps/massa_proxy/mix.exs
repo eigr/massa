@@ -12,7 +12,10 @@ defmodule MassaProxy.MixProject do
       lockfile: "../../mix.lock",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      releases: releases()
+      releases: releases(),
+      aliases: [
+        test: "test --no-start"
+      ]
     ]
   end
 
@@ -66,7 +69,10 @@ defmodule MassaProxy.MixProject do
 
       # Best practices
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:churn, "~> 0.1", only: :dev}
+      {:churn, "~> 0.1", only: :dev},
+
+      # Tests
+      {:local_cluster, "~> 1.2", only: [:test]}
     ]
   end
 
