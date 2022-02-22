@@ -29,7 +29,7 @@ defmodule Runtime.Protocol.Middleware do
 
   @callback handle_stream_out(any(), any()) :: {:ok, Stream.t()} | {:error, any()}
 
-  def do_init(state), do: {:ok, state}
+  def do_init(state), do: {:ok, state, :hibernate}
 
   def handle_effect(_context) do
     raise "Not implemented"
@@ -85,7 +85,7 @@ defmodule Runtime.Protocol.Middleware do
 
       @impl true
       def init(state) do
-        {:ok, state}
+        do_init(state)
       end
 
       @impl true
