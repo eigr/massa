@@ -1,29 +1,32 @@
-defmodule Cloudstate.Eventing do
+defmodule Eigr.Functions.Protocol.Eventing.Eventing do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          in: Cloudstate.EventSource.t() | nil,
-          out: Cloudstate.EventDestination.t() | nil
+          in: Eigr.Functions.Protocol.Eventing.EventSource.t() | nil,
+          out: Eigr.Functions.Protocol.Eventing.EventDestination.t() | nil
         }
   defstruct [:in, :out]
 
   def descriptor do
     # credo:disable-for-next-line
     Elixir.Google.Protobuf.DescriptorProto.decode(
-      <<10, 8, 69, 118, 101, 110, 116, 105, 110, 103, 18, 39, 10, 2, 105, 110, 24, 1, 32, 1, 40,
-        11, 50, 23, 46, 99, 108, 111, 117, 100, 115, 116, 97, 116, 101, 46, 69, 118, 101, 110,
-        116, 83, 111, 117, 114, 99, 101, 82, 2, 105, 110, 18, 46, 10, 3, 111, 117, 116, 24, 2, 32,
-        1, 40, 11, 50, 28, 46, 99, 108, 111, 117, 100, 115, 116, 97, 116, 101, 46, 69, 118, 101,
-        110, 116, 68, 101, 115, 116, 105, 110, 97, 116, 105, 111, 110, 82, 3, 111, 117, 116>>
+      <<10, 8, 69, 118, 101, 110, 116, 105, 110, 103, 18, 61, 10, 2, 105, 110, 24, 1, 32, 1, 40,
+        11, 50, 45, 46, 101, 105, 103, 114, 46, 102, 117, 110, 99, 116, 105, 111, 110, 115, 46,
+        112, 114, 111, 116, 111, 99, 111, 108, 46, 101, 118, 101, 110, 116, 105, 110, 103, 46, 69,
+        118, 101, 110, 116, 83, 111, 117, 114, 99, 101, 82, 2, 105, 110, 18, 68, 10, 3, 111, 117,
+        116, 24, 2, 32, 1, 40, 11, 50, 50, 46, 101, 105, 103, 114, 46, 102, 117, 110, 99, 116,
+        105, 111, 110, 115, 46, 112, 114, 111, 116, 111, 99, 111, 108, 46, 101, 118, 101, 110,
+        116, 105, 110, 103, 46, 69, 118, 101, 110, 116, 68, 101, 115, 116, 105, 110, 97, 116, 105,
+        111, 110, 82, 3, 111, 117, 116>>
     )
   end
 
-  field :in, 1, type: Cloudstate.EventSource
-  field :out, 2, type: Cloudstate.EventDestination
+  field :in, 1, type: Eigr.Functions.Protocol.Eventing.EventSource
+  field :out, 2, type: Eigr.Functions.Protocol.Eventing.EventDestination
 end
 
-defmodule Cloudstate.EventSource do
+defmodule Eigr.Functions.Protocol.Eventing.EventSource do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
@@ -51,7 +54,7 @@ defmodule Cloudstate.EventSource do
   field :event_log, 3, type: :string, oneof: 0
 end
 
-defmodule Cloudstate.EventDestination do
+defmodule Eigr.Functions.Protocol.Eventing.EventDestination do
   @moduledoc false
   use Protobuf, syntax: :proto3
 

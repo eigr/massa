@@ -1,5 +1,6 @@
 defmodule Runtime.GRPC.Protocol.Action.Middleware do
-  use Runtime.Protocol.Middleware, command_processor: Runtime.Protocol.Action.Processor
+  use Runtime.Protocol.Middleware,
+    command_processor: Runtime.GRPC.Protocol.Action.Processor
 
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
   alias Runtime.GRPC.Protocol.Action.Protocol, as: ActionProtocol

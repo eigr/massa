@@ -16,15 +16,15 @@
 
 syntax = "proto3";
 
-package cloudstate.crdt;
+package eigr.functions.protocol.crdt;
 
 // Any is used so that domain events defined according to the functions business domain can be embedded inside
 // the protocol.
 import "google/protobuf/any.proto";
-import "cloudstate/entity.proto";
+import "protocol/entity.proto";
 
-option java_package = "io.cloudstate.protocol";
-option go_package = "cloudstate/protocol";
+option java_package = "io.eigr.functions.protocol";
+option go_package = "github.com/eigr/go-support/eigr/protocol;protocol";
 
 // CRDT Protocol
 //
@@ -85,10 +85,10 @@ message CrdtStreamIn {
         CrdtDelete deleted = 4;
 
         // A command, may be sent at any time.
-        Command command = 5;
+        eigr.functions.protocol.Command command = 5;
 
         // A stream has been cancelled.
-        StreamCancelled stream_cancelled = 6;
+        eigr.functions.protocol.StreamCancelled stream_cancelled = 6;
     }
 }
 
@@ -102,7 +102,7 @@ message CrdtStreamOut {
         // A stream cancelled response, may be sent in response to stream_cancelled.
         CrdtStreamCancelledResponse stream_cancelled_response = 3;
         // A failure. Either sent in response to a command, or sent if some other error occurs.
-        Failure failure = 4;
+        eigr.functions.protocol.Failure failure = 4;
     }
 }
 
@@ -315,9 +315,9 @@ message CrdtReply {
 
     int64 command_id = 1;
 
-    ClientAction client_action = 2;
+    eigr.functions.protocol.ClientAction client_action = 2;
 
-    repeated SideEffect side_effects = 4;
+    repeated eigr.functions.protocol.SideEffect side_effects = 4;
 
     CrdtStateAction state_action = 5;
 
@@ -343,9 +343,9 @@ message CrdtStreamedMessage {
 
     int64 command_id = 1;
 
-    ClientAction client_action = 2;
+    eigr.functions.protocol.ClientAction client_action = 2;
 
-    repeated SideEffect side_effects = 3;
+    repeated eigr.functions.protocol.SideEffect side_effects = 3;
 
     // Indicates the stream should end, no messages may be sent for this command after this.
     bool end_stream = 4;
@@ -354,7 +354,7 @@ message CrdtStreamedMessage {
 message CrdtStreamCancelledResponse {
     int64 command_id = 1;
 
-    repeated SideEffect side_effects = 2;
+    repeated eigr.functions.protocol.SideEffect side_effects = 2;
 
     CrdtStateAction state_action = 3;
 }

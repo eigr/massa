@@ -71,15 +71,22 @@ defmodule Runtime.Protocol.Middleware do
       require Logger
 
       alias Cloudstate.{Action.ActionResponse, SideEffect}
-      alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
       alias Runtime.Protocol.Router
-      alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
 
       alias Runtime
 
       @command_processor opts[:command_processor]
 
-      def start_link(%{name: name} = state) do
+      def child_spec(state \\ %{}) do
+        %{
+          id: __MODULE__,
+          start: {__MODULE__, :start_link, [state]},
+          shutdown: 60_000,
+          restart: :transient
+        }
+      end
+
+      def start_link(%{entity_type: name} = state) do
         GenServer.start_link(__MODULE__, state, name: name)
       end
 
