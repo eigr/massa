@@ -1,0 +1,55 @@
+// gRPC interface for invokable services.
+
+syntax = "proto3";
+
+package eigr.functions.protocol;
+
+import "google/protobuf/any.proto";
+import "entity.proto";
+
+option java_package = "io.eigr.functions.protocol";
+option go_package = "github.com/eigr/go-support/eigr/protocol;protocol";
+
+message Error {
+  string message = 1;
+}
+
+message Request {
+    // The name of the service to forward to.
+    string service_name = 1;
+
+    // The name of the command.
+    string command_name = 2;
+
+    // The payload.
+    google.protobuf.Any payload = 3;
+
+    // The metadata to include with the forward
+    Metadata metadata = 4;
+    
+}
+
+// The response sent by the remote service to the caller.
+message Response {
+
+    // An entity might return some useful information or it might return an error.
+    oneof result {
+        // The result of the function call.
+        google.protobuf.Any payload = 1;
+
+        // The error returned by the remote service.
+        Error error = 2;
+    }
+
+    // Metadata for the reply
+    Metadata metadata = 3;
+   
+}
+
+// Invocation service.
+service ServiceInvoker {
+
+    // Send something to another entity and wait for their response.
+    rpc Invoke(Request) returns (Response) {}
+
+}
