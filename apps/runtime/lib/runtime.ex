@@ -32,14 +32,17 @@ defmodule Runtime do
 
   @impl true
   def init(%State{middlewares: middlewares} = _state) do
-    Enum.map(middlewares, fn %MiddlewareDefinition{entity_type: type, module: _module} =
-                               _middleware ->
-      _process_name = get_name(type)
-    end)
+    middleware_children =
+      Enum.map(middlewares, fn %MiddlewareDefinition{entity_type: type, module: module} =
+                                 _middleware ->
+        process_name = get_name(type)
+        module.child_spec(process_name)
+      end)
 
-    children = [
-      Runtime.Entity.EntityRegistry.child_spec(%{})
-    ]
+    children =
+      [
+        Runtime.Entity.EntityRegistry.child_spec(%{})
+      ] ++ middleware_children
 
     Supervisor.init(children, strategy: :one_for_one)
   end

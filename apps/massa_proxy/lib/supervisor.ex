@@ -2,6 +2,9 @@ defmodule MassaProxy.Children do
   @moduledoc false
   use Supervisor
 
+  alias Runtime
+  alias Runtime.{MiddlewareDefinition, State}
+
   require Logger
 
   def start_link(config) do
@@ -10,13 +13,20 @@ defmodule MassaProxy.Children do
 
   @impl true
   def init(config) do
-    children = [
+    children = mount_supervisor_tree(config)
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  defp mount_supervisor_tree(config) do
+    [
       http_server(config),
       {Registry, [name: MassaProxy.LocalRegistry, keys: :unique]},
       {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
       {DynamicSupervisor,
        [name: MassaProxy.Runtime.MiddlewareSupervisor, strategy: :one_for_one]},
       {MassaProxy.Infra.Cache.Distributed, []},
+      # {Runtime, %State{middlewares: [%MiddlewareDefinition{}]}}
       local_node(),
       %{
         id: CachedServers,
@@ -27,8 +37,6 @@ defmodule MassaProxy.Children do
         start: {MassaProxy.Infra.Cache, :start_link, [[cache_name: :reflection_cache]]}
       }
     ]
-
-    Supervisor.init(children, strategy: :one_for_one)
   end
 
   defp http_server(config) do
