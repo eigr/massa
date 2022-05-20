@@ -30,6 +30,8 @@ The word Massa cannot be associated with anything related to slavery or subservi
 
 It should be noted that the Eigr community repudiates any form of prejudice of any kind and that this community respects and values human rights.
 
+In addition to all that has been said and more importantly, we usually name our projects after natural things, and Massa is also the name of a river that flows through the Swiss Alps. If you want to know more see https://en.wikipedia.org/wiki/Massa_(river)
+
 2. BEAM cold startup time in serverless environments?
 
 The important thing is to emphasize that Serveless cannot be confused with Amazon Lambda. That while Amazon Lambda and Lambda-like Serverless technologies are an implementation of the Serveless concept, this is nowhere near the norm. That serveless is much more about abstracting the underlying infrastructure from developers than about "cold starts fast". And because of the other features of BEAM, we can support a Serveless model that guarantees that your data will be distributed and partitioned in a cluster and that this data can be placed together with the instances of the user functions both in scale-up events and in horizontal scale events to Zero.
