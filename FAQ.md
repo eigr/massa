@@ -20,6 +20,14 @@ Finally, in English pound is pound (Unit of measurement of the Imperial System w
 
 "Massa" is a word from the Portuguese language, in fact one of the founders of Eigr is Brazilian, and therefore a native speaker of the Portuguese language. As described in the previous chapters, the etymological root of the word as well as its metrology does not allow an association of the word Massa with the English word Master. For a Portuguese speaker this association is completely impossible to achieve and therefore it must be considered that the name of our Proxy Sidecar is Portuguese and is based on the meaning given to the physics of the word Massa and has no relationship, given that this relationship is impossible to achieve, with the English word Master.
 
+Furthermore, in modern times the word Massa in Brazilian Portuguese has gained, with greater adherence in speakers of some regions of the interior of Brazil, a connotation, or slang, of ***something good***, ***cool***.
+
+That is:
+
+**Massa = Good thing; At first**.
+
+The word Massa cannot be associated with anything related to slavery or subservience, as the word Master has gained such a meaning today for some English speakers.
+
 It should be noted that the Eigr community repudiates any form of prejudice of any kind and that this community respects and values human rights.
 
 2. BEAM cold startup time in serverless environments?
