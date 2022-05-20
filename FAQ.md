@@ -8,7 +8,7 @@ Massa: Mass is a direct measure of the opposition that a body offers to change i
 
 ## Second
 
-Massa comes from the Latin massa, which means dough, paste, and comes from the Greek, “barley cake”, which in turn comes from mássein, which means “to knead, join, unite”. Mass, we already know, is not the same as weight, as it concerns the force with which a mass is attracted by gravity. In practice, however, weight has been used as a mass control.
+**Massa** comes from the Latin massa, which means dough, paste, and comes from the Greek, “barley cake”, which in turn comes from mássein, which means “to knead, join, unite”. Mass, we already know, is not the same as weight, as it concerns the force with which a mass is attracted by gravity. In practice, however, weight has been used as a mass control.
 
 The word weight comes from the Latin pensum, derived from the verb pendere, which means to hang, to be pending. Two used weights standards were used as standard pens for two used weights. If you thought the word pensum has to do with thought, you're right! The act of thinking is precisely that of comparing things, evaluating them as on a scale, whose name, by the way, comes from bi-lanx, which in Latin literally means two plates.
 
