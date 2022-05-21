@@ -4,6 +4,7 @@ defmodule MassaProxy.Server.GrpcServer do
 
   alias MassaProxy.{Util, Infra.Cache, Server.HttpRouter}
   alias MassaProxy.Infra.Cache.Distributed
+  alias Runtime.Util
 
   def start(descriptors, entities) do
     case Cache.get(:cached_servers, :grpc) do
@@ -170,7 +171,10 @@ defmodule MassaProxy.Server.GrpcServer do
       entities
       |> Flow.from_enumerable()
       |> Flow.map(
-        &Enum.join([Util.normalize_service_name(&1.service_name), "Service.ProxyService"], ".")
+        &Enum.join(
+          [Util.normalize_service_name(&1.service_name), "Service.ProxyService"],
+          "."
+        )
       )
       |> Enum.to_list()
 
@@ -250,18 +254,6 @@ defmodule MassaProxy.Server.GrpcServer do
   defp get_request_type(services),
     do:
       Enum.reduce(services.methods, %{}, fn method, acc ->
-        Map.put(acc, Util.normalize_method_name(method.name), get_type(method))
+        Map.put(acc, Util.normalize_method_name(method.name), Util.get_type(method))
       end)
-
-  defp get_type(method) do
-    type =
-      cond do
-        method.unary == true -> "unary"
-        method.streamed == true -> "streamed"
-        method.stream_in == true -> "stream_in"
-        method.stream_out == true -> "stream_out"
-      end
-
-    type
-  end
 end

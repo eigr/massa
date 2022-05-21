@@ -12,12 +12,12 @@ defmodule MassaProxy.Children do
   def init(config) do
     children = [
       http_server(config),
-      {Task.Supervisor, name: MassaProxy.TaskSupervisor},
       {Registry, [name: MassaProxy.LocalRegistry, keys: :unique]},
       {DynamicSupervisor, [name: MassaProxy.LocalSupervisor, strategy: :one_for_one]},
+      {DynamicSupervisor,
+       [name: MassaProxy.Runtime.MiddlewareSupervisor, strategy: :one_for_one]},
       {MassaProxy.Infra.Cache.Distributed, []},
       local_node(),
-      {MassaProxy.Entity.EntityRegistry.Supervisor, [%{}]},
       %{
         id: CachedServers,
         start: {MassaProxy.Infra.Cache, :start_link, [[cache_name: :cached_servers]]}

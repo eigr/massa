@@ -5,31 +5,39 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   require Logger
 
   alias Cloudstate.Action.ActionProtocol.Stub, as: ActionClient
+  alias Google.Protobuf.Empty
   alias MassaProxy.Runtime.Grpc.Protocol.Action.Protocol, as: ActionProtocol
+  alias MassaProxy.Runtime.Middleware
 
-  import MassaProxy.Util, only: [get_connection: 0]
+  alias Runtime.Util
 
   def handle_streamed(%{stream: stream} = ctx) do
-    messages = ActionProtocol.build_stream(ctx)
-
-    with {:ok, conn} <- get_connection(),
-         client_stream = ActionClient.handle_streamed(conn),
-         :ok <- client_stream |> run_stream(messages) |> Stream.run(),
-         {:ok, consumer_stream} <- GRPC.Stub.recv(client_stream) do
+    with messages <- ActionProtocol.build_stream(ctx),
+         {:ok, consumer_stream} <- Middleware.streamed(ctx, messages) do
       consumer_stream
-      |> Stream.each(fn {:ok, r} ->
-        GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
+      |> Stream.each(fn
+        {:ok, %Cloudstate.Action.ActionResponse{response: nil}} ->
+          GRPC.Server.send_reply(stream, Empty.new())
+
+        {:ok, %Cloudstate.Action.ActionResponse{response: _response} = r} ->
+          GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, r))
+
+        {:error, _reason} = err ->
+          Logger.error("Error while handling stream request: #{inspect(err)}")
+          err
       end)
       |> Stream.run()
     else
-      {:error, _reason} = err -> err
+      {:error, _reason} = err ->
+        Logger.error("Error while handling stream request: #{inspect(err)}")
+        err
     end
   end
 
   def handle_stream_in(ctx) do
     messages = ActionProtocol.build_stream(ctx)
 
-    with {:ok, conn} <- get_connection(),
+    with {:ok, conn} <- Util.get_connection(),
          client_stream = ActionClient.handle_streamed_in(conn),
          task_result <- run_stream(client_stream, messages),
          :ok <- accumlate_stream_result(task_result),
@@ -43,7 +51,7 @@ defmodule MassaProxy.Runtime.Grpc.Protocol.Action.Stream.Handler do
   def handle_stream_out(%{stream: stream} = ctx) do
     message = ActionProtocol.build_msg(ctx, :full)
 
-    with {:ok, conn} <- get_connection(),
+    with {:ok, conn} <- Util.get_connection(),
          {:ok, client_stream} <- ActionClient.handle_streamed_out(conn, message, []) do
       Stream.each(client_stream, fn {:ok, response} ->
         GRPC.Server.send_reply(stream, ActionProtocol.decode(ctx, response))
