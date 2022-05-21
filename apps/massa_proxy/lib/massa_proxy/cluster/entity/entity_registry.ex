@@ -122,7 +122,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
 
   @impl true
   def handle_info({:nodedown, node, _node_type}, state) do
-    Logger.debug(fn -> "Received :nodedown from #{node} rebalancing registred entities" end)
+    Logger.debug(fn -> "Received :nodedown from #{node} rebalancing registered entities" end)
 
     new_state = if Map.has_key?(state, node), do: %{state | node => []}, else: state
 
@@ -131,7 +131,7 @@ defmodule MassaProxy.Entity.EntityRegistry do
 
   @impl true
   def handle_info({:leave, %{node: node}}, state) do
-    Logger.debug(fn -> "Received :leave from #{node} rebalancing registred entities" end)
+    Logger.debug(fn -> "Received :leave from #{node} rebalancing registered entities" end)
 
     new_state = if Map.has_key?(state, node), do: %{state | node => []}, else: state
 
