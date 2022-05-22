@@ -134,9 +134,49 @@ The fact that the user does not have any direct interaction with the database al
 
 ** In development
 
+## Eigr Functions comparisons with other similar offers
+
+* **[AWS Lambda](https://aws.amazon.com/lambda/) or Similar Cloud offers**: TODO
+
+* **[Cloudburst](https://rise.cs.berkeley.edu/projects/cloudburst/)**: TODO
+
+* **[CloudState](https://cloudstate.io/)**: TODO
+
+* **[Dapr](https://dapr.io/sate)**: TODO
+
+* **[Kalix](https://www.kalix.io/)**: TODO
+
+* **[StateFun](https://nightlies.apache.org/flink/flink-statefun-docs-stable/)**: TODO
+
+* **[Workers](https://workers.cloudflare.com/)**: TODO
+
 ## Programming Language Agnostic programming model
 
-TODO
+Eigr Functions allows different programming languages ​​to make use of its features as it provides a high-level protocol that allows any programming language that supports gRPC and Protocol Buffers to develop idiomatic SDKs that make it easy to integrate applications with the Eigr runtime. Eigr. Eigr functions
+
+Furthermore, it is part of our Roadmap to support a Runtime Eigr Functions based on Wasm/Webassembly technology, in this way, in the near future, we will be able to execute Wasm functions directly, thus avoiding the need for an application running together with the Proxy, saving resources. valuable. 
+
+However, we understand that the gRPC protocol provides a simple and efficient mechanism to implement a wider range of SDKs than Wasm, as amazing as Wasm is, this is still a maturing technology, we have closely followed the development of Wasm and we will add support for it in the near future. In this way, it will be up to the developer to choose the type of SDK that best suits their needs.
+
+Initially, we plan or want to add support for the following languages:
+
+| Language  |   Status   	|
+|--- 	    |---	        |
+|Elixir     | In Planning   |
+|JS/TS      | In Planning   |
+|Go   	    | In Refinement |
+|JVM   	    | In Refinement |
+|Python	    | In Refinement |
+|C#  	    | In Planning   |
+|Rust  	    | In Planning   |
+|Dart 	    | In Planning   |
+|Ruby 	    | Wanted        |
+|Lua 	    | Wanted        |
+|F#  	    | Wanted        |
+|C++  	    | Wanted        |
+
+As you can see, we want to go far beyond traditional language support offerings than other existing Serveless offerings.
+
 
 ## Project Status
 
