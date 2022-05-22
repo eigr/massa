@@ -58,7 +58,7 @@ The flow of information is as follows:
                          ┌────▶│PORT 9001│            ┌───▶│ Runtime │                    
 ╔════════════════════╗   │    ╔╩─────────╩═════════╗  │   ╔╩─────────╩═══════════════════════╗
 ║                    ║   │    ║                    ║  │   ║      User Function App           ║
-║     grpc client    ╠───┘    ║  eigr/massa proxy  ╠──┘   ║                                  ║
+║  grpc/http client  ╠───┘    ║  eigr/massa proxy  ╠──┘   ║                                  ║
 ║                    ║        ║                    ║      ║  gcr.io/eigr-io/eigr-go-example  ║
 ╚════════════════════╝        ╚════════════════════╝      ╚══════════════════════════════════╝
 ```
