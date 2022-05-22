@@ -10,7 +10,7 @@ With Massa, the developer only has to worry about their domain objects and their
 
 ## Overview
 
-Massa is a Sidecar Proxy implemented on top of Erlang BEAM VM.
+Massa is implemented on top of Erlang BEAM VM.
 
 We takes advantage of Elixir's simplicity and elegance, mainly because we know the power of Erlang's basic components, such as the features of Beam VM, the OTP structure and the libraries established by the Elixir community, such as Broadway, Libcluster, Horde and Ecto to build a highly efficient, resilient and low memory usage proxy.
 
