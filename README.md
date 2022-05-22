@@ -18,7 +18,7 @@ We takes advantage of Elixir's simplicity and elegance, mainly because we know t
 
 Eigr functions is composed of the following components:
 
-* A Kubernetes controller that acts as a control plane orchestrating deployments of PODs composed of User Roles and Sidecar Proxy.
+* A Kubernetes controller that acts as a control plane orchestrating deployments of PODs composed of User Functions and Sidecar Proxy.
 
 * A proxy that acts as a data plane to forward user traffic to user functions, as well as provide the entire infrastructure for handling statestores and the like. The proxy communicates with the user role via specific runtime implementations which may actually be interfaced via gRPC communication or in the future via the Wasm interface.
 
