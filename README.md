@@ -66,7 +66,7 @@ The flow of information is as follows:
 That is, a client message arriving via gRPC or HTTP is handled by the proxy which then activates the internal process that reflects to the User Function and its state and forwards the request to the User Function. This in turn handles the request and may or may not update the entity's state, returning a response to the Proxy.
 In turn, the proxy updates the entity's state in the Statestore and forwards the final response to the calling client.
 
-The User Function can also choose to forward the request to be handled by another function, which we call **Forwards** or **Effects** (depending on the expected behavior), or even perform an direct **Invocation** on another entity to compose its request handling logic. This is all done transparently by the proxy with idiomatic APIs being provided to user roles via the SDKs.
+The User Function can also choose to forward the request to be handled by another function, which we call **Forwards** or **Effects** (depending on the expected behavior), or even perform an direct **Invocation** on another entity to compose its request handling logic. This is all done transparently by the proxy with idiomatic APIs being provided to user functions via the SDKs.
 
 In Eigr either Forwards, Effects or Invocations can be performed for any entities registered in the cluster (or even for entities remote from the cluster in the future). This is done transparently through the Distributed Erlang stack itself without exposing the User Function to any communication infrastructure needed to perform these actions.
 
