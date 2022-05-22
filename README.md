@@ -2,7 +2,7 @@
 
 <sub>(The name Massa is due to a river near the Eiger mountain in Switzerland)</sub>
 
-[Massa](https://github.com/eigr/massa/blob/main/FAQ.md#first) is a Sidecar proxy part of the Eigr Functions offering that aims to provide a high-level abstraction for Stateful Serveless application development.
+[Massa](https://github.com/eigr/massa/blob/main/FAQ.md#faq) is a Sidecar proxy part of the Eigr Functions offering that aims to provide a high-level abstraction for Stateful Serveless application development.
 
 The Massa proxy is responsible for managing the entire data access infrastructure for user roles, as well as other technical tasks, such as providing the implementation of the user contract via gRPC to the outside world, transcoding HTTP requests to gRPV, caching, making requests to external sources when requested and other tasks that would once have to be performed by the developer directly in his application.
 
