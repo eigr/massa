@@ -20,9 +20,9 @@ Eigr functions is composed of the following components:
 
 * A Kubernetes controller that acts as a control plane orchestrating deployments of PODs composed of User Functions and Sidecar Proxy.
 
-* A proxy that acts as a data plane to forward user traffic to user functions, as well as provide the entire infrastructure for handling statestores and the like. The proxy communicates with the user role via specific runtime implementations which may actually be interfaced via gRPC communication or in the future via the Wasm interface.
+* A proxy that acts as a data plane to forward user traffic to user functions, as well as provide the entire infrastructure for handling statestores and the like. The proxy communicates with the user function via specific runtime implementations which may actually be interfaced via gRPC communication or in the future via the Wasm interface.
 
-* The user role that implements a series of rules defined by the Eigr Functions protocol and that allows the user to develop their applications in a way that focuses only on their business domain objects.
+* The user function that implements a series of rules defined by the Eigr Functions protocol and that allows the user to develop their applications in a way that focuses only on their business domain objects.
 
 Below is a general diagram of all these components:
 
