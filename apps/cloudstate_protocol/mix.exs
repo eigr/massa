@@ -25,7 +25,7 @@ defmodule CloudstateProtocol.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:google_protos, "~> 0.2.0"},
+      {:google_protos, "~> 0.3.0"},
       {:protobuf, ">= 0.0.0"},
       {:grpc, github: "elixir-grpc/grpc", override: true},
       {:cowlib, ">= 0.0.0"}
